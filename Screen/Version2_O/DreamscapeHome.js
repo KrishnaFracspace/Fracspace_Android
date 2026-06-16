@@ -13,6 +13,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import { AppContext } from '../Context/AppContext';
 import { DreamscapeHotels, UpComingHotels } from '../Services/UserApi';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
+import { nearByStaysApi, upComingProjectApi } from '../redux/reducer/propertyReducer';
+import DreamScapeHomeSkeleton from '../component/DreamScapeHomeSkeleton';
 
 
 export default function DreamscapeHome() {
@@ -29,15 +32,30 @@ export default function DreamscapeHome() {
     const [showCalendar, setShowCalendar] = useState(false);
     const [like, setLike] = useState([]);
     const navigation = useNavigation();
-    const [HotelDetails, setHotelDetails] = useState([]);
-    const [UpComingDetails, setUpComingDetails] = useState([]);
-    const data = [
-        { label: 'Hyderabad', value: 'Hyderabad' },
-        { label: 'Munnar', value: 'Munnar' },
-         { label: 'Varanasi', value: 'Varanasi' },
-        // { label: 'Banjara Hills, Hyderabad', value: 'Banjara Hills, Hyderabad' },
-        // { label: 'Banjara Hills, Hyderabad', value: 'Banjara Hills, Hyderabad' },
-    ];
+    const [HotelDetails, setHotelDetails] = useState(globalState?.HotelDetails);
+    const [location, setLocation] = useState(globalState?.location);
+    const [ourStays, setOurStays] = useState(globalState?.ourStays);
+    // const [UpComingDetails, setUpComingDetails] = useState([]);
+    // const data = [
+    //     { label: 'Hyderabad', value: 'Hyderabad' },
+    //     { label: 'Munnar', value: 'Munnar' },
+    //     { label: 'Varanasi', value: 'Varanasi' },
+    // ];
+
+    const data = location?.map(city => ({
+        label: city,
+        value: city
+    }));
+
+    const dispatch = useDispatch();
+  const UpComingDetails  = useSelector(state => state.property.upComingProjects);
+  const nearByStaysDetails = useSelector((state)=> state.property.nearByStays)
+    const loading = useSelector((state)=> state.property.loading)
+//   console.log(UpComingDetails,"======comingProjects=====")
+  useEffect(()=>{
+    dispatch(upComingProjectApi())
+    dispatch(nearByStaysApi({}))
+  },[dispatch])
 
     // Handle date selection
     const handleDayPress = (day) => {
@@ -104,23 +122,31 @@ export default function DreamscapeHome() {
         ]).start();
     };
 
+// 
+    // const handleListedHotels = async () => {
+    //     try {
+    //         let { data: res } = await DreamscapeHotels();
+    //         const hyderbadHotels = res?.hotels.filter(hotel => hotel.location.city === 'Hyderabad');
+    //         const munnarHotels = res?.hotels.filter(hotel => hotel.location.city === 'Munnar');
 
-    const handleListedHotels = async () => {
-        try {
-            let { data: res } = await DreamscapeHotels();
-            const hyderbadHotels = res?.hotels.filter(hotel => hotel.location.city === 'Hyderabad');
-            const munnarHotels = res?.hotels.filter(hotel => hotel.location.city === 'Munnar');
+    //         const cities = [
+    //             ...new Set(res?.hotels.map(hotel => hotel?.location?.city))
+    //         ];
+    //         // console.log("City name: ",cities);
 
-            setHotelDetails([...hyderbadHotels, ...munnarHotels]);
-        } catch (error) {
-            console.log("Errorin Listed Hotels: ", error);
-        }
-    };
+    //         setLocation(cities);
+    //         setOurStays(res?.citySummary);
+    //         // setHotelDetails([...hyderbadHotels, ...munnarHotels]);
+    //         setHotelDetails(res?.hotels);
+    //     } catch (error) {
+    //         console.log("Errorin Listed Hotels: ", error);
+    //     }
+    // };
 
     const handleUpcomingHotels = async () => {
         try {
             let {data : res} = await UpComingHotels();
-            setUpComingDetails(res?.data);
+            // setUpComingDetails(res?.data);
         } catch (error) {
             console.log("Error in UpComing Hotels: ",error);
         }
@@ -129,10 +155,13 @@ export default function DreamscapeHome() {
 
 
     useEffect(() => {
-        handleListedHotels();
-        handleUpcomingHotels();
+        // handleListedHotels();
+        // handleUpcomingHotels();
     }, []);
 
+    if(loading){
+        <DreamScapeHomeSkeleton/>
+    }
 
     return (
         <SafeAreaView style={{ flex: 1 ,backgroundColor:"#0D2038"}}>
@@ -145,7 +174,7 @@ export default function DreamscapeHome() {
             />
             <ScrollView style={{ width: '100%',backgroundColor:'#FAFAFF' }}>
 
-                <ImageBackground resizeMode='cover' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Dreamscape2.png' }}
+                <ImageBackground resizeMode='cover' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/Dreamscape2.png' }}
                     style={{ width: '100%', height: height * 0.34 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center' }}>
                         <TouchableOpacity onPress={() => { navigation.navigate('HomePage'); }}>
@@ -158,7 +187,7 @@ export default function DreamscapeHome() {
                     <View style={{ padding: 20, marginLeft: 10 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 15, color: '#FFFFFF' }}>Hello, {globalState?.userName} </Text>
-                            <Image resizeMode='cover' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Hand.png' }} style={{ width: 18, height: 18 }} />
+                            <Image resizeMode='cover' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/Hand.png' }} style={{ width: 18, height: 18 }} />
                         </View>
                         <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 18, color: '#DDDDDD' }}>A Cozy Escape Awaits – Book Now!</Text>
                     </View>
@@ -245,7 +274,7 @@ export default function DreamscapeHome() {
                 
 
                     <ScrollView horizontal={true}>
-                        {HotelDetails.map((item, index) => {
+                        {HotelDetails?.map((item, index) => {
                             const itemName = item?.name;
                             if (!scaleAnimations[itemName]) {
                                 scaleAnimations[itemName] = new Animated.Value(1);
@@ -265,6 +294,7 @@ export default function DreamscapeHome() {
                                     <View >
                                         <Image resizeMode='cover' source={{ uri: item?.images[0] }} style={{ width: '100%', height: height * 0.22, borderRadius: 30 }} />
                                       
+                                      {item?.offers &&
                                         <View style={{ position: 'absolute', top: 15, left: 15 }}>
                                             <LinearGradient
                                                 colors={['#0000006B', '#9999996B']}
@@ -287,6 +317,7 @@ export default function DreamscapeHome() {
                                                 </Text>
                                             </LinearGradient>
                                         </View>
+                                        }
 
                                         <View style={{ position: 'absolute', top: 15, right: 15 }}>
                                             <TouchableOpacity
@@ -344,19 +375,38 @@ export default function DreamscapeHome() {
 
 
 
+                    {ourStays?.length != 0 &&
+                        <View>
+                            <View style={{ marginTop: 30, marginBottom: 15 }}>
+                                <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 16, color: '#000000' }}>Our Stays</Text>
+                            </View>
 
-                    <View style={{ marginTop: 30, marginBottom: 15 }}>
-                        <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 16, color: '#000000' }}>Our Stays</Text>
-                    </View>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{}}>
+                                {ourStays
+                                    ?.filter(item => item.isVisible)
+                                    ?.map((item, index) => (
+                                        <TouchableOpacity
+                                            key={item.city}
+                                            onPress={() => navigation.navigate('Ourstay', { location: item.city })}
+                                            style={{ paddingRight: 18, alignItems: 'center' }}
+                                        >
+                                            <Image resizeMode="contain" source={{ uri: item.locationImage }} style={{ width: 90, height: 90 }}/>
+                                            <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000', marginTop: 10 }}>{item.city}</Text>
+                                        </TouchableOpacity>
+                                ))}
 
-                    <View style={{ flexDirection: 'row' }}>
+                            </ScrollView>
+                        </View>
+                    }
+
+                    {/* <View style={{ flexDirection: 'row' }}>
                         <TouchableOpacity
                             onPress={() => {
                                 navigation.navigate('Ourstay', { location: 'Hyderabad' });
 
                             }}
                             style={{ paddingRight: 18, alignItems: 'center' }}>
-                            <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Hyderabad.png' }} style={{ width: 90, height: 90 }} />
+                            <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/Hyderabad.png' }} style={{ width: 90, height: 90 }} />
                             <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 11, color: '#000000', marginTop: 10 }}>Hyderabad</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -364,51 +414,50 @@ export default function DreamscapeHome() {
                                 navigation.navigate('Ourstay', { location: 'Munnar', });
 
                             }} style={{ alignItems: 'center' }}>
-                            <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Munnar2.png' }} style={{ width: 91, height: 91 }} />
+                            <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/Munnar2.png' }} style={{ width: 91, height: 91 }} />
                             <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 11, color: '#000000', marginTop: 9 }}>Munnar</Text>
                         </TouchableOpacity>
-                        {/* <View style={{ paddingHorizontal: 18, alignItems: 'center' }}>
-                            <Image resizeMode='cover' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Goa.png' }} style={{ width: 90, height: 90 }} />
-                            <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 11, color: '#000000', marginTop: 10 }}>Goa</Text>
-                        </View>*/}
-                        <TouchableOpacity        onPress={() => {
+                        <TouchableOpacity onPress={() => {
                                 navigation.navigate('Ourstay', { location: 'Varanasi', });
 
                             }} style={{ alignItems: 'center',paddingHorizontal: 18, }}>
-                            <Image resizeMode='cover' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Varanasi.png' }} style={{ width: 90, height: 90 }} />
+                            <Image resizeMode='cover' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/Varanasi.png' }} style={{ width: 90, height: 90 }} />
                             <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 11, color: '#000000', marginTop: 10 }}>Varanasi</Text>
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
 
 
-
-                    <View style={{ marginHorizontal: 0, marginTop: 30 }}>
-                        <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 16, color: '#000000' }}>Coming Soon</Text>
-                    </View>
-
-                    <ScrollView horizontal={true} style={{ }}>
-                        {UpComingDetails.map((item, index) => (
-                            <View key={index} style={{ backgroundColor: '#FFFFFF', padding: 10, marginRight: 20, elevation: 5,marginHorizontal:2,marginVertical:10, borderRadius: 25 }}>
-                                <View>
-                                    <Image source={{ uri: item?.images[0] }} style={{ width: width * 0.5, height: height * 0.178, borderRadius: 20 }} />
-                                    <View style={{ position: 'absolute', bottom: 10, right: 10 }}>
-                                        <LinearGradient colors={["#0000006B", "#9999996B"]}
-                                            style={{ width: 40, height: 40, borderRadius: 40, justifyContent: "center", alignItems: "center", borderColor: "#FFFFFF", borderWidth: 1, }}
-                                        >
-                                            <Icc name={'map'} color={'#DD9D3B'} size={18} />
-                                        </LinearGradient>
-                                    </View>
-                                </View>
-                                <View style={{ marginLeft: 5, marginTop: 10, gap: 2 }}>
-                                    <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 15, color: '#000000' }}>{item?.propertyName}</Text>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Ico name={"location-outline"} size={15} color={"#262D3D"} />
-                                        <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 12, color: '#000000', marginLeft: 3 }}>{item?.location}</Text>
-                                    </View>
-                                </View>
+                    {UpComingDetails.length != 0 &&
+                        <View>
+                            <View style={{ marginHorizontal: 0, marginTop: 30 }}>
+                                <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 16, color: '#000000' }}>Coming Soon</Text>
                             </View>
-                        ))}
-                    </ScrollView>
+
+                            <ScrollView horizontal={true} style={{ }}>
+                                {UpComingDetails?.map((item, index) => (
+                                    <View key={index} style={{ backgroundColor: '#FFFFFF', padding: 10, marginRight: 20, elevation: 5,marginHorizontal:2,marginVertical:10, borderRadius: 25 }}>
+                                        <View>
+                                            <Image source={{ uri: item?.images[0] }} style={{ width: width * 0.5, height: height * 0.178, borderRadius: 20 }} />
+                                            <View style={{ position: 'absolute', bottom: 10, right: 10 }}>
+                                                <LinearGradient colors={["#0000006B", "#9999996B"]}
+                                                    style={{ width: 40, height: 40, borderRadius: 40, justifyContent: "center", alignItems: "center", borderColor: "#FFFFFF", borderWidth: 1, }}
+                                                >
+                                                    <Icc name={'map'} color={'#DD9D3B'} size={18} />
+                                                </LinearGradient>
+                                            </View>
+                                        </View>
+                                        <View style={{ marginLeft: 5, marginTop: 10, gap: 2 }}>
+                                            <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 15, color: '#000000' }}>{item?.propertyName}</Text>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <Ico name={"location-outline"} size={15} color={"#262D3D"} />
+                                                <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 12, color: '#000000', marginLeft: 3 }}>{item?.location}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                ))}
+                            </ScrollView>
+                        </View>
+                    }
 
 
 
@@ -434,7 +483,7 @@ export default function DreamscapeHome() {
                                 // key={index}
                                 onPress={() => {
 
-                                    navigation.navigate('VideoTour', { vlink: `https://fracspace-properties.s3.ap-south-1.amazonaws.com/fracspace_properties_images/houseoffracspace/Comp%201_3.mp4`, location: 'HOF' });
+                                    navigation.navigate('VideoTour', { vlink: `https://d1nj26fz89n9xw.cloudfront.net/fracspace_properties_images/houseoffracspace/Comp%201_3.mp4`, location: 'HOF' });
                                 }}
                                 style={{
                                     //backgroundColor: '#FFFFFF',
@@ -445,7 +494,7 @@ export default function DreamscapeHome() {
                                 }}>
                                 <Image
                                     style={{ width: 120, height: 120, borderRadius: 10 }}
-                                    source={{ uri: 'https://fracspace-properties.s3.ap-south-1.amazonaws.com/fracspace_properties_images/houseoffracspace/image11.jpeg' }}
+                                    source={{ uri: 'https://d1nj26fz89n9xw.cloudfront.net/fracspace_properties_images/houseoffracspace/image11.jpeg' }}
                                 />
                                 <View
                                     style={{
@@ -483,7 +532,7 @@ export default function DreamscapeHome() {
                                 // key={index}
                                 onPress={() => {
 
-                                    navigation.navigate('VideoTour', { vlink: `https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/dreamscapes-video1.mp4`, location: 'DREAMSCAPE' });
+                                    navigation.navigate('VideoTour', { vlink: `https://duixj37yn5405.cloudfront.net/videos/dreamscapes-video1.mp4`, location: 'DREAMSCAPE' });
                                 }}
                                 style={{
                                     //backgroundColor: '#FFFFFF',
@@ -494,7 +543,7 @@ export default function DreamscapeHome() {
                                 }}>
                                 <Image
                                     style={{ width: 120, height: 120, borderRadius: 10 }}
-                                    source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Dreamscape.jpeg' }}
+                                    source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/Dreamscape.jpeg' }}
                                 />
                                 <View
                                     style={{
@@ -534,7 +583,7 @@ export default function DreamscapeHome() {
                                     //  GgoToYosemite(PropertiesArray?.Location);
                                     //navigation.navigate('Contact');
                                     // console.log(item);
-                                    navigation.navigate('VideoTour', { vlink: `https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/MunnarVideo.mp4`, location: 'Hilltop By Fracspace' });
+                                    navigation.navigate('VideoTour', { vlink: `https://duixj37yn5405.cloudfront.net/videos/MunnarVideo.mp4`, location: 'Hilltop By Fracspace' });
                                 }}
                                 style={{
                                     //backgroundColor: '#FFFFFF',
@@ -544,7 +593,7 @@ export default function DreamscapeHome() {
                                 }}>
                                 <Image
                                     style={{ width: 120, height: 120, borderRadius: 10 }}
-                                    source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/images/unnathsir%40munnar.jpeg' }}
+                                    source={{ uri: 'https://duixj37yn5405.cloudfront.net/images/unnathsir%40munnar.jpeg' }}
                                 />
                                 <View
                                     style={{
@@ -580,7 +629,7 @@ export default function DreamscapeHome() {
                             <TouchableOpacity
 
                                 onPress={() => {
-                                    navigation.navigate('VideoTour', { vlink: `https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/IMG_4124.MP4`, location: 'Eleven Views' });
+                                    navigation.navigate('VideoTour', { vlink: `https://duixj37yn5405.cloudfront.net/videos/IMG_4124.MP4`, location: 'Eleven Views' });
                                 }}
                                 style={{
                                     margin: 10,
@@ -588,7 +637,7 @@ export default function DreamscapeHome() {
                                 }}>
                                 <Image
                                     style={{ width: 120, height: 120, borderRadius: 10 }}
-                                    source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/images/elevenviews.jpeg' }}
+                                    source={{ uri: 'https://duixj37yn5405.cloudfront.net/images/elevenviews.jpeg' }}
                                 />
                                 <View
                                     style={{
@@ -622,7 +671,7 @@ export default function DreamscapeHome() {
 
                                 onPress={() => {
 
-                                    navigation.navigate('VideoTour', { vlink: `https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/abode-video1.mp4`, location: 'Fracspace Abode' });
+                                    navigation.navigate('VideoTour', { vlink: `https://duixj37yn5405.cloudfront.net/videos/abode-video1.mp4`, location: 'Fracspace Abode' });
                                 }}
                                 style={{
                                     margin: 10,
@@ -630,7 +679,7 @@ export default function DreamscapeHome() {
                                 }}>
                                 <Image
                                     style={{ width: 120, height: 120, borderRadius: 10 }}
-                                    source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/images/hotelImage1.jpeg' }}
+                                    source={{ uri: 'https://duixj37yn5405.cloudfront.net/images/hotelImage1.jpeg' }}
                                 />
                                 <View
                                     style={{

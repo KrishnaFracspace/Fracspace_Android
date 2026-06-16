@@ -19,17 +19,17 @@ export default function VideoDispay(props) {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 backgroundColor: '#FAFAFF',
-                width: '100%',
+                // width: '100%',
                 //    margin:20
             }}>
-                <TouchableOpacity style={{ flex: 1, padding: 20, }}
+                <TouchableOpacity style={{ padding: 20, }}
                     onPress={() => {
-                        navigation.navigate('Visitor');
-
+                        // navigation.navigate('Visitor');
+                        navigation.goBack();
                     }}>
                     <Icon name="chevron-back-outline" size={25} color={'#000'} />
                 </TouchableOpacity>
-                <TouchableOpacity style={{ flex: 1, padding: 20, }}
+                {/* <TouchableOpacity style={{ flex: 1, padding: 20, }}
                     onPress={() => {
                         navigation.navigate('HomePage');
 
@@ -40,8 +40,10 @@ export default function VideoDispay(props) {
                         color: '#0424CB',
                         textAlign: 'right'
                     }}>EXIT</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
+
+            <View style={{flex:1}}>
 
             <Video
                 source={{ uri: props?.route?.params?.vlink }}
@@ -72,6 +74,7 @@ export default function VideoDispay(props) {
                 }}>
                 {pau == true && <Icon name={'caret-forward'} size={40} color={'#AEAEAE'} />}
             </TouchableOpacity>
+            </View>
         </SafeAreaView>
 
 
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
 
     backgroundVideo: {
         position: 'absolute',
-        top: 20,
+        top: 0,
         left: 0,
         bottom: 0,
         right: 0,

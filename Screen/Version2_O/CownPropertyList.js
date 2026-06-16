@@ -48,7 +48,7 @@ export default function CownPropertyList(props) {
         let payload = JSON.stringify({ email :globalState?.userEmail, });
         try {
             let {data : res} = await LikeData(payload);
-            const likeProp = res?.properties.map(item => item._id);
+            const likeProp = res?.properties?.map(item => item._id);
             // console.log("Likes: ",likeProp)
             setLikedProperty(likeProp);
         } catch (error) {
@@ -160,7 +160,7 @@ export default function CownPropertyList(props) {
                     <TouchableOpacity onPress={() => {
                         setVisible(!visible);
                     }} style={{borderColor:'#0000001A',borderWidth:1,alignItems:'center',justifyContent:'center',borderRadius:30,padding:12}}>
-                        <Image source={{uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Filter1.png'}} style={{width:20,height:20}}/>
+                        <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/Filter1.png'}} style={{width:20,height:20}}/>
                     </TouchableOpacity>
                 </View>
 
@@ -230,7 +230,7 @@ export default function CownPropertyList(props) {
                         const price = parseInt(item.FC_Price.replace(/[^\d]/g, '')); 
                         return price >= priceRange[0] && price <= priceRange[1];
                       })
-                    .map((item, index) => {
+                    ?.map((item, index) => {
                         const itemName = item?.name;
                         const propId = item?._id;
                         const isLiked = likedProperty.includes(propId);
@@ -249,7 +249,7 @@ export default function CownPropertyList(props) {
                             <View>
                                 <Image source={{uri: item?.image?.Image1}} style={{width:'100%',height:200}}/>
                                 <View style={{position:'absolute',bottom:-25,right:25}}>
-                                    <Image resizeMode='contain' source={{uri : 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/HotProperty.png'}} style={{width:60,height:100}}/>
+                                    <Image resizeMode='contain' source={{uri : 'https://duixj37yn5405.cloudfront.net/appImages/HotProperty.png'}} style={{width:60,height:100}}/>
                                 </View>
                             </View>
                             <View style={{position:'absolute',top:15,left:15}}>
@@ -308,11 +308,11 @@ export default function CownPropertyList(props) {
 
                             <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:5}}>
                                 <View style={{flexDirection:'row',alignItems:'center',flex:1}}>
-                                    <Image source={{uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/square.png'}} style={{width:18, height:18}}/>
+                                    <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/square.png'}} style={{width:18, height:18}}/>
                                     <Text style={{fontFamily:'Montserrat-Medium',fontSize:12,color:'#181D27',marginLeft:10}}>{item?.area}</Text>
                                 </View>
                                 <View style={{flexDirection:'row',alignItems:'center',flex:1}}>
-                                    <Image source={{uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/building.png'}} style={{width:20, height:20}}/>
+                                    <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/building.png'}} style={{width:20, height:20}}/>
                                     <Text style={{fontFamily:'Montserrat-Medium',fontSize:12,color:'#181D27',marginLeft:7}}>{item?.P_Type}</Text>
                                 </View>
                             </View>
@@ -348,7 +348,7 @@ export default function CownPropertyList(props) {
                         const price = parseInt(item.FC_Price.replace(/[^\d]/g, '')); 
                         return price >= priceRange[0] && price <= priceRange[1];
                       })
-                    .map((item, index) => {
+                    ?.map((item, index) => {
                         const itemName = item?.name;
                         const propId = item?._id;
                         const isLiked = likedProperty.includes(propId);
@@ -391,7 +391,7 @@ export default function CownPropertyList(props) {
                                     </LinearGradient>
                                 </TouchableOpacity>
                                 <View>
-                                    <Image source={{uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/sold.png'}} style={{width:90,height:30}}/>
+                                    <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/sold.png'}} style={{width:90,height:30}}/>
                                 </View>
                             </View>
                         </View>
@@ -424,11 +424,11 @@ export default function CownPropertyList(props) {
 
                             <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:5}}>
                                 <View style={{flexDirection:'row',alignItems:'center',flex:1}}>
-                                    <Image source={{uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/square.png'}} style={{width:18, height:18}}/>
+                                    <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/square.png'}} style={{width:18, height:18}}/>
                                     <Text style={{fontFamily:'Montserrat-Medium',fontSize:12,color:'#181D27',marginLeft:10}}>{item?.area}</Text>
                                 </View>
                                 <View style={{flexDirection:'row',alignItems:'center',flex:1}}>
-                                    <Image source={{uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/building.png'}} style={{width:20, height:20}}/>
+                                    <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/building.png'}} style={{width:20, height:20}}/>
                                     <Text style={{fontFamily:'Montserrat-Medium',fontSize:12,color:'#181D27',marginLeft:7}}>{item?.P_Type}</Text>
                                 </View>
                             </View>
@@ -490,7 +490,7 @@ export default function CownPropertyList(props) {
                             <View style={{flex:1.5}}>
                                 {filterBy == 'Property Type' &&
                                     <View>
-                                        { uniqueTypes.map((item, index) => (
+                                        { uniqueTypes?.map((item, index) => (
                                             <TouchableOpacity key={index} onPress={() => {
                                                 setPropertyType(prev => prev?.toLowerCase() === item.name.toLowerCase() ? '' : item.name);
                                             }} style={{flexDirection:'row',marginTop:25,paddingHorizontal:20,justifyContent:'space-between'}}>
@@ -511,7 +511,7 @@ export default function CownPropertyList(props) {
                 
                                 {filterBy == 'Location' &&
                                     <View>
-                                        {uniqueCities.map((item, index) => (
+                                        {uniqueCities?.map((item, index) => (
                                             <TouchableOpacity key={index} onPress={() => {
                                                     setLocation(prev => prev?.toLowerCase() === item.name.toLowerCase() ? '' : item.name);
                                                 }}
@@ -599,7 +599,7 @@ export default function CownPropertyList(props) {
                                             <Text style={{fontFamily:'Montserrat-SemiBold',fontSize:14,color:'#000000'}}>Diwali Offers</Text>
                                         </View>
                 
-                                        {couponsData.map((item, index) => (
+                                        {couponsData?.map((item, index) => (
                                             <TouchableOpacity key={index} onPress={() => {
                                                 setCoupons(prev => prev === item?.cou ? '' : item?.cou);
                                             }} style={{flexDirection:'row',marginTop:20,paddingHorizontal:20,}}>

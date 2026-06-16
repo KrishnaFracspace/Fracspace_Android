@@ -1,893 +1,3 @@
-// import {
-//   View,
-//   Text,
-//   ScrollView,
-//   TouchableOpacity,
-//   Image,
-//   StyleSheet,
-//   Dimensions,
-//   Alert,
-//   ActivityIndicator,
-//   BackHandler,
-//   Linking,
-// } from 'react-native';
-// import { useContext, useEffect, useRef, useState } from 'react';
-// import { FontFamily, Color, FontSize, Padding, Border } from './GlobalStyles';
-// import { useNavigation } from '@react-navigation/native';
-// import { AppContext } from './Context/AppContext';
-// const { width, height } = Dimensions.get('window');
-// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-// import IconF from 'react-native-vector-icons/FontAwesome6';
-// import Footer from './Footer';
-// import {
-//   DisLike,
-//   Like,
-//   LikeData,
-//   Login,
-//   ProfileDetails,
-//   PropertyDetails,
-// } from './Services/UserApi';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { SafeAreaView } from 'react-native-safe-area-context';
-
-// export default function Home(props) {
-//   const [loader, setLoader] = useState(false);
-//   const { globalState, setGlobalState } = useContext(AppContext);
-//   const navigation = useNavigation();
-//   const [Properties, setProperties] = useState(props?.route?.params?.details || globalState?.ProDetails);
-//   const [PropertiesArray, setPropertiesArray] = useState([]);
-//   const [IsLike, setIsLike] = useState([]);
-//   const [Display, setDisplay] = useState(0);
-//   const [offer, setOffer] = useState(globalState?.offer);
-//   const handleDisLike = async Productid => {
-//     let payload = JSON.stringify({
-//       email: globalState?.userEmail,
-//       propertyId: Productid,
-//     });
-
-//     try {
-//       let { data: res } = await DisLike(payload);
-//       if (res?.success) {
-//         const filteredNumbers = IsLike.filter(number => number !== Productid);
-//         setIsLike(filteredNumbers);
-//       }
-//     } catch (error) {
-//       if (error?.response) {
-//         Alert.alert('Response Error', `${error?.response?.data?.message}`);
-//       } else if (error?.request) {
-//         //console.log('Request error:', `${JSON.stringify(error)}`);
-//         Alert.alert('Request error:', 'Please Check Your Internet Connection');
-//       } else {
-//         Alert.alert('Error:', `${error?.message}`);
-//       }
-//     }
-//   };
-
-//   const handleLike = async item => {
-//     let payload = JSON.stringify({
-//       email: globalState?.userEmail,
-//       propertyId: item?._id,
-//     });
-
-//     try {
-//       let { data: res } = await Like(payload);
-
-//       if (res?.success) {
-//         //setIsLike(Productid);
-//         setIsLike([...IsLike, item?._id]);
-//       } else {
-//         handleDisLike(item?._id);
-//       }
-//     } catch (error) {
-//       if (error?.response) {
-//         Alert.alert('Response Error', `${error?.response?.data?.message}`);
-//       } else if (error?.request) {
-//         Alert.alert('Request error:', 'Please Check Your Internet Connection');
-//       } else {
-//         Alert.alert('Error:', `${error?.message}`);
-//       }
-//     }
-//   };
-
-
-
-//   const handleAllLike = async () => {
-//     const email = await AsyncStorage.getItem('Email');
-//     let payload = JSON.stringify({
-//       email: email,
-//     });
-//     try {
-//       let { data: res } = await LikeData(payload);
-
-//       if (res?.success) {
-//         setGlobalState(prevState => ({
-//           ...prevState,
-//           LikeData: res?.pIds,
-//         }));
-//         setIsLike(res?.pIds);
-//       }
-//     } catch (error) {
-//       if (error?.response) {
-//         Alert.alert('Response Error', `${error?.response?.data?.message}`);
-//       } else if (error?.request) {
-
-//         Alert.alert('Request error:', 'Please Check Your Internet Connection');
-//       } else {
-//         Alert.alert('Error:', `${error?.message}`);
-//       }
-//     }
-//   };
-
-//   useEffect(() => {
-
-//     handleAllLike();
-
-//   }, []);
-
-
-
-
-
-
-
-
-
-
-
-
-
-//   return (
-
-//     <SafeAreaView style={{ flex: 1, backgroundColor: '#021265' }}>
-//       <View style={[styles.iphone13Mini9, { paddingVertical: 10 }]}>
-
-//         <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-//           <View style={{ flex: 1, paddingTop: 20, paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-
-//             <Text
-//               style={[
-//                 styles.jonathan,
-//                 ,
-//                 { fontSize: 22, },
-//               ]}>
-//               {" "}Hi, {globalState?.userName}!
-//             </Text>
-//           </View>
-//           <TouchableOpacity style={{ flex: 1 }}
-//             onPress={() => {
-//               navigation.navigate('HomePage');
-
-//             }}>
-//             <Text style={{
-//               fontSize: 15,
-
-//               fontFamily: 'WorkSans-SemiBold',
-//               color: '#0424CB',
-//               textAlign: 'right',
-//               marginRight: 10,
-//               padding: 10,
-
-//             }}>EXIT</Text>
-//           </TouchableOpacity>
-//         </View>
-//         <ScrollView horizontal={true}>
-//           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10, paddingTop: 30, width: '100%', flex: 1 }}>
-//             <TouchableOpacity
-
-//               onPress={() => {
-//                 const filtered = globalState?.ProDetails.filter(user =>
-//                   user?.P_Type.includes('APARTMENT'),
-//                 );
-//                 setProperties(filtered);
-//                 setDisplay(1);
-//               }}
-
-//             >
-//               <View style={{ alignItems: 'center' }}>
-//                 <View style={{ justifyContent: 'center', borderColor: Display == 1 ? '#C2D8F7' : '#FAFAFF', borderWidth: 20, width: 80, height: 80, borderRadius: 80, alignItems: 'center' }}>
-//                   <Image
-//                     style={{ width: 60, height: 60 }}
-//                     resizeMode='contain'
-//                     source={require('./assets/fillter11.png')}
-//                   />
-//                 </View>
-//                 <Text
-//                   style={{ paddingHorizontal: 8, fontFamily: 'WorkSans-Bold', fontSize: 16, color: '#021265', paddingBottom: 20 }}>
-//                   Apartment
-//                 </Text>
-
-//               </View>
-//             </TouchableOpacity>
-//             <TouchableOpacity
-//               style={{ paddingHorizontal: 12 }}
-//               onPress={() => {
-//                 const filtered = globalState?.ProDetails.filter(user =>
-//                   user?.P_Type.includes('VILLA'),
-//                 );
-//                 setProperties(filtered);
-//                 setDisplay(2);
-//               }}
-
-//             >
-//               <View style={{ alignItems: 'center' }}>
-//                 <View style={{ justifyContent: 'center', borderColor: Display == 2 ? '#C1DFE8' : '#FAFAFF', borderWidth: 20, width: 80, height: 80, borderRadius: 80, alignItems: 'center' }}>
-//                   <Image
-
-//                     style={{ width: 60, height: 60 }}
-//                     resizeMode='contain'
-//                     source={require('./assets/filter22.png')}
-//                   />
-//                 </View>
-//                 <Text
-//                   style={{ paddingHorizontal: 8, fontFamily: 'WorkSans-Bold', fontSize: 16, color: '#021265', paddingBottom: 20 }}>
-//                   Villa
-//                 </Text>
-//               </View>
-//             </TouchableOpacity>
-//             <TouchableOpacity
-
-//               onPress={() => {
-//                 const filtered = globalState?.ProDetails.filter(user =>
-//                   user?.P_Type.includes('FARM HOUSE'),
-//                 );
-//                 setProperties(filtered);
-//                 setDisplay(3);
-//               }}
-
-//             >
-//               <View style={{ alignItems: 'center' }}>
-//                 <View style={{ justifyContent: 'center', borderColor: Display == 3 ? '#EFE8DA' : '#FAFAFF', borderWidth: 20, width: 80, height: 80, borderRadius: 80, alignItems: 'center' }}>
-//                   <Image
-
-//                     style={{ width: 60, height: 60 }}
-//                     resizeMode='contain'
-//                     source={require('./assets/filter33.png')}
-//                   />
-//                 </View>
-
-//                 <Text
-//                   style={{ paddingHorizontal: 8, fontFamily: 'WorkSans-Bold', fontSize: 16, color: '#021265', paddingBottom: 20 }}>
-//                   Farm House
-//                 </Text>
-//               </View>
-//             </TouchableOpacity>
-//             <TouchableOpacity
-//               style={{ paddingHorizontal: 10 }}
-//               onPress={() => {
-//                 const filtered = globalState?.ProDetails.filter(user =>
-//                   user?.P_Type.includes('RESORT'),
-//                 );
-//                 setProperties(filtered);
-//                 setDisplay(4);
-//               }}
-
-//             >
-//               <View style={{ alignItems: 'center' }}>
-//                 <View style={{ justifyContent: 'center', borderColor: Display == 4 ? '#FFECDE' : '#FAFAFF', borderWidth: 20, width: 80, height: 80, borderRadius: 80, alignItems: 'center' }}>
-//                   <Image
-//                     style={{ width: 60, height: 60 }}
-//                     resizeMode='contain'
-//                     source={require('./assets/filter44.png')}
-//                   />
-//                 </View>
-
-//                 <Text
-//                   style={{ paddingHorizontal: 8, fontFamily: 'WorkSans-Bold', fontSize: 16, color: '#021265', paddingBottom: 20 }}>
-//                   Resort
-//                 </Text>
-//               </View>
-//             </TouchableOpacity>
-//           </View>
-//         </ScrollView>
-
-//         <ScrollView style={{ backgroundColor: '#FAFAFF' }}>
-
-
-//           <View
-//             style={{
-//               paddingHorizontal: 10,
-//               // paddingTop: 0,
-//               flexDirection: 'row',
-//               justifyContent: 'space-between',
-//               alignItems: 'center',
-
-//               paddingTop: 20,
-//               paddingBottom: 10
-
-//             }}>
-//             <Text style={[styles.textTypo2, { paddingVertical: 0, color: '#081F62', fontFamily: 'WorkSans-Bold', fontSize: 18 }]}>
-//               Featured Estates
-//             </Text>
-//             <TouchableOpacity onPress={() => {
-//               setProperties(props?.route?.params?.details);
-//               setDisplay(0);
-//             }} >
-//               <Text style={{ fontSize: 10, color: '#081F62', fontFamily: 'WorkSans-SemiBold', borderBottomColor: '#081F62', borderBottomWidth: 1 }}>View All</Text>
-//             </TouchableOpacity>
-//           </View>
-//           {loader == true ? (
-//             <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 100 }}>
-//               <ActivityIndicator size="large" color="#043862" /></View>) : <View style={{ marginBottom: 20 }}>
-//             {Properties.map((item, index) => (
-//               <TouchableOpacity
-//                 key={index}
-//                 style={{
-//                   borderBottomWidth: 1,
-//                   borderLeftWidth: 1,
-//                   borderRightWidth: 1,
-//                   borderTopWidth: 0.3,
-//                   alignItems: 'center',
-//                   justifyContent: 'space-between',
-//                   marginHorizontal: 10,
-//                   flexDirection: 'row',
-//                   borderColor: '#DADADA',
-//                   flex: 1,
-//                   //padding: 10,
-//                   borderRadius: 15,
-//                   marginVertical: 10,
-//                   backgroundColor: 'white',
-//                   shadowColor: '#000',
-//                   shadowOffset: { width: 0, height: 2 },
-//                   shadowOpacity: 0.3,
-//                 }}
-//                 onPress={() => {
-
-//                   navigation.navigate('Property', { details: item });
-//                 }}>
-//                 <View style={{ flex: 1 }}>
-//                   <Image
-//                     style={{
-//                       width: width * 0.95,
-//                       height: height * 0.25,
-//                       borderTopLeftRadius: 15,
-//                       borderTopRightRadius: 15,
-//                       opacity: item?.AvailableFractions == 0 ? 0.5 : null,
-//                     }}
-//                     source={{ uri: item?.image?.Image1 }}
-//                   />
-//                   <View
-//                     style={{
-//                       position: 'absolute',
-//                       margin: 10,
-//                       backgroundColor: IsLike.includes(`${item?._id}`) ? 'white' : '#043862',
-
-//                       alignItems: 'center',
-//                       justifyContent: 'center',
-//                       height: 40,
-//                       width: 40,
-//                       borderRadius: 40,
-//                     }}>
-//                     <TouchableOpacity
-//                       onPress={() => {
-//                         if (IsLike.includes(`${item?._id}`)) {
-//                           handleDisLike(item?._id);
-//                         } else {
-//                           handleLike(item);
-//                         }
-//                       }}>
-//                       {IsLike.includes(`${item?._id}`) ? (
-//                         <Icon
-//                           name={'cards-heart'}
-//                           size={25}
-//                           color={'#FF3659'}
-//                         />
-//                       ) : (
-//                         <Icon
-//                           name={'cards-heart'}
-//                           size={20}
-//                           color={'#FFFFFF'}
-//                         />
-//                       )}
-//                     </TouchableOpacity>
-//                   </View>
-
-
-
-//                   {item?.H_property && (
-//                     <View
-//                       style={{
-//                         width: '100%',
-//                         height: height * 0.25,
-//                         position: 'absolute',
-//                         justifyContent: 'flex-end',
-//                         flex: 1,
-//                         alignItems: 'flex-end',
-
-//                         marginLeft: '8%',
-//                       }}>
-//                       <Image
-//                         style={{
-//                           width: 150,
-//                           height: 150,
-//                         }}
-//                         source={require('./assets/HotProperty.png')}
-//                       />
-//                     </View>
-//                   )}
-//                   {item?.AvailableFractions == 0 && (
-//                     <View
-//                       style={{
-//                         width: '100%',
-//                         position: 'absolute',
-//                         flex: 1,
-//                         alignItems: 'flex-end',
-//                       }}>
-//                       <Image
-//                         style={{
-//                           width: 60,
-//                           height: 60,
-//                           borderRadius: 60,
-//                         }}
-//                         source={require('./assets/SoldOut2.png')}
-//                       />
-//                     </View>
-//                   )}
-//                   <View style={{ marginHorizontal: 0, marginVertical: 10 }}>
-//                     <View
-//                       style={{
-//                         flexDirection: 'row',
-//                         justifyContent: 'space-between',
-//                         flex: 1,
-//                         marginHorizontal: 6,
-
-//                       }}>
-//                       <View style={{ flex: 2, alignItems: 'flex-start' }}>
-//                         <Text
-//                           style={
-//                             { fontSize: 12, color: '#081F62', fontFamily: 'Montserrat-SemiBold', }
-//                           }>
-//                           {item?.name}
-//                         </Text>
-//                       </View>
-//                       <View style={{ flex: 1, alignItems: 'flex-end' }}>
-//                         <Text
-//                           style={{ fontSize: 14, color: '#081F62', fontFamily: 'Montserrat-SemiBold', }}>
-//                           {'\u20B9'}{item?.Price}
-//                         </Text>
-//                       </View>
-//                     </View>
-//                     <View
-//                       style={{
-//                         flexDirection: 'row',
-//                         justifyContent: 'space-between',
-//                         marginHorizontal: 10,
-//                         flex: 1,
-//                         paddingTop: 5
-//                       }}>
-//                       <Text
-//                         style={[
-//                           styles.textTypo2,
-//                           {
-//                             paddingLeft: 0,
-//                             fontSize: 12,
-//                             fontFamily: 'Montserrat-Medium',
-//                           },
-//                         ]}>
-//                         Frac Price
-//                       </Text>
-//                       <Text
-//                         style={[
-//                           styles.textTypo2,
-//                           {
-//                             paddingLeft: 0,
-//                             letterSpacing: 0.3,
-//                             fontSize: 12,
-//                             fontFamily: 'OpenSans-SemiBold',
-//                           },
-//                         ]}>
-//                         {'\u20B9'}
-//                         {item?.FC_Price}
-//                       </Text>
-//                     </View>
-//                     <View
-//                       style={{
-//                         flexDirection: 'row',
-//                         justifyContent: 'space-between',
-//                         marginHorizontal: 10,
-//                         flex: 1,
-//                         paddingBottom: 5
-//                       }}>
-//                       <Text
-//                         style={[
-//                           styles.textTypo2,
-//                           {
-//                             paddingLeft: 0,
-//                             fontSize: 12,
-//                             fontFamily: 'Montserrat-Medium',
-//                           },
-//                         ]}>
-//                         Available Fractions
-//                       </Text>
-//                       <Text
-//                         style={[
-//                           styles.textTypo2,
-//                           {
-
-//                             letterSpacing: 0.3,
-//                             fontSize: 12,
-//                             fontFamily: 'OpenSans-SemiBold',
-
-//                           },
-//                         ]}>
-//                         {item?.AvailableFractions}
-//                       </Text>
-//                     </View>
-//                     <View
-//                       style={{
-//                         flexDirection: 'row',
-//                         justifyContent: 'space-between',
-//                         marginVertical: 5,
-//                       }}>
-//                       <View style={{ paddingLeft: 8, flex: 1, width: '100%' }}>
-//                         <View style={[styles.layout1, { borderBottomColor: '#F0EFFB', borderBottomWidth: 1, paddingTop: 8 }]}>
-
-
-//                           <Text style={[styles.text15, styles.textTypo, { color: '#4D5369', paddingBottom: 10 }]}>
-//                             {item?.Type}
-//                           </Text>
-//                         </View>
-
-
-//                       </View>
-//                       <View
-//                         style={{
-//                           paddingHorizontal: 25,
-//                           borderBottomLeftRadius: 20,
-//                           borderTopLeftRadius: 20,
-//                           alignItems: 'center',
-//                           justifyContent: 'center',
-//                           borderColor: '#043862',
-//                           backgroundColor: '#043862',
-//                         }}>
-//                         <Text
-//                           style={{ color: '#FFFFFF', fontFamily: 'OpenSans-Bold', fontSize: 12 }}>
-//                           View Details
-//                         </Text>
-//                       </View>
-//                     </View>
-//                     <View style={[styles.layout1, { marginLeft: 10, alignItems: 'center' }]}>
-//                       <Icon
-//                         name="arrow-expand-all"
-//                         size={15}
-//                         color="#043862"
-//                       />
-//                       <Text style={[styles.textTypo, { color: '#000929', textAlign: 'center', }]}> {item?.area}</Text>
-//                     </View>
-//                   </View>
-//                 </View>
-//               </TouchableOpacity>
-//             ))}
-//           </View>}
-//           <View
-//             style={{
-//               paddingHorizontal: 10,
-//               flexDirection: 'row',
-//               justifyContent: 'space-between',
-//               alignItems: 'center',
-//               paddingBottom: 20
-
-//             }}>
-//             <Text style={[styles.textTypo2, { paddingVertical: 0, color: '#081F62', fontFamily: 'WorkSans-Bold', fontSize: 18 }]}>
-//               Go beyond your Typical Stay
-//             </Text>
-
-
-//           </View>
-//           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-//             <ScrollView horizontal={true}>
-//               <View
-//                 style={{
-//                   backgroundColor: 'white',
-//                   margin: 10,
-//                   paddingBottom: 80,
-//                 }}>
-//                 <Image
-//                   style={{ borderRadius: 10, width: 160, height: 260 }}
-//                   source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/WhatsApp+Image+2024-12-27+at+4.25.29+PM.jpeg' }}
-//                 />
-//                 <View
-//                   style={{
-//                     position: 'absolute',
-//                     alignItems: 'center',
-//                     justifyContent: 'flex-end',
-//                     width: '100%',
-//                     height: 240,
-//                     paddingHorizontal: 20
-//                   }}>
-//                   <Text style={{ fontSize: 14, fontFamily: 'Montserrat-Bold', color: '#FFFFFF', textAlign: 'center' }}>24/7 Concierge Servies</Text>
-//                 </View>
-//               </View>
-//               <View
-
-//                 style={{
-//                   backgroundColor: '#FFFFFF',
-//                   margin: 10,
-//                   paddingBottom: 10,
-//                 }}>
-//                 <Image
-//                   style={{ borderRadius: 10, width: 160, height: 260 }}
-//                   source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/20.jpeg' }}
-//                 />
-//                 <View
-//                   style={{
-//                     position: 'absolute',
-//                     alignItems: 'center',
-//                     justifyContent: 'flex-end',
-//                     width: '100%',
-//                     height: 240,
-//                     paddingHorizontal: 20
-//                     // paddingLeft: 20
-//                   }}>
-//                   <Text style={{ fontSize: 14, fontFamily: 'Montserrat-Bold', color: '#FFFFFF', textAlign: 'center' }}>Marketing For Rental Units</Text>
-//                 </View>
-//               </View>
-//               <View
-
-//                 style={{
-//                   backgroundColor: 'white',
-//                   margin: 10,
-//                   paddingBottom: 10,
-//                 }}>
-//                 <Image
-//                   style={{ borderRadius: 10, width: 160, height: 260 }}
-//                   source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/WhatsApp+Image+2024-12-27+at+4.27.19+PM.jpeg' }}
-//                 />
-//                 <View
-//                   style={{
-//                     position: 'absolute',
-//                     alignItems: 'center',
-//                     justifyContent: 'flex-end',
-//                     width: '100%',
-//                     height: 240,
-//                     paddingHorizontal: 20
-//                   }}>
-//                   <Text style={{ fontSize: 14, fontFamily: 'Montserrat-Bold', color: '#FFFFFF', textAlign: 'center' }}>Guest Management</Text>
-//                 </View>
-//               </View>
-//               <View
-
-//                 style={{
-//                   backgroundColor: 'white',
-//                   margin: 10,
-//                   paddingBottom: 10,
-//                 }}>
-//                 <Image
-//                   style={{ borderRadius: 10, width: 160, height: 260 }}
-//                   source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/WhatsApp+Image+2024-12-27+at+4.27.28+PM.jpeg' }}
-//                 />
-//                 <View
-//                   style={{
-//                     position: 'absolute',
-//                     alignItems: 'center',
-//                     justifyContent: 'flex-end',
-//                     width: '100%',
-//                     height: 240,
-//                     paddingHorizontal: 20
-//                   }}>
-//                   <Text style={{ fontSize: 14, fontFamily: 'Montserrat-Bold', color: '#FFFFFF', textAlign: 'center' }}>Property Documentation</Text>
-//                 </View>
-//               </View>
-//               <View
-
-//                 style={{
-//                   backgroundColor: 'white',
-//                   margin: 10,
-//                   paddingBottom: 10,
-//                   borderRadius: 8
-//                 }}>
-//                 <Image
-//                   style={{ borderRadius: 10, width: 160, height: 260 }}
-//                   source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/WhatsApp+Image+2024-12-27+at+4.27.37+PM.jpeg' }}
-//                 />
-//                 <View
-//                   style={{
-//                     position: 'absolute',
-//                     alignItems: 'center',
-//                     justifyContent: 'flex-end',
-//                     width: '100%',
-//                     height: 220,
-//                     paddingHorizontal: 20
-//                   }}>
-//                   <Text style={{ fontSize: 14, fontFamily: 'Montserrat-Bold', color: '#FFFFFF', textAlign: 'center' }}>Easy Exit</Text>
-//                 </View>
-//               </View>
-//             </ScrollView>
-//           </View>
-
-
-//         </ScrollView>
-
-//       </View>
-//       <Footer navigation={navigation} activeFooterTab={'home'} />
-//     </SafeAreaView>
-
-//   );
-// }
-// const styles = StyleSheet.create({
-//   itemHeaderTextButton1: {
-//     left: 2,
-//   },
-//   customModal: {
-//     width: '100%',
-//     paddingBottom: 20,
-//     marginBottom: 5,
-//   },
-
-
-//   maskGroupIconLayout: {
-//     width: 40,
-//     height: 40,
-//   },
-
-//   buttonLocationSmall: {
-//     backgroundColor: '#dde8ff',
-//     padding: Padding.p_5xs,
-//     // height: 56,
-//     borderRadius: Border.br_31xl,
-//   },
-//   layoutPosition: {
-//     marginTop: 10,
-//   },
-
-//   buttonLocationSmall1: {
-//     backgroundColor: '#e7dffd',
-//     marginLeft: 10,
-//     padding: Padding.p_5xs,
-//     // height: 56,
-//     borderRadius: Border.br_31xl,
-//   },
-//   text6Typo: {
-//     marginLeft: 8,
-//     // letterSpacing: 0.4,
-//     color: Color.colorGray,
-//     fontSize: FontSize.size_sm,
-//     textAlign: 'left',
-//   },
-//   layout: {
-//     flexDirection: 'row',
-//     //position: "absolute",
-//   },
-//   rural: {
-//     fontFamily: FontFamily.interSemiBold,
-//   },
-//   buttonSpaceBlock: {
-//     paddingBottom: Padding.p_5xs,
-//     paddingRight: Padding.p_base,
-//     paddingTop: Padding.p_5xs,
-//     paddingLeft: Padding.p_5xs,
-//     marginLeft: 10,
-//     //height: 56,
-//     borderRadius: Border.br_31xl,
-//   },
-//   materialSymbolsLighthomeIcon: {
-//     height: 15,
-//     width: 18,
-//     overflow: 'hidden',
-//   },
-//   text15: {
-//     marginLeft: 2,
-//   },
-//   textTypo: {
-//     color: Color.greyMedium,
-//     fontSize: FontSize.size_xs,
-//     textAlign: 'left',
-//     fontFamily: FontFamily.interRegular,
-//   },
-
-//   text17: {
-//     color: Color.colorGray,
-//     // letterSpacing: 0.5,
-//     textAlign: 'left',
-//     fontSize: FontSize.size_base,
-//   },
-
-//   textTypo3: {
-//     fontFamily: FontFamily.interSemiBold,
-//   },
-//   text6: {
-//     fontFamily: FontFamily.interSemiBold,
-//   },
-
-//   iphone13Mini9: {
-//     backgroundColor: '#FAFAFF',
-//     flex: 1,
-//     overflow: 'hidden',
-//     width: '100%',
-//   },
-//   iphone13Mini9Item: {
-//     // top: -164,
-//     left: -137,
-//     width: 330,
-//     height: 150,
-//     opacity: 0.15,
-//     position: 'absolute',
-//   },
-//   frameParent: {
-//     width: '100%',
-//     flexDirection: 'row',
-//     // position: "absolute",
-//   },
-
-//   iconLayout1: {
-//     height: 24,
-//     width: 24,
-//     overflow: 'hidden',
-//     // marginLeft: 10,
-//   },
-//   californiaus: {
-//     color: '#252d4b',
-//     marginLeft: 4,
-//     fontSize: FontSize.size_sm,
-//     fontFamily: FontFamily.interMedium,
-//     textAlign: 'left',
-//   },
-//   layout1: {
-//     justifyContent: 'flex-start',
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-//   title: {
-//     top: 100,
-//     left: 17,
-//     fontSize: FontSize.size_lg,
-//     // letterSpacing: 0.5,
-//     position: 'absolute',
-//   },
-//   jonathan: {
-//     //fontFamily: 'Futura XBlk BT',
-//     fontFamily: 'Montserrat-Bold',
-//     color: '#1E2135',
-//   },
-
-//   textTypo2: {
-//     fontFamily: FontFamily.interBold,
-//     color: '#000000',
-//     //letterSpacing: 0.5,
-//     fontSize: FontSize.size_lg,
-//     textAlign: 'left',
-//     paddingLeft: 5,
-//   },
-//   renderItem1_parentView1: {
-//     backgroundColor: '#ffffff',
-//     borderRadius: 18,
-//     height: 150,
-//     width: 320,
-//     justifyContent: 'space-around',
-//     alignItems: 'center',
-//     overflow: 'hidden',
-//     //marginVertical: 20,
-//   },
-//   renderItem1_img: {
-//     width: 320,
-//     height: 150,
-//   },
-//   maskGroupIconLayout1: {
-//     width: 110,
-//     height: 90,
-//     // marginLeft:20
-//   },
-//   image: {
-//     width,
-//     //borderBottomLeftRadius:40,
-//     // borderTopRightRadius:60,
-//     //borderBottomLeftRadius:60,
-//     // borderWidth:3,
-//     borderRadius: 3,
-//     //borderColor:'#043862',
-//     flex: 1,
-//   },
-//   wrapper: {},
-//   container: {
-//     flex: 1,
-//     // borderRadius:80,
-
-//     alignItems: 'center',
-//     // padding:20
-//   },
-// });
-
-
-
 import { View, Text,  ScrollView, TouchableOpacity, TextInput, Image, ImageBackground, Dimensions, Modal, Animated, Alert } from 'react-native'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -906,11 +16,15 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Footer from './Footer';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProperties } from './redux/reducer/homeReducer';
+import PropertySkeleton from './component/PropertySkeleton ';
 
 
 export default function Home(props) {
   // console.log('Response: ',props?.route?.params?.details);
-  const [PropertyDetails, setPropertyDetails] = useState(props?.route?.params?.details||[]);
+  // const [PropertyDetails, setPropertyDetails] = useState(props?.route?.params?.details||[]);
+
   // const [indianProp, setIndianProp] = useState(props?.route?.params?.details.filter(
   //         item => item.country === 'srilanka',
   //       ));
@@ -918,7 +32,9 @@ export default function Home(props) {
 
   // const { indianProp, srilankaProp, setPropertyDesc } = useContext(CoOwnContext);
  const { globalState, setGlobalState } = useContext(AppContext);
-  const [selectCountry, setSelectCountry] = useState('India');
+  
+  const [PropertyDetails, setPropertyDetails] = useState(globalState?.ProDetails);
+  // console.log("GLobal state: ", globalState?.ProDetails);
   const [propDetails, setPropDetails] = useState([]);
   const [likedProperty, setLikedProperty] = useState([]);
   const [propertyType, setPropertyType] = useState([]);
@@ -926,6 +42,7 @@ export default function Home(props) {
   const [apartment, setApartment] = useState('');
   const [categories, setCategories] = useState('All')
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectCountry, setSelectCountry] = useState(globalState?.prior || '');
 
   const navigation = useNavigation();
   const { width } = Dimensions.get('window');
@@ -935,23 +52,38 @@ export default function Home(props) {
   const [visible, setVisible] = useState(false);
   const [like, setLike] = useState([]);
   const [hasUsedFilters, setHasUsedFilters] = useState(false);
+  // const dispatch = useDispatch();
+  //   const PropertyDetails = useSelector(state => state.home.Properties);
+  //   const prior = useSelector(state => state.home.prior);
+  //   const loading = useSelector(state => state.home.loading);
+
+  //   const [selectCountry, setSelectCountry] = useState(prior || '');
+  //   // console.log("Prope: ",prior);
 
   const scaleAnimation = useRef({}).current;
 
-
+// useEffect(() => {
+//       dispatch(fetchProperties());
+//       //dispatch(fetchPopularHotels());
+//     }, []);
 
   useEffect(() => {
+    // console.log("Propwrerereer: ",PropertyDetails);
     if (selectCountry == 'India') {
       const indianProperties = PropertyDetails.filter(
         item => !item.country && item.PropertyType == 'Domastic',
       );
+      // console.log("IndianPopr: ",indianProperties);
       indianProperties.sort((a, b) => (a.num > b.num ? 1 : -1));
       setPropDetails(indianProperties);
     } else {
       const srilankaProperties = PropertyDetails.filter(
-        item => item.country == 'International',
+        item => item.country == 'International' || item?.PropertyType === 'International-Villa',
       );
+      // console.log("Srilan: ", srilankaProperties);
+
       srilankaProperties.sort((a, b) => (a.num > b.num ? 1 : -1));
+      // console.log("Srilan: ", srilankaProperties);
       setPropDetails(srilankaProperties);
     }
   }, [selectCountry]);
@@ -970,7 +102,7 @@ export default function Home(props) {
           LikeData: res?.pIds,
         }));
 
-        const likeProp = res?.properties.map(item => item._id);
+        const likeProp = res?.properties?.map(item => item._id);
         setLikedProperty(likeProp);
       }
     } catch (error) {
@@ -1125,21 +257,22 @@ export default function Home(props) {
   const filteredAvlProps = (propDetails || [])
     .filter(item => item.AvailableFractions > 0)
     .filter((prop) => {
-      if (propertyType.length > 0) {
+      // console.log("FIltttttttlllll: ",prop)
+      if (propertyType?.length > 0) {
         return propertyType.some(type => prop.P_Type?.toLowerCase() === type.toLowerCase());
       }
       return true;
     })
     .filter((prop) => {
-      if (location.length > 0) {
+      if (location?.length > 0) {
         return location.some(loc => prop.city?.toLowerCase() === loc.toLowerCase());
       }
       return true;
     })
-    .filter((item) => {
-      const price = parseInt(item.FC_Price.replace(/[^\d]/g, ''));
-      return price >= priceRange[0] && price <= priceRange[1];
-    })
+    // .filter((item) => {
+    //   const price = parseInt(item.FC_Price.replace(/[^\d]/g, ''));
+    //   return price >= priceRange[0] && price <= priceRange[1];
+    // })
     .filter((item) => {
       if (searchQuery.trim() !== '') {
         return item.name?.toLowerCase().includes(searchQuery.toLowerCase()) || item.Location?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -1150,13 +283,13 @@ export default function Home(props) {
   const filteredNonAvlProps = (propDetails || [])
     .filter(item => item.AvailableFractions === 0)
     .filter(prop => {
-      if (propertyType.length > 0) {
+      if (propertyType?.length > 0) {
         return propertyType.includes(prop.P_Type?.toLowerCase());
       }
       return true;
     })
     .filter(loc => {
-      if (location.length > 0) {
+      if (location?.length > 0) {
         return location.includes(loc.city?.toLowerCase());
       }
       return true;
@@ -1172,12 +305,22 @@ export default function Home(props) {
       return true;
     });
 
+    const formatIndianAmount = (amount) => {
+        if (amount == null) return '0';
+        return Number(amount).toLocaleString('en-IN');
+    };
+
+    // if(loading){
+    //   <PropertySkeleton/>
+    // }
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
-      <ScrollView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#021265' }}>
+      <ScrollView style={{backgroundColor:'#FFF'}}>
         <View style={{ padding: 20, backgroundColor: '#FFFFFF', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomColor: '#0000001A', borderBottomWidth: 1, paddingTop: 40 }}>
           <TouchableOpacity onPress={() => {
-            navigation.navigate('HomePage');
+            // navigation.navigate('HomePage');
+            navigation.popToTop();
           }} style={{ backgroundColor: '#FFFFFF' }}>
             <Icc name={'chevron-left'} size={20} color={'#000000'} />
           </TouchableOpacity>
@@ -1200,7 +343,7 @@ export default function Home(props) {
             <TouchableOpacity onPress={() => {
               setVisible(!visible);
             }} style={{ borderColor: '#0000001A', borderWidth: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 30, padding: 12 }}>
-              <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Filter1.png' }} style={{ width: 20, height: 20 }} />
+              <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/Filter1.png' }} style={{ width: 20, height: 20 }} />
             </TouchableOpacity>
           </View>
 
@@ -1217,7 +360,7 @@ export default function Home(props) {
             </TouchableOpacity>
           </View>
 
-          {(hasUsedFilters || propertyType.length > 0 || location.length > 0 || priceRange[0] !== defaultRange[0] || priceRange[1] !== defaultRange[1]) &&
+          {(hasUsedFilters || propertyType?.length > 0 || location?.length > 0 || priceRange[0] !== defaultRange[0] || priceRange[1] !== defaultRange[1]) &&
             <View style={{ marginBottom: 15 }}>
               <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 15, color: '#191D31' }}>Categories</Text>
 
@@ -1235,16 +378,16 @@ export default function Home(props) {
                   style={{
                     borderRadius: 20, padding: 8, paddingHorizontal: 20,
                     backgroundColor:
-                      propertyType.length === 0 &&
-                        location.length === 0 &&
+                      propertyType?.length === 0 &&
+                        location?.length === 0 &&
                         priceRange[0] === defaultRange[0] && priceRange[1] === defaultRange[1] ? '#0F1130' : '#FFFFFF',
                     borderColor:
-                      propertyType.length === 0 &&
-                        location.length === 0 &&
+                      propertyType?.length === 0 &&
+                        location?.length === 0 &&
                         priceRange[0] === defaultRange[0] && priceRange[1] === defaultRange[1] ? 'transparent' : '#0061FF1A',
                     borderWidth:
-                      propertyType.length === 0 &&
-                        location.length === 0 &&
+                      propertyType?.length === 0 &&
+                        location?.length === 0 &&
                         priceRange[0] === defaultRange[0] &&
                         priceRange[1] === defaultRange[1]
                         ? 0
@@ -1252,17 +395,17 @@ export default function Home(props) {
                   }}
                 >
                   <Text style={{
-                    fontFamily: propertyType.length === 0 &&
-                      location.length === 0 && priceRange[0] === defaultRange[0] &&
+                    fontFamily: propertyType?.length === 0 &&
+                      location?.length === 0 && priceRange[0] === defaultRange[0] &&
                       priceRange[1] === defaultRange[1] ? 'WorkSans-SemiBold' : 'WorkSans-Regular',
                     fontSize: 12,
-                    color: propertyType.length === 0 &&
-                      location.length === 0 &&
+                    color: propertyType?.length === 0 &&
+                      location?.length === 0 &&
                       priceRange[0] === defaultRange[0] && priceRange[1] === defaultRange[1] ? '#FFFFFF' : '#191D31',
                   }}>All</Text>
                 </TouchableOpacity>
 
-                {propertyType.length > 0 && propertyType.map((type, index) => (
+                {propertyType?.length > 0 && propertyType?.map((type, index) => (
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
@@ -1289,7 +432,7 @@ export default function Home(props) {
                   </TouchableOpacity>
                 )}
 
-                {location.length > 0 && location.map((loc, index) => (
+                {location?.length > 0 && location?.map((loc, index) => (
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
@@ -1309,17 +452,18 @@ export default function Home(props) {
             <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 15, color: '#191D31' }}>Filtered Properties</Text>
           </View>
 
-          {filteredAvlProps.length === 0 && filteredNonAvlProps.length === 0 ?
+          {filteredAvlProps?.length === 0 && filteredNonAvlProps?.length === 0 ?
             (
               <View style={{ alignItems: 'center', marginTop: 50 }}>
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/NoResultt.jpg' }} style={{ width: width * 0.7, height: 200 }} />
+                <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/NoResultt.jpg' }} style={{ width: width * 0.7, height: 200 }} />
                 <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 16, color: '#191D31', marginTop: 20 }}>No properties match your selected filters</Text>
                 <Text style={{ fontFamily: 'WorkSans-Regular', fontSize: 13, color: '#7A7A7A', marginTop: 5 }}>Try adjusting or resetting filters</Text>
               </View>
             )
             :
             (filteredAvlProps
-              .map((item, index) => {
+              ?.map((item, index) => {
+                // console.log("FilterAvlProp: ",filteredAvlProps);
                 const itemName = item?.name;
                 const propId = item?._id;
                 const isLiked = likedProperty.includes(propId);
@@ -1330,13 +474,14 @@ export default function Home(props) {
                   <TouchableOpacity onPress={() => {
                     // setPropertyDesc(item);
                     // navigation.navigate('CoOwnPropDetail');
-                    navigation.navigate('Property', { details: item });
+                    navigation.navigate('Property', { details: item, Id: item?._id });
+                    // console.log("Id: ",item?._id);
                   }} key={index} style={{ borderColor: '#0000001A', borderWidth: 1, backgroundColor: '#FFFFFF', padding: 10, elevation: 5, marginTop: 20 }}>
                     <View>
                       <View>
                         <Image source={{ uri: item?.image?.Image1 }} style={{ width: '100%', height: 200 }} />
                         <View style={{ position: 'absolute', bottom: -25, right: 25 }}>
-                          <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/HotProperty.png' }} style={{ width: 60, height: 100 }} />
+                          <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/HotProperty.png' }} style={{ width: 60, height: 100 }} />
                         </View>
                       </View>
                       <View style={{ position: 'absolute', top: 15, left: 15 }}>
@@ -1375,6 +520,7 @@ export default function Home(props) {
                           <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: '#1E3A8A' }}>₹{item?.Price}</Text>
                         </View>
                       </View>
+                      {item?.name !== 'ALTAIRA – VILLA' &&
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                         <View style={{ flex: 2 }}>
                           <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000000' }}>Frac value:</Text>
@@ -1383,6 +529,7 @@ export default function Home(props) {
                           <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#1E3A8A' }}>₹ {item?.FC_Price}</Text>
                         </View>
                       </View>
+              }
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
                         <View style={{ flex: 2 }}>
                           <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000000' }}>Available Frac</Text>
@@ -1395,11 +542,11 @@ export default function Home(props) {
 
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                          <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/square.png' }} style={{ width: 18, height: 18 }} />
+                          <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/square.png' }} style={{ width: 18, height: 18 }} />
                           <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#181D27', marginLeft: 10 }}>{item?.area}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                          <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/building.png' }} style={{ width: 20, height: 20 }} />
+                          <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/building.png' }} style={{ width: 20, height: 20 }} />
                           <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#181D27', marginLeft: 7 }}>{item?.P_Type}</Text>
                         </View>
                       </View>
@@ -1410,7 +557,7 @@ export default function Home(props) {
             )}
 
           {filteredNonAvlProps
-            .map((item, index) => {
+            ?.map((item, index) => {
               const itemName = item?.name;
               const propId = item?._id;
               const isLiked = likedProperty.includes(propId);
@@ -1422,7 +569,7 @@ export default function Home(props) {
                 <TouchableOpacity onPress={() => {
                   // setPropertyDesc(item);
                   // navigation.navigate('CoOwnPropDetail');
-                    navigation.navigate('Property', { details: item });
+                    navigation.navigate('Property', { details: item, Id: item?._id});
                 }} key={index} style={{ borderColor: '#0000001A', borderWidth: 1, backgroundColor: '#FFFFFF', padding: 10, elevation: 5, marginTop: 20 }}>
                   <View>
                     <ImageBackground source={{ uri: item?.image?.Image1 }} style={{ width: '100%', height: 200 }}>
@@ -1454,7 +601,7 @@ export default function Home(props) {
                         </LinearGradient>
                       </TouchableOpacity>
                       <View>
-                        <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/sold.png' }} style={{ width: 90, height: 30 }} />
+                        <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/sold.png' }} style={{ width: 90, height: 30 }} />
                       </View>
                     </View>
                   </View>
@@ -1487,11 +634,11 @@ export default function Home(props) {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                        <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/square.png' }} style={{ width: 18, height: 18 }} />
+                        <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/square.png' }} style={{ width: 18, height: 18 }} />
                         <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#181D27', marginLeft: 10 }}>{item?.area}</Text>
                       </View>
                       <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                        <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/building.png' }} style={{ width: 20, height: 20 }} />
+                        <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/building.png' }} style={{ width: 20, height: 20 }} />
                         <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#181D27', marginLeft: 7 }}>{item?.P_Type}</Text>
                       </View>
                     </View>
@@ -1549,7 +696,7 @@ export default function Home(props) {
               <View style={{ flex: 1.5 }}>
                 {filterBy == 'Property Type' &&
                   <View>
-                    {uniqueTypes.map((item, index) => (
+                    {uniqueTypes?.map((item, index) => (
                       <TouchableOpacity
                         key={index}
                         onPress={() => {
@@ -1580,7 +727,7 @@ export default function Home(props) {
 
                 {filterBy == 'Location' &&
                   <View>
-                    {uniqueCities.map((item, index) => (
+                    {uniqueCities?.map((item, index) => (
                       <TouchableOpacity
                         key={index}
                         onPress={() => {
@@ -1639,19 +786,19 @@ export default function Home(props) {
                       />
                     </View>
                     <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
-                      <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 13, color: '#000000' }}>Finalized Price Range</Text>
+                      <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 13, color: '#000000' }}>Finalised Price Range</Text>
 
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 15 }}>
                         <View style={{}}>
                           <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#101010' }}>Min</Text>
                           <Text style={{ color: '#386BF6', fontFamily: 'Montserrat-SemiBold', fontSize: 15, marginTop: 5 }}>
-                            {`₹${priceRange[0]}`}
+                            {`₹${formatIndianAmount(priceRange[0])}`}
                           </Text>
                         </View>
                         <View style={{}}>
                           <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#101010' }}>Max</Text>
                           <Text style={{ color: '#386BF6', fontFamily: 'Montserrat-SemiBold', fontSize: 15, marginTop: 5 }}>
-                            {`₹${priceRange[1]}`}
+                            {`₹${formatIndianAmount(priceRange[1])}`}
                           </Text>
                         </View>
                       </View>
@@ -1679,7 +826,7 @@ export default function Home(props) {
           </View>
         </Modal>
       }
-      <Footer navigation={navigation} activeFooterTab={'home'} />
+      {/* <Footer navigation={navigation} activeFooterTab={'home'} /> */}
     </SafeAreaView>
   )
 }

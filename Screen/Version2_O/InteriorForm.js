@@ -29,7 +29,7 @@ export default function InteriorForm() {
                         <TouchableOpacity style={{ flex: 1, paddingVertical: 20, }}
                             onPress={() => {
                                 navigation.navigate('HomePage');
-
+                                // navigation.goBack();
                             }}>
                             <Icon name="chevron-back-outline" size={25} color={'#000'} />
                         </TouchableOpacity>

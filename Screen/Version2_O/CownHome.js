@@ -22,8 +22,8 @@ export default function CownHome() {
     const testimonials = [
         {
             name: 'Abdul Basith',
-            video: 'https://fracspace-properties.s3.ap-south-1.amazonaws.com/fracspace_properties_images/testimonials/testimonial2.mp4',
-            image: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/testimonial1.png',
+            video: 'https://d1nj26fz89n9xw.cloudfront.net/fracspace_properties_images/testimonials/testimonial2.mp4',
+            image: 'https://duixj37yn5405.cloudfront.net/appImages/testimonial1.png',
             transcript: [
                 { start: 0.0, end: 11.0, text: 'Hi, this is Abdul Basit and that\'s my wife  Bushra Khan. Yeah, so I\'ve invested in a Fracspace in the Goa property.' },
                 { start: 12.0, end: 23.0, text: 'This idea like actually came across in a reality expo and since then You know, it has been quite exciting and interesting to know about this opportunity.' },
@@ -38,8 +38,8 @@ export default function CownHome() {
         },
         {
             name: 'Srinivas',
-            video: 'https://fracspace-properties.s3.ap-south-1.amazonaws.com/fracspace_properties_images/testimonials/testimonial3.mp4',
-            image: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/testimonial2.png',
+            video: 'https://d1nj26fz89n9xw.cloudfront.net/fracspace_properties_images/testimonials/testimonial3.mp4',
+            image: 'https://duixj37yn5405.cloudfront.net/appImages/testimonial2.png',
             transcript: [
                 { start: 0.0, end: 7.0, text: 'Hi, my name is Srinivas I am from Indusind Bank. I got to know about this Fracspace through an expo.' },
                 // { start: 4.0, end: 6.0, text: ' ' },
@@ -52,8 +52,8 @@ export default function CownHome() {
         },
         {
             name: 'Prashanth & Nikita',
-            video: 'https://fracspace-properties.s3.ap-south-1.amazonaws.com/fracspace_properties_images/testimonials/testimonial1.mp4',
-            image: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/testimonial3.png',
+            video: 'https://d1nj26fz89n9xw.cloudfront.net/fracspace_properties_images/testimonials/testimonial1.mp4',
+            image: 'https://duixj37yn5405.cloudfront.net/appImages/testimonial3.png',
             transcript: [
                 { start: 0.0, end: 5.0, text: 'Hi, I\'m Prashant and this is Nikita.We\'re both software engineers.' },
                 // { start: 3.0, end: 4.0, text: '' },
@@ -76,13 +76,13 @@ export default function CownHome() {
     const [like, setLike] = useState([]);
     const [likedProperty, setLikedProperty] = useState([]);
     // const [currentTime, setCurrentTime] = useState(0);
-    const [playStates, setPlayStates] = useState(testimonials.map(() => false));
-    const [currentTimes, setCurrentTimes] = useState(testimonials.map(() => 0));
-    const [durations, setDurations] = useState(testimonials.map(() => 0));
+    const [playStates, setPlayStates] = useState(testimonials?.map(() => false));
+    const [currentTimes, setCurrentTimes] = useState(testimonials?.map(() => 0));
+    const [durations, setDurations] = useState(testimonials?.map(() => 0));
     const transcriptScrollRefs = useRef([]);
     const videoRefs = useRef([]);
-    const [videoEnded, setVideoEnded] = useState(testimonials.map(() => false));
-    const [showThumbnails, setShowThumbnails] = useState(testimonials.map(() => true));
+    const [videoEnded, setVideoEnded] = useState(testimonials?.map(() => false));
+    const [showThumbnails, setShowThumbnails] = useState(testimonials?.map(() => true));
 
     const togglePlay = (index) => {
         const updatedPlayStates = [...playStates];
@@ -137,10 +137,10 @@ export default function CownHome() {
                 setIndianProp(indianProperties);
 
                 // Handle offers images
-                if (offers && offers.length > 0) {
+                if (offers && offers?.length > 0) {
                     const validImages = Object.entries(offers[0])
                         .filter(([key, value]) => key.startsWith("image") && value?.trim())
-                        .map(([_, value]) => value);
+                        ?.map(([_, value]) => value);
 
                     setOfferImage(validImages);
                 }
@@ -162,7 +162,7 @@ export default function CownHome() {
         try {
             let { data: res } = await LikeData(payload);
             if (res?.success) {
-                const likeProp = res?.properties.map(item => item._id);
+                const likeProp = res?.properties?.map(item => item._id);
                 // console.log("Likes: ",likeProp);
                 setLikedProperty(likeProp);
             } else {
@@ -327,7 +327,7 @@ export default function CownHome() {
                             paginationStyle={{ position: 'absolute', bottom: 5 }}
                             style={{ height: 245 }}
                         >
-                            {offerImage && offerImage.length > 0 && offerImage.map((url, index) => (
+                            {offerImage && offerImage?.length > 0 && offerImage?.map((url, index) => (
                                 <Image
                                     key={index}
                                     source={{ uri: url }}
@@ -393,7 +393,7 @@ export default function CownHome() {
                     {selectCountry == 'India' && <ScrollView horizontal={true} style={{ padding: 20 }} showsHorizontalScrollIndicator={false}>
                         {indianProp
                             .filter(item => item.AvailableFractions > 0)
-                            .map((item, index) => {
+                            ?.map((item, index) => {
                                 const itemName = item?.name;
                                 const propId = item?._id;
                                 const isLiked = likedProperty.includes(propId);
@@ -459,11 +459,11 @@ export default function CownHome() {
                                             </View>
                                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                                                    <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/square.png' }} style={{ width: 15, height: 15 }} />
+                                                    <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/square.png' }} style={{ width: 15, height: 15 }} />
                                                     <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 9, color: '#181D27', marginLeft: 10 }}>{item?.area}</Text>
                                                 </View>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                                                    <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/building.png' }} style={{ width: 15, height: 15 }} />
+                                                    <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/building.png' }} style={{ width: 15, height: 15 }} />
                                                     <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 9, color: '#181D27', marginLeft: 7 }}>{item?.P_Type}</Text>
                                                 </View>
                                             </View>
@@ -484,7 +484,7 @@ export default function CownHome() {
                         <ScrollView horizontal={true} style={{ padding: 20 }} showsHorizontalScrollIndicator={false}>
                             {srilankaProp
                                 .filter(item => item.AvailableFractions > 0)
-                                .map((item, index) => {
+                                ?.map((item, index) => {
                                     const itemName = item?.name;
                                     const propId = item?._id;
                                     const isLiked = likedProperty.includes(propId);
@@ -547,11 +547,11 @@ export default function CownHome() {
 
                                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                                                     <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                                                        <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/square.png' }} style={{ width: 15, height: 15 }} />
+                                                        <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/square.png' }} style={{ width: 15, height: 15 }} />
                                                         <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 9, color: '#181d27', marginLeft: 10 }}>{item?.area}</Text>
                                                     </View>
                                                     <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                                                        <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/building.png' }} style={{ width: 15, height: 15 }} />
+                                                        <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/building.png' }} style={{ width: 15, height: 15 }} />
                                                         <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 9, color: '#181d27', marginLeft: 10 }}>{item?.P_Type}</Text>
                                                     </View>
                                                 </View>
@@ -565,7 +565,7 @@ export default function CownHome() {
                         <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 20, color: '#000000' }}>Fracspace Promise</Text>
 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 }}>
-                            {promise.map((item, index) => (
+                            {promise?.map((item, index) => (
                                 <View key={index} style={{ alignItems: 'center', flex: 1 }}>
                                     <Image source={{ uri: item?.image }} style={{ width: 60, height: 70 }} />
                                     <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 10, color: '#000000', textAlign: 'center', marginTop: 5 }}>{item?.name}</Text>
@@ -575,7 +575,7 @@ export default function CownHome() {
                     </View> */}
 
                     {/* <View style={{ marginVertical: 20 }}>
-                        <Image resizeMode='cover' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/gift.png' }} style={{ width: width, height: 310 }} />
+                        <Image resizeMode='cover' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/gift.png' }} style={{ width: width, height: 310 }} />
                     </View> */}
 
                     <View style={{ padding: 20 }}>
@@ -584,15 +584,15 @@ export default function CownHome() {
                         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                             <View style={{ flexDirection: 'column', paddingBottom: 50 }}>
                                 {/* Wire */}
-                                <Wire cardCount={3} width={testimonials.length * (cardWidth + 200)} height={wireHeight} />
+                                <Wire cardCount={3} width={testimonials?.length * (cardWidth + 200)} height={wireHeight} />
 
                                 {/* Cards with clips */}
                                 <View style={{ flexDirection: 'row', marginTop: 70, paddingHorizontal: 20, }}>
-                                    {testimonials.map((item, index) => (
+                                    {testimonials?.map((item, index) => (
                                         <View key={index} style={{ width: 280, marginRight: 100, alignItems: 'center' }}>
                                             {/* Clip */}
                                             <Image
-                                                source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/clip.png' }}
+                                                source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/clip.png' }}
                                                 style={{
                                                     width: 40, height: 40, position: 'absolute', top: -40, zIndex: 2,
                                                     right: index % 2 === 0 ? 15 : undefined,
@@ -660,7 +660,7 @@ export default function CownHome() {
                                                     style={{ maxHeight: 150 }}
                                                     showsVerticalScrollIndicator={false}
                                                 >
-                                                    {item.transcript.map((line, idx) => {
+                                                    {item.transcript?.map((line, idx) => {
                                                         const isActive = currentTimes[index] >= line.start && currentTimes[index] <= line.end;
                                                         return (
                                                             <Text key={idx}
@@ -684,7 +684,7 @@ export default function CownHome() {
 
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingVertical: 20, gap: 20 }}>
                             <View style={{ backgroundColor: '#FFFFFF', padding: 20, width: width * 0.6, height: 300, elevation: 5, alignItems: 'center', justifyContent: 'space-between', marginRight: 20 }}>
-                                <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/News1.png' }} style={{ width: 140, height: 60 }} />
+                                <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/News1.png' }} style={{ width: 140, height: 60 }} />
                                 <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#00000099', textAlign: 'center' }}>
                                     Fracspace, founded in 2022, empowers middle-class investors to co-own luxury holiday homes through fr....
                                 </Text>
@@ -695,7 +695,7 @@ export default function CownHome() {
                                 </TouchableOpacity>
                             </View>
                             <View style={{ backgroundColor: '#FFFFFF', padding: 20, width: width * 0.6, height: 300, elevation: 5, alignItems: 'center', justifyContent: 'space-between', marginRight: 20 }}>
-                                <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/News3.png' }} style={{ width: 140, height: 60 }} />
+                                <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/News3.png' }} style={{ width: 140, height: 60 }} />
                                 <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#00000099', textAlign: 'center' }}>
                                     Fracspace is a pioneering prop-tech company revolutionizing real estate standards on a global scale.....
                                 </Text>
@@ -706,7 +706,7 @@ export default function CownHome() {
                                 </TouchableOpacity>
                             </View>
                             <View style={{ backgroundColor: '#FFFFFF', padding: 20, width: width * 0.6, height: 300, elevation: 5, alignItems: 'center', justifyContent: 'space-between', marginRight: 20 }}>
-                                <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/News4.png' }} style={{ width: 140, height: 60 }} />
+                                <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/News4.png' }} style={{ width: 140, height: 60 }} />
                                 <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#00000099', textAlign: 'center' }}>
                                     FracSpace, a fractional investment and ownership real estate firm, enables a unique investment experience through the channel of fractional investment....
                                 </Text>
@@ -720,7 +720,7 @@ export default function CownHome() {
                     </View>
 
                     <LinearGradient colors={['#E9EFF9', '#FAFAFA']} start={{ x: 0, y: 1 }} end={{ x: 0, y: 0 }} style={{ padding: 20, paddingBottom: 100 }}>
-                        <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Footer.png' }} style={{ width: width * 0.8, height: 140 }} />
+                        <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/Footer.png' }} style={{ width: width * 0.8, height: 140 }} />
                         <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 13, color: '#0F1130', marginTop: 15 }}>Built for togetherness, designed for your future.</Text>
                     </LinearGradient>
 

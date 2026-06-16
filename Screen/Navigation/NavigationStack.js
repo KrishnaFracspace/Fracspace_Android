@@ -39,7 +39,7 @@ import HomePage from '../Version2_O/HomePage';
 // import PropertyForm from '../Version2_O/PropertyForm';
 // import PropertyFormSec from '../Version2_O/PropertyFormSec';
 // import PropertyFormThird from '../Version2_O/PropertyFormThird';
-import { ProfileDetails } from '../Services/UserApi';
+import { ProfileDetails, PropertyDetailsById, updateFCMToken } from '../Services/UserApi';
 // import PropertyListing from '../Version2_O/PropertyListing';
 // import PropertyDetailsNew from '../Version2_O/PropertyDetailsNew';
 // import PopularDestination from '../Version2_O/PopularDestination';
@@ -81,7 +81,7 @@ import Ourstay from '../Version2_O/Ourstay';
 import VideoTour from '../Version2_O/VideoTour';
 import FeedbackForm from '../Version2_O/FeedbackForm';
 import NotificationsScreen from '../Version2_O/NotificationsScreen';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import MonthlyInsight from '../Version2_O/MonthlyInsight';
 import Transfer from '../Version2_O/Transfer';
 import Blogs from '../Version2_O/Blogs';
@@ -103,7 +103,29 @@ import IntroAnim from '../Version2_O/IntroAnim';
 import LabelsDescription from '../Version2_O/LabelsDescription';
 import LabelsProperty from '../Version2_O/LabelsProperty';
 import PropertyImages from '../Version2_O/PropertyImages';
+import BookingSuccess from '../BookingSuccess';
+import BookingFailure from '../BookingFailure';
+import BookingProcessing from '../BookingProcessing';
+import BottomNavigations from './BottomNavigation';
+import PropertyScreen from '../Version2_O/altaira/AltairaExperience';
+import EdgeFab from '../Version2_O/altaira/FloatingButton';
+import AltairaExperience from '../Version2_O/altaira/AltairaExperience';
+import PdfViewerScreen from '../Version2_O/PdfViewerScreen';
+import LiveStream from '../Version2_O/altaira/LiveStream';
+import appsFlyer from 'react-native-appsflyer';
+// import Test from '../Test';
+import NoInternet from '../component/NoInternet';
+import Test from '../Test';
+import MembershipHome from '../Version2_O/escapeMembership/MembershipHome';
+import MembershipProfile from '../Version2_O/escapeMembership/MembershipProfile';
+import MembershipProprtyDesc from '../Version2_O/escapeMembership/MembershipProprtyDesc';
+import PaymentSuccessEscape from '../Version2_O/escapeMembership/PaymentSuccessEscape';
+import PaymentFailedEscape from '../Version2_O/escapeMembership/PaymentFailedEscape';
+import EscapePaymentPage from '../Version2_O/escapeMembership/EscapePaymentPage';
+import TranHisForEscape from '../Version2_O/escapeMembership/TranHisForEscape';
+import ViewAgreement from '../Version2_O/escapeMembership/ViewAgreement';
 // import Exhibitor from '../Version2_O/Exhibitor';
+
 const { width, height } = Dimensions.get('window');
 
 const Stack = createNativeStackNavigator();
@@ -112,6 +134,54 @@ export default function NavigationStack() {
   const [Loading, setLoading] = useState(true);
   const [token, setToken] = useState('');
   const { globalState, setGlobalState } = useContext(AppContext);
+  const navigation = useNavigation();
+  // const email = globalState?.userEmail;
+  // console.log('email: ', email);
+
+// useEffect(() => {
+//   const unsubscribe = appsFlyer.onDeepLink(async res => {
+//     console.log('AF deep link response:', res);
+
+//     if (res?.deepLinkStatus !== 'FOUND') return;
+
+//     const data = res?.deepLink;
+//     console.log('Deep link data:', data);
+
+//     // 🔑 MATCH OneLink deep_link_value exactly
+//     if (data?.deep_link_value === 'property_share' && data?.propertyId) {
+//       try {
+//         const prop = await fetchPropById(data.propertyId);
+
+//         if (!prop) return;
+
+//         navigation.navigate('Property', {
+//           details: prop,
+//         });
+//       } catch (err) {
+//         console.error('Deep link navigation error:', err);
+//       }
+//     }
+//   });
+
+//   return () => unsubscribe();
+// }, []);
+
+
+
+  // const fetchPropById = async (id) => {
+  //   try {
+  //     const { data: res } = await PropertyDetailsById(id);
+  //     return res?.data;
+  //   } catch (error) {
+  //     console.error(
+  //       'Error in fetching Prop by Id:',
+  //       error?.response?.data || error?.message
+  //     );
+  //     return null;
+  //   }
+  // };
+
+
   const handleProfle = async (emailId, tokenid) => {
     // const tokenid = await AsyncStorage.getItem('mytoken');
     //const emailId = await AsyncStorage.getItem('Email');
@@ -157,6 +227,8 @@ export default function NavigationStack() {
   };
 
 
+
+
   const handleAuth = async () => {
     try {
       const token = await AsyncStorage.getItem('mytoken');
@@ -189,6 +261,52 @@ export default function NavigationStack() {
 
 
 
+  // This is for when user was in process of booking and app was closed force fully or automatically id there was any txnId then it navigate it to BookingProcess screen
+  // useEffect(() => {
+  //   const checkPendingPayment = async () => {
+  //     const txnId = await AsyncStorage.getItem('PENDING_TXN_ID');
+  //     console.log("Txnid: ",txnId);
+
+  //     if (txnId) {
+  //       navigation.replace('BookingProcessing', {
+  //         txnId,
+  //         property: null, // fetch from backend if needed
+  //       });
+  //     }
+  //   };
+
+  //   checkPendingPayment();
+  // }, []);
+
+
+// useEffect(() => {
+//   const checkPendingPayment = async () => {
+//     const txnId = await AsyncStorage.getItem('PENDING_TXN_ID');
+//     console.log('TxnId:', txnId);
+// // 
+//     if (txnId) {
+//       navigation.dispatch(
+//         CommonActions
+//         .reset({
+//           index: 0,
+//           routes: [
+//             {
+//               name: 'BookingProcessing',
+//               params: {
+//                 txnId,
+//                 property: null,
+//               },
+//             },
+//           ],
+//         })
+//       );
+//     }
+//   };
+
+//   checkPendingPayment();
+// }, []);
+
+
 
 
 
@@ -214,7 +332,7 @@ export default function NavigationStack() {
   return (
     // <Stack.Navigator initialRouteName={token != '' ? 'Home' : 'LoginPage'}>
   
-    <Stack.Navigator initialRouteName={token != '' ? 'HomePage' : 'NewLogin'}>
+    <Stack.Navigator initialRouteName={token != '' ? 'BottomNavigations' : 'NewLogin'}>
       {/* // <Stack.Navigator initialRouteName={token != '' ? 'NewLogin' : 'NewLogin'}> */}
       {/* <Stack.Screen
         name="LoginPage"
@@ -222,15 +340,77 @@ export default function NavigationStack() {
         options={{ headerShown: false, }}
       // options={{title: 'Welcome'}}
       /> */}
-        <Stack.Screen
+      <Stack.Screen
         name="NewLogin"
         component={NewLogin}
         options={{ headerShown: false }}
       />
+
+      <Stack.Screen name="NoInternet" component={NoInternet} options={{headerShown:false}}/>
+      <Stack.Screen name="MembershipHome" component={MembershipHome} options={{headerShown:false}}/>
+      <Stack.Screen name="MembershipProfile" component={MembershipProfile} options={{headerShown:false}}/>
+      <Stack.Screen name="MembershipProprtyDesc" component={MembershipProprtyDesc} options={{headerShown:false}}/>
+      <Stack.Screen name="PaymentSuccessEscape" component={PaymentSuccessEscape} options={{headerShown:false}}/>
+      <Stack.Screen name="PaymentFailedEscape" component={PaymentFailedEscape} options={{headerShown:false}}/>
+      <Stack.Screen name="EscapePaymentPage" component={EscapePaymentPage} options={{headerShown:false}}/>
+      <Stack.Screen name="TranHisForEscape" component={TranHisForEscape} options={{headerShown:false}}/>
+      <Stack.Screen name="ViewAgreement" component={ViewAgreement} options={{headerShown:false}}/>
+
+      <Stack.Screen
+        name="EdgeFab"
+        component={EdgeFab}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name='Test'
+        component={Test}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen
+        name="AltairaExperience"
+        component={AltairaExperience}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="LiveStream"
+        component={LiveStream}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="PdfViewerScreen"
+        component={PdfViewerScreen}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen 
+        name="BottomNavigations"
+        component={BottomNavigations}
+        options={{headerShown: false}}
+      />
+
       <Stack.Screen
         name="Home"
         component={Home}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BookingSuccess"
+        component={BookingSuccess}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BookingFailure"
+        component={BookingFailure}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name='BookingProcessing'
+        component={BookingProcessing}
+        options={{headerShown: false}}
       />
       {/* <Stack.Screen
         name="Signin"
@@ -275,12 +455,12 @@ export default function NavigationStack() {
         //options={{headerShown: false}}
         options={{ title: 'Cancellation & Refund Policy' }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Profile"
         component={Profile}
         options={{ headerShown: false }}
       // options={{title: 'Welcome'}}
-      />
+      /> */}
       <Stack.Screen
         name="Like"
         component={Like}

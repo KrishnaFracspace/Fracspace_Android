@@ -31,7 +31,7 @@ export default function VideoTour(props) {
 
         try {
             let { data: res } = await DreamscapeHotels();
-            console.log("Response: ", res?.hotels);
+            // console.log("Response: ", res?.hotels);
             const data = res?.hotels;
             setHotelDetails(data);
         } catch (error) {

@@ -1,0 +1,471 @@
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/generated/source/buildConfig/debug/com/microsoft/codepush/react/BuildConfig.java b/node_modules/@revopush/react-native-code-push/android/build/generated/source/buildConfig/debug/com/microsoft/codepush/react/BuildConfig.java
+new file mode 100644
+index 0000000..167c781
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/generated/source/buildConfig/debug/com/microsoft/codepush/react/BuildConfig.java
+@@ -0,0 +1,12 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.microsoft.codepush.react;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "com.microsoft.codepush.react";
++  public static final String BUILD_TYPE = "debug";
++  // Field from default config.
++  public static final boolean IS_NEW_ARCHITECTURE_ENABLED = false;
++}
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/generated/source/buildConfig/release/com/microsoft/codepush/react/BuildConfig.java b/node_modules/@revopush/react-native-code-push/android/build/generated/source/buildConfig/release/com/microsoft/codepush/react/BuildConfig.java
+new file mode 100644
+index 0000000..71a7703
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/generated/source/buildConfig/release/com/microsoft/codepush/react/BuildConfig.java
+@@ -0,0 +1,12 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.microsoft.codepush.react;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = false;
++  public static final String LIBRARY_PACKAGE_NAME = "com.microsoft.codepush.react";
++  public static final String BUILD_TYPE = "release";
++  // Field from default config.
++  public static final boolean IS_NEW_ARCHITECTURE_ENABLED = false;
++}
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..cd78069
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.microsoft.codepush.react" >
++
++    <uses-sdk android:minSdkVersion="21" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+new file mode 100644
+index 0000000..8822cf5
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.microsoft.codepush.react",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..cd78069
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.microsoft.codepush.react" >
++
++    <uses-sdk android:minSdkVersion="21" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json
+new file mode 100644
+index 0000000..387ec9a
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.microsoft.codepush.react",
++  "variantName": "release",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json b/node_modules/@revopush/react-native-code-push/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json b/node_modules/@revopush/react-native-code-push/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/annotations_typedef_file/release/typedefs.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/annotations_typedef_file/release/typedefs.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_r_class_jar/debug/R.jar b/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_r_class_jar/debug/R.jar
+new file mode 100644
+index 0000000..266f881
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_r_class_jar/debug/R.jar differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_r_class_jar/release/R.jar b/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_r_class_jar/release/R.jar
+new file mode 100644
+index 0000000..266f881
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_r_class_jar/release/R.jar differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_symbol_list/debug/R.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_symbol_list/debug/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_symbol_list/release/R.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/compile_symbol_list/release/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..dcc4edf
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Thu Apr 02 16:09:18 IST 2026
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..e5395db
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..65f0784
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\jniLibs"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\release\jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml
+new file mode 100644
+index 0000000..eb0ec02
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\shaders"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\release\shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/packageReleaseAssets/merger.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/packageReleaseAssets/merger.xml
+new file mode 100644
+index 0000000..a28d18f
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/packageReleaseAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\assets"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\release\assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\build\intermediates\shader_assets\release\out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties
+new file mode 100644
+index 0000000..3cb982e
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Thu Apr 02 16:10:53 IST 2026
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml
+new file mode 100644
+index 0000000..744659d
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="release$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\release\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="release" generated-set="release$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\release\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\build\generated\res\resValues\release"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\build\generated\res\resValues\release"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePush.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePush.class
+new file mode 100644
+index 0000000..3504a94
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePush.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushConstants.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushConstants.class
+new file mode 100644
+index 0000000..804436d
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushConstants.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushTelemetryManager.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushTelemetryManager.class
+new file mode 100644
+index 0000000..7bdf1db
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushTelemetryManager.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushUpdateManager.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushUpdateManager.class
+new file mode 100644
+index 0000000..f45da24
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/CodePushUpdateManager.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/DownloadProgress.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/DownloadProgress.class
+new file mode 100644
+index 0000000..aa2871f
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/DownloadProgress.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/DownloadProgressCallback.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/DownloadProgressCallback.class
+new file mode 100644
+index 0000000..e4a66b4
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/DownloadProgressCallback.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/ReactHostHolder.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/ReactHostHolder.class
+new file mode 100644
+index 0000000..3727d39
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/ReactHostHolder.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/ReactInstanceHolder.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/ReactInstanceHolder.class
+new file mode 100644
+index 0000000..2729be2
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/ReactInstanceHolder.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/SettingsManager.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/SettingsManager.class
+new file mode 100644
+index 0000000..2b8f468
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/debug/classes/com/microsoft/codepush/react/SettingsManager.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePush.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePush.class
+new file mode 100644
+index 0000000..3504a94
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePush.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushConstants.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushConstants.class
+new file mode 100644
+index 0000000..804436d
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushConstants.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushTelemetryManager.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushTelemetryManager.class
+new file mode 100644
+index 0000000..7bdf1db
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushTelemetryManager.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushUpdateManager.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushUpdateManager.class
+new file mode 100644
+index 0000000..f45da24
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/CodePushUpdateManager.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/DownloadProgress.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/DownloadProgress.class
+new file mode 100644
+index 0000000..aa2871f
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/DownloadProgress.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/DownloadProgressCallback.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/DownloadProgressCallback.class
+new file mode 100644
+index 0000000..e4a66b4
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/DownloadProgressCallback.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/ReactHostHolder.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/ReactHostHolder.class
+new file mode 100644
+index 0000000..3727d39
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/ReactHostHolder.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/ReactInstanceHolder.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/ReactInstanceHolder.class
+new file mode 100644
+index 0000000..2729be2
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/ReactInstanceHolder.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/SettingsManager.class b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/SettingsManager.class
+new file mode 100644
+index 0000000..2b8f468
+Binary files /dev/null and b/node_modules/@revopush/react-native-code-push/android/build/intermediates/javac/release/classes/com/microsoft/codepush/react/SettingsManager.class differ
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/local_only_symbol_list/debug/R-def.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/local_only_symbol_list/release/R-def.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/local_only_symbol_list/release/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/local_only_symbol_list/release/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..4871454
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,11 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.microsoft.codepush.react" >
++4
++5    <uses-sdk android:minSdkVersion="21" />
++6
++7    <uses-permission android:name="android.permission.INTERNET" />
++7-->C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:3:5-67
++7-->C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:3:22-64
++8
++9</manifest>
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt
+new file mode 100644
+index 0000000..4871454
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt
+@@ -0,0 +1,11 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.microsoft.codepush.react" >
++4
++5    <uses-sdk android:minSdkVersion="21" />
++6
++7    <uses-permission android:name="android.permission.INTERNET" />
++7-->C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:3:5-67
++7-->C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:3:22-64
++8
++9</manifest>
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+new file mode 100644
+index 0000000..cd78069
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.microsoft.codepush.react" >
++
++    <uses-sdk android:minSdkVersion="21" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/merged_manifest/release/AndroidManifest.xml b/node_modules/@revopush/react-native-code-push/android/build/intermediates/merged_manifest/release/AndroidManifest.xml
+new file mode 100644
+index 0000000..cd78069
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/merged_manifest/release/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.microsoft.codepush.react" >
++
++    <uses-sdk android:minSdkVersion="21" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/navigation_json/debug/navigation.json b/node_modules/@revopush/react-native-code-push/android/build/intermediates/navigation_json/debug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/navigation_json/debug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+new file mode 100644
+index 0000000..576d12e
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+@@ -0,0 +1 @@
++com.microsoft.codepush.react
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt b/node_modules/@revopush/react-native-code-push/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt
+new file mode 100644
+index 0000000..576d12e
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt
+@@ -0,0 +1 @@
++com.microsoft.codepush.react
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@revopush/react-native-code-push/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..71d0a37
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,20 @@
++-- Merging decision tree log ---
++manifest
++ADDED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:1:1-5:12
++INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:1:1-5:12
++	package
++		INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
++	xmlns:android
++		ADDED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:1:11-69
++uses-permission#android.permission.INTERNET
++ADDED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:3:5-67
++	android:name
++		ADDED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:3:22-64
++uses-sdk
++INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
++INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
+diff --git a/node_modules/@revopush/react-native-code-push/android/build/outputs/logs/manifest-merger-release-report.txt b/node_modules/@revopush/react-native-code-push/android/build/outputs/logs/manifest-merger-release-report.txt
+new file mode 100644
+index 0000000..71d0a37
+--- /dev/null
++++ b/node_modules/@revopush/react-native-code-push/android/build/outputs/logs/manifest-merger-release-report.txt
+@@ -0,0 +1,20 @@
++-- Merging decision tree log ---
++manifest
++ADDED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:1:1-5:12
++INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:1:1-5:12
++	package
++		INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
++	xmlns:android
++		ADDED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:1:11-69
++uses-permission#android.permission.INTERNET
++ADDED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:3:5-67
++	android:name
++		ADDED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml:3:22-64
++uses-sdk
++INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
++INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from C:\Users\abha\Desktop\TestingOTA\Fracspace\node_modules\@revopush\react-native-code-push\android\src\main\AndroidManifest.xml
+diff --git a/node_modules/@revopush/react-native-code-push/android/src/main/java/com/microsoft/codepush/react/CodePushDialog.java b/node_modules/@revopush/react-native-code-push/android/src/main/java/com/microsoft/codepush/react/CodePushDialog.java
+index 66236ea..1c770ee 100644
+--- a/node_modules/@revopush/react-native-code-push/android/src/main/java/com/microsoft/codepush/react/CodePushDialog.java
++++ b/node_modules/@revopush/react-native-code-push/android/src/main/java/com/microsoft/codepush/react/CodePushDialog.java
+@@ -13,13 +13,15 @@ import com.facebook.react.bridge.ReactMethod;
+ public class CodePushDialog extends BaseJavaModule {
+ 
+     public CodePushDialog(ReactApplicationContext reactContext) {
+-        super(reactContext);
++        super();
++        mContext = reactContext;
+     }
+ 
+     @ReactMethod
+     public void showDialog(final String title, final String message, final String button1Text,
+                            final String button2Text, final Callback successCallback, Callback errorCallback) {
+-        Activity currentActivity = getReactApplicationContext().getCurrentActivity();
++        // Activity currentActivity = getReactApplicationContext().getCurrentActivity();
++        Activity currentActivity = mContext.getCurrentActivity();
+         if (currentActivity == null || currentActivity.isFinishing()) {
+             // If getCurrentActivity is null, it could be because the app is backgrounded,
+             // so we show the dialog when the app resumes)

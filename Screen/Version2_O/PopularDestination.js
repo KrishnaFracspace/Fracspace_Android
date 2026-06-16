@@ -634,7 +634,7 @@ export default function PopularDestination(props) {
                         style={{ width: 15, height: 15 }}
                         resizeMode='contain'
                         source={{
-                            uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/app-Image-Icon/V6.png',
+                            uri: 'https://duixj37yn5405.cloudfront.net/offers/app-Image-Icon/V6.png',
                         }}
                     />
                     <Text style={{
@@ -666,7 +666,7 @@ export default function PopularDestination(props) {
                         style={{ width: 15, height: 14 }}
                         resizeMode='contain'
                         source={{
-                            uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/app-Image-Icon/V7.png',
+                            uri: 'https://duixj37yn5405.cloudfront.net/offers/app-Image-Icon/V7.png',
                         }}
                     />
                     <Text style={{
@@ -695,7 +695,7 @@ export default function PopularDestination(props) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <ScrollView horizontal={true}>
 
-                        {PropertiesArray?.locationHighlights.map((item, index) => (<View
+                        {PropertiesArray?.locationHighlights?.map((item, index) => (<View
                             key={index}
                             style={{
                                 backgroundColor: 'white',

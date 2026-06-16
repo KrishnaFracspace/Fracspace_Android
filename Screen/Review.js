@@ -31,6 +31,7 @@ export default function Review(props) {
   const [property, setProperty] = useState(
     props?.route?.params?.proprtyDetails?.data,
   );
+  // console.log("Property: ",property);
   const [modalVisible, setModalVisible] = useState(false);
   const [SelectPic, setSelectPic] = useState(0);
   const { globalState, setGlobalState } = useContext(AppContext);
@@ -101,12 +102,16 @@ export default function Review(props) {
       furl: "https://test.bunknbeyond.com/paymentfailure"
 
     });
-
+    console.log("Initiate Payload: ",payload);
 
     try {
       let { data: res } = await PaymentPayU(payload);
+      console.log("Response: ",res);
       if (res?.success) {
         navigation.navigate('PaymentPage', { Link: res?.form, TxnID: id ,property:property});
+        // navigation.navigate('BookingFailure', { Link: res?.form, TxnID: id ,property:property});
+        // console.log("Response: ",res.form);
+        // console.log("TXNId: ",id);
       }
     } catch (error) {
       if (error?.response) {
@@ -163,7 +168,8 @@ export default function Review(props) {
         </Text>
         <TouchableOpacity style={{ flex: 1 }}
           onPress={() => {
-            navigation.navigate('HomePage');
+            navigation.popToTop();
+            // navigation.navigate('HomePage');
 
           }}>
           <Text style={{

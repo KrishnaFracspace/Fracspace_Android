@@ -2,6 +2,7 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 apply plugin:'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -71,6 +72,10 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
+project.ext.react = [
+    enableHermes: true
+]
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -81,8 +86,11 @@ android {
         applicationId "com.fracspace"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 36
-        versionName "1.9.7"
+        // updated from 63 and 2.0.9
+        versionCode 63
+        versionName "2.0.9"
+        missingDimensionStrategy "react-native-capture-protection", "base"
+        buildConfigField "String", "REVOPUSH_KEY", '"DthMm0PkeJzmwW1YY11Dw4OtOcIfVJ2bkyDomg"'
     }
     signingConfigs {
         debug {
@@ -132,8 +140,11 @@ dependencies {
     implementation("com.google.android.gms:play-services-wallet:19.3.0")
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-analytics'
-    implementation project(':react-native-upi-payment')
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
+    implementation 'com.google.firebase:firebase-inappmessaging-display'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    // implementation project(':react-native-code-push')
+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
@@ -142,3 +153,8 @@ dependencies {
 }
 apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle");
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project);
+// apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
+apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
+// apply from: "../../node_modules/@revopush/react-native-code-push/android/codepush.gradle"
+
+// 

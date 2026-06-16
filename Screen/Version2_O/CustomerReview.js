@@ -324,7 +324,7 @@ export default function CustomersReview(props) {
               />:
               <Video
               source={{
-                uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/Expo+Final+Video.Mp4+(2).mp4',
+                uri: 'https://duixj37yn5405.cloudfront.net/offers/Expo+Final+Video.Mp4+(2).mp4',
               }} // Use a URL or local file path
               style={styles.backgroundVideo}
               repeat={true} // Optional: Repeat the video
@@ -342,7 +342,7 @@ export default function CustomersReview(props) {
                 style={{width: 150, height: 150}}
                 resizeMode="cover"
                 source={{
-                  uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Group+1261157034.png',
+                  uri: 'https://duixj37yn5405.cloudfront.net/appImages/Group+1261157034.png',
                 }}
               />
             </TouchableOpacity>

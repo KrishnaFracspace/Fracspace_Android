@@ -8,6 +8,7 @@ import { CountryPicker } from 'react-native-country-codes-picker';
 import { GetLogin, GetOtpForLoginWithNumber, OtpLoginWithEmail, verifyOtpLogin } from '../Services/UserApi'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppContext } from '../Context/AppContext'
+import analytics from '@react-native-firebase/analytics';
 
 export default function NewLogin() {
   const navigation = useNavigation();
@@ -88,11 +89,90 @@ export default function NewLogin() {
   //  console.log('Response:', payload);
     try {
       let { data: res } = await GetOtpForLoginWithNumber(payload);
-     // console.log('Response:', res);
+
+      // if (res?.success) {
+
+      //   await AsyncStorage.setItem('mytoken', res?.data);
+      //   await AsyncStorage.setItem('Email', res?.email);
+
+      //   setGlobalState(prevState => ({
+      //     ...prevState,
+      //     userName: res?.userName,
+      //     userEmail: res?.email,
+      //     userPhone: selectedCode?.code + phone,
+      //     token: res?.data,
+      //   }));
+
+      //   // ✅ Check deep link AFTER login
+      //   if (
+      //     globalState.pendingDeepLinkType === 'property' &&
+      //     globalState.pendingDeepLinkId
+      //   ) {
+
+      //     navigation.reset({
+      //       index: 0,
+      //       routes: [
+      //         { name: 'BottomNavigations' },
+      //         {
+      //           name: 'Property',
+      //           params: { Id: globalState.pendingDeepLinkId },
+      //         },
+      //       ],
+      //     });
+
+      //     // ✅ Clear deep link safely
+      //     setGlobalState(prev => ({
+      //       ...prev,
+      //       pendingDeepLinkType: null,
+      //       pendingDeepLinkId: null,
+      //     }));
+
+      //   } else if(globalState.pendingDeepLinkType === 'wallet_section'){
+      //     navigation.reset({
+      //       index: 0,
+      //       routes: [
+      //         {name: 'BottomNavigations'},
+      //         {
+      //           name: 'WalletAmount'
+      //         }
+      //       ]
+      //     })
+
+      //     setGlobalState(prev => ({
+      //       ...prev,
+      //       pendingDeepLinkType: null
+      //     }))
+      //   } else if(globalState.pendingDeepLinkType === 'payment_link'){
+      //     navigation.reset({
+      //       index:0,
+      //       routes:[
+      //         {name: 'BottomNavigations'},
+      //         {
+      //           name: 'Book',
+      //           params: {Id: globalState?.pendingDeepLinkId}
+      //         }
+      //       ]
+      //     })
+      //   } else {
+
+      //     navigation.reset({
+      //       index: 0,
+      //       routes: [{ name: 'BottomNavigations' }],
+      //     });
+
+      //   }
+      // }
+
       if (res?.success) {
 
         await AsyncStorage.setItem('mytoken', res?.data);
         await AsyncStorage.setItem('Email', res?.email);
+        // console.log("TOken: ",res?.data);
+
+        analytics().logEvent('user_login_indian', {
+            user_id: res?.email,
+        });
+
         setGlobalState(prevState => ({
           ...prevState,
           userName: res?.userName,
@@ -101,14 +181,86 @@ export default function NewLogin() {
           token: res?.data,
         }));
 
-        navigation.navigate('HomePage');
-        // navigation.dispatch(
-        //   CommonActions.reset({
-        //     index: 0,
-        //     routes: [{ name: 'HomePage' }],
-        //   })
-        // );
+        // Small delay ensures globalState is updated properly
+        setTimeout(() => {
+
+          const { pendingDeepLinkType, pendingDeepLinkId } = globalState;
+
+          switch (pendingDeepLinkType) {
+
+            // ✅ PROPERTY (property + property_share)
+            case 'property':
+              if (pendingDeepLinkId) {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    { name: 'BottomNavigations' },
+                    {
+                      name: 'Property',
+                      params: { Id: pendingDeepLinkId },
+                    },
+                  ],
+                });
+              }
+              break;
+
+            // ✅ PAYMENT LINK
+            case 'payment_link':
+              if (pendingDeepLinkId) {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    { name: 'BottomNavigations' },
+                    {
+                      name: 'Book',
+                      params: { Id: pendingDeepLinkId },
+                    },
+                  ],
+                });
+              }
+              break;
+
+            // ✅ WALLET
+            case 'wallet_section':
+              navigation.reset({
+                index: 0,
+                routes: [
+                  { name: 'BottomNavigations' },
+                  { name: 'WalletAmount' },
+                ],
+              });
+              break;
+
+            case 'escape_section':
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {name: 'BottomNavigations'},
+                  {name: 'MembershipHome'},
+                ],
+              });
+              break;
+
+            // ✅ NORMAL LOGIN (No deep link)
+            default:
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'BottomNavigations' }],
+              });
+              break;
+          }
+
+          // ✅ Clear deep link after handling
+          setGlobalState(prev => ({
+            ...prev,
+            pendingDeepLinkType: null,
+            pendingDeepLinkId: null,
+          }));
+
+        }, 300);
       }
+
+
 
     } catch (error) {
 
@@ -167,18 +319,165 @@ export default function NewLogin() {
     );
     try {
       let { data: res } = await verifyOtpLogin(payload);
+
+      // if (res?.success) {
+
+      //   await AsyncStorage.setItem('mytoken', res?.data);
+      //   await AsyncStorage.setItem('Email', res?.email);
+
+      //   setGlobalState(prevState => ({
+      //     ...prevState,
+      //     userName: res?.userName,
+      //     userEmail: res?.email,
+      //     // userPhone: selectedCode?.code + phone,
+      //     token: res?.data,
+      //   }));
+
+      //   // ✅ Check deep link AFTER login
+      //   if (
+      //     globalState.pendingDeepLinkType === 'property' &&
+      //     globalState.pendingDeepLinkId
+      //   ) {
+
+      //     navigation.reset({
+      //       index: 0,
+      //       routes: [
+      //         { name: 'BottomNavigations' },
+      //         {
+      //           name: 'Property',
+      //           params: { Id: globalState.pendingDeepLinkId },
+      //         },
+      //       ],
+      //     });
+
+      //     // ✅ Clear deep link safely
+      //     setGlobalState(prev => ({
+      //       ...prev,
+      //       pendingDeepLinkType: null,
+      //       pendingDeepLinkId: null,
+      //     }));
+
+      //   } else if(globalState.pendingDeepLinkType === 'wallet_section'){
+      //     navigation.reset({
+      //       index: 0,
+      //       routes: [
+      //         {name: 'BottomNavigations'},
+      //         {
+      //           name: 'WalletAmount'
+      //         }
+      //       ]
+      //     })
+
+      //     setGlobalState(prev => ({
+      //       ...prev,
+      //       pendingDeepLinkType: null
+      //     }))
+      //   } else {
+
+      //     navigation.reset({
+      //       index: 0,
+      //       routes: [{ name: 'BottomNavigations' }],
+      //     });
+
+      //   }
+      // }
+
       if (res?.success) {
+
         await AsyncStorage.setItem('mytoken', res?.data);
-        await AsyncStorage.setItem('Email', email);
+        await AsyncStorage.setItem('Email', res?.email);
+
+        analytics().logEvent('user_login_international', {
+            user_id: res?.email,
+        });
+
         setGlobalState(prevState => ({
           ...prevState,
           userName: res?.userName,
-          userEmail: email,
+          userEmail: res?.email,
+          userPhone: selectedCode?.code + phone,
           token: res?.data,
         }));
 
-        navigation.navigate('HomePage');
+        // Small delay ensures globalState is updated properly
+        setTimeout(() => {
+
+          const { pendingDeepLinkType, pendingDeepLinkId } = globalState;
+
+          switch (pendingDeepLinkType) {
+
+            // ✅ PROPERTY (property + property_share)
+            case 'property':
+              if (pendingDeepLinkId) {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    { name: 'BottomNavigations' },
+                    {
+                      name: 'Property',
+                      params: { Id: pendingDeepLinkId },
+                    },
+                  ],
+                });
+              }
+              break;
+
+            // ✅ PAYMENT LINK
+            case 'payment_link':
+              if (pendingDeepLinkId) {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    { name: 'BottomNavigations' },
+                    {
+                      name: 'Book',
+                      params: { Id: pendingDeepLinkId },
+                    },
+                  ],
+                });
+              }
+              break;
+
+            // ✅ WALLET
+            case 'wallet_section':
+              navigation.reset({
+                index: 0,
+                routes: [
+                  { name: 'BottomNavigations' },
+                  { name: 'WalletAmount' },
+                ],
+              });
+              break;
+
+            case 'escape_section':
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {name: 'BottomNavigations'},
+                  {name: 'MembershipHome'},
+                ],
+              });
+              break;
+
+            // ✅ NORMAL LOGIN (No deep link)
+            default:
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'BottomNavigations' }],
+              });
+              break;
+          }
+
+          // ✅ Clear deep link after handling
+          setGlobalState(prev => ({
+            ...prev,
+            pendingDeepLinkType: null,
+            pendingDeepLinkId: null,
+          }));
+
+        }, 300);
       }
+
     } catch (error) {
       if (error?.response) {
         Alert.alert('Response Error', `${error?.response?.data?.message}`);

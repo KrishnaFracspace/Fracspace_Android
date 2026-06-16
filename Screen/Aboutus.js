@@ -25,8 +25,9 @@ export default function Aboutus() {
             }}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('HomePage');
-              }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                // navigation.navigate('HomePage');
+                navigation.goBack();
+              }} style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'space-between',flex:1 }}>
               <Icon name={'chevron-left'} size={25} color={'#000000'} />
               <Text
                 style={{
@@ -35,12 +36,14 @@ export default function Aboutus() {
                   color: '#000000',
                   marginLeft: 20,
                 }}>
-                About
+                About Us
               </Text>
+              <View style={{width:50}}/>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => {
-                navigation.navigate('HomePage');
+                // navigation.navigate('HomePage');
+                navigation.goBack();
               }}>
               <Text
                 style={{
@@ -50,7 +53,7 @@ export default function Aboutus() {
                 }}>
                 Exit
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           <Text style={{ color: '#043862', fontSize: 22, fontFamily: "OpenSans-Bold", textAlign: 'center' }}>About Us</Text>
           <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular", paddingHorizontal: 10, marginVertical: 20 }}>Fracspace is thrilled to announce the successful launch of our inaugural phase on the Google Play Store! As a pioneering fractional ownership company with a robust global presence, Fracspace takes immense pride in offering a diverse portfolio of properties spanning the globe. From luxurious villas nestled in exotic destinations to cozy retreats in bustling cities, Fracspace ensures that every stay is an unforgettable shared adventure.</Text>

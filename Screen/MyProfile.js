@@ -71,9 +71,9 @@ export default function MyProfile(props) {
         //   navigation.goBack();
         // }
 
-      }} style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 25, backgroundColor: '#FFFFFF' }}>
-        <Icon name={'left'} size={20} color={'#000000'} />
-        <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 15, color: '#000000' }}>My Bookings</Text>
+      }} style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 25, backgroundColor: '#021265' }}>
+        <Icon name={'left'} size={20} color={'#FFF'} />
+        <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 15, color: '#FFF' }}>Help & Support</Text>
         {/* <IconI name={'headphones'} size={20} color={'#000000'}/> */}
         <View></View>
       </TouchableOpacity>
@@ -99,7 +99,7 @@ export default function MyProfile(props) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => {
-          const Phone = '+919154867608'
+          const Phone = '+919154867618'
           handleCallRecord(Phone);
         }} style={{ borderRadius: 10, padding: 20, marginHorizontal: 20, marginVertical: 0, flexDirection: 'row', backgroundColor: '#FFFFFF', elevation: 1 }}>
           <View style={{ width: 45, height: 45, borderRadius: 45, backgroundColor: '#021265', alignItems: 'center', flexDirection: 'column', justifyContent: 'center' }}>
@@ -107,7 +107,7 @@ export default function MyProfile(props) {
           </View>
           <View style={{ marginLeft: 20 }}>
             <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: '#000000' }}>Phone</Text>
-            <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#1939E4', textDecorationLine: 'underline' }}>+91-9154867608</Text>
+            <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#1939E4', textDecorationLine: 'underline' }}>+91-9154867618 </Text>
           </View>
         </TouchableOpacity>
       </View>}

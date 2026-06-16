@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Image, Dimensions, TouchableOpacity, Modal, TextInput, Alert, Linking, ActivityIndicator } from 'react-native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Icon from 'react-native-vector-icons/Entypo';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext } from '../Context/AppContext';
@@ -10,6 +10,7 @@ import { UploadEnquiry } from '../Services/UserApi';
 export default function LabelsDescription(prop) {
     const { globalState, setGlobalState } = useContext(AppContext);
     const [propertyDetails, setPropertyDetails] = useState(prop?.route?.params?.data);
+    // console.log("Proprrrrr: ",prop?.route?.params?.data);
 
     const { width } = Dimensions.get('window');
     const navigation = useNavigation();
@@ -23,18 +24,58 @@ export default function LabelsDescription(prop) {
     const [message, setMessage] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const [loading, setLoading] = useState(false);
+    const videoRef = useRef(null);   
 
-    const videoRef = useRef(null);
 
     useFocusEffect(
         useCallback(() => {
+            // console.log("Video played...");
             setIsFocused(true);
             return () => {
                 setIsFocused(false);
                 videoRef.current?.seek(0);
+                console.log("Curr :", videoRef.current?.seek(0));
             };
         }, [])
     );
+
+//     useFocusEffect(useCallback(() => {
+//   setIsFocused(true);
+//   setTimeout(() => {
+//     videoRef.current?.seek(0);
+//     setPaused(false);
+//   }, 100);
+//   return () => {
+//     setIsFocused(false);
+//     videoRef.current?.seek(0);
+//   };
+// }, []));
+
+
+// const [videoKey, setVideoKey] = useState(Date.now());
+
+// Update video key when screen is focused
+// useEffect(() => {
+//     const unsubscribe = navigation.addListener('focus', () => {
+//         setVideoKey(Date.now());
+//     });
+//     return unsubscribe;
+// }, [navigation]);
+
+// useFocusEffect(
+//     useCallback(() => {
+//         setVideoKey(Date.now());
+//     }, [])
+// );
+
+
+
+// <Video
+//     source={{ 
+//         uri: `https://d1nj26fz89n9xw.cloudfront.net/fracspace_properties_images/altaira/ALTAIRA-compressed-5.mp4?v=${videoKey}`
+//     }}
+//     // ... other props
+// />
 
     useEffect(() => {
         const imageObject = propertyDetails?.image || {};
@@ -50,7 +91,7 @@ export default function LabelsDescription(prop) {
             phoneNumber: globalState?.userDetails?.phoneNumber,
             message: message
         });
-        console.log('payload: ', payload);
+        // console.log('payload: ', payload);
         try {
             let { data: res } = await UploadEnquiry(payload);
             // if (res?.success) {
@@ -89,8 +130,14 @@ export default function LabelsDescription(prop) {
                             resizeMode='cover'
                             repeat
                             muted
-                            source={{ uri: propertyDetails?.SPV }}
-                            style={{ width, height: 400 }}
+                            source={{ uri: "https://duixj37yn5405.cloudfront.net/videos/mobile_optimized.mp4" }}
+                            // source={{ uri: "https://d1nj26fz89n9xw.cloudfront.net/fracspace_properties_images/altaira/ALTAIRA-compressed-6.mp4" }}
+                            // source={{ uri: "https://d1nj26fz89n9xw.cloudfront.net/fracspace_properties_images/altaira/ALTAIRA-compressed-4.mp4" }}
+                            style={{ width: width, height: 400 }}
+                            onError={(e) => console.log(e)}
+                            // onLoad={console.log("Played...")}
+                            // onBuffer={(b) => console.log("Buffer: ",b)}
+                            // onProgress={(p) => console.log("Progress: ",p)}
                         />
                     )}
                     <View style={{ position: 'absolute', top: 20, left: 20 }}>
@@ -104,16 +151,18 @@ export default function LabelsDescription(prop) {
                         <View style={{ backgroundColor: '#f6f6f6', padding: 15, borderRadius: 10, width: width * 0.7, alignItems: 'center' }}>
                             <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 16, color: '#0B2C0B' }}>{propertyDetails?.name}</Text>
                             <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 12, color: '#000', textAlign: 'center', marginTop: 6 }}>
-                                Perched 2000 ft above sea level - where serenity meets strategy
+                                {propertyDetails?.cardDescription}
                             </Text>
                         </View>
                     </View>
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ padding: 20, gap: 20 }}>
-                    {images.slice(0, 3).map((item, index) => (
-                        <View key={index} style={{ borderColor: '#ffffffc1', borderWidth: 2, borderRadius: 6, marginRight: 20 }}>
+                    {images.slice(0, 3)?.map((item, index) => (
+                        <TouchableOpacity onPress={() => {
+                            navigation.navigate('PropertyImages', { data: images });
+                        }} key={index} style={{ borderColor: '#ffffffc1', borderWidth: 2, borderRadius: 6, marginRight: 20 }}>
                             <Image source={{ uri: item }} style={{ width: 80, height: 80, borderRadius: 6 }} />
-                        </View>
+                        </TouchableOpacity>
                     ))}
                     <TouchableOpacity onPress={() => {
                         // setViewAll(true);
@@ -176,7 +225,7 @@ export default function LabelsDescription(prop) {
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 12, color: '#1a1a1a' }}>Annual Returns</Text>
-                                <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#1a1a1a' }}>{propertyDetails?.Type.substring(2, propertyDetails?.Type.length)}</Text>
+                                <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#1a1a1a' }}>{propertyDetails?.Type.substring(2, propertyDetails?.Type?.length)}</Text>
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 12, color: '#1a1a1a' }}>Lock-In Period</Text>
@@ -251,7 +300,7 @@ export default function LabelsDescription(prop) {
                     <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 16, color: '#000' }}>Location Advantages</Text>
 
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 15 }}>
-                        {propertyDetails?.locationHighlights.map((item, index) => (
+                        {propertyDetails?.locationHighlights?.map((item, index) => (
                             <View key={index} style={{ width: 120, marginRight: 15 }}>
                                 <View>
                                     <Image source={{ uri: item.image }} style={{ width: '100%', height: 80, borderRadius: 8 }} />

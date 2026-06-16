@@ -25,8 +25,9 @@ export default function TermsAndCondition() {
             }}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('HomePage');
-              }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                // navigation.navigate('HomePage');
+                navigation.goBack();
+              }} style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'space-between',flex:1 }}>
               <Icon name={'chevron-left'} size={25} color={'#000000'} />
               <Text
                 style={{
@@ -37,10 +38,12 @@ export default function TermsAndCondition() {
                 }}>
                Terms And Condition
               </Text>
+              <View style={{width:50}}/>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => {
-                navigation.navigate('HomePage');
+                // navigation.navigate('HomePage');
+                navigation.goBack();
               }}>
               <Text
                 style={{
@@ -50,10 +53,10 @@ export default function TermsAndCondition() {
                 }}>
                 Exit
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           <View style={{ width: '100%', flex: 1, paddingBottom: 40,paddingHorizontal: 20  }}>
-            <Text
+            {/* <Text
               style={{
                 color: '#1A1A1A',
                 fontSize: 18,
@@ -62,8 +65,8 @@ export default function TermsAndCondition() {
                 ///textAlign: 'center',
               }}>
               Terms & Conditions
-            </Text>
-            <View style={{ borderBottomColor: '#F6F6F6', borderBottomWidth: 1, width: '100%', marginBottom: 8 }}></View>
+            </Text> */}
+            {/* <View style={{ borderBottomColor: '#F6F6F6', borderBottomWidth: 1, width: '100%', marginBottom: 8 }}></View> */}
 
             <View style={{ borderBottomWidth: 1, borderBottomColor: '#F6F6F6', width: '100%' }}>
               <TouchableOpacity
@@ -81,8 +84,8 @@ export default function TermsAndCondition() {
                   }}>
                   Co-ownership
                 </Text>
-                {TermOpen != 'Co-ownership' ? <Icon name="chevron-small-down" size={32} color="#1E2135" /> :
-                  <Icon name="chevron-small-up" size={32} color="#1E2135" />}
+                {TermOpen != 'Co-ownership' ? <Icon name="chevron-small-down" size={20} color="#1E2135" /> :
+                  <Icon name="chevron-small-up" size={20} color="#1E2135" />}
 
 
               </TouchableOpacity>
@@ -98,8 +101,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
 
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/we comprehend the Terms and Conditions of the selected special
@@ -111,10 +115,11 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
 
                     // alignItems:'flex-start'
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We acknowledge that I/we have read the Terms and Conditions
                     regarding the purchase and usage of FRACSPACE’s Fractional
@@ -128,8 +133,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We comprehend that any payment I/we make will initially be
                     allocated to the Booking Fees, with any remaining balance allocated
@@ -141,8 +147,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We acknowledge that in case of my/our cancellation request,
                     Fracspace reserves the right to deduct cancellation charges as
@@ -158,8 +165,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We acknowledge that I/we will become a FRAC Owner of FRACSPACE
                     only upon the full realization of the entire amount and the two
@@ -176,7 +184,7 @@ export default function TermsAndCondition() {
                     justifyContent: 'flex-start',
                     width: '100%'
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We acknowledge that I/We the Fractional Owner of FRACSPACE may
                     choose to exit this agreement at any time with a 60 day notice
@@ -188,8 +196,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We comprehend that in the event of any name transfers or gift, it
                     may take up to 7 working days to transfer to be reflected.
@@ -200,8 +209,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We affirm that SPV shall be formed consequent to all the units of
                     a particular property having been sold out.
@@ -212,8 +222,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We acknowledge that the BROI (Bank Rate of Interest) will be
                     applicable only after complete payment is done by the Fractional
@@ -227,7 +238,7 @@ export default function TermsAndCondition() {
                     justifyContent: 'flex-start',
 
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1E2135', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     I/We comprehend that Fracspace is responsible for property
                     maintenance. Hence, I/we recognize that Fracspace will deduct 30%
@@ -241,7 +252,7 @@ export default function TermsAndCondition() {
             </View>
 
             <View style={{ borderBottomWidth: 1, borderBottomColor: '#F6F6F6', width: '100%' }}>
-              <TouchableOpacity onPress={() => {
+              {/* <TouchableOpacity onPress={() => {
                 setTermOpen('Bluhous');
               }} style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#F6F6F6', paddingVertical: 10, width: '100%' }}>
 
@@ -254,11 +265,11 @@ export default function TermsAndCondition() {
                   }}>
                   Bluhous
                 </Text>
-                {TermOpen != 'Bluhous' ? <Icon name="chevron-small-down" size={32} color="#1E2135" /> :
-                  <Icon name="chevron-small-up" size={32} color="#1E2135" />}
+                {TermOpen != 'Bluhous' ? <Icon name="chevron-small-down" size={20} color="#1E2135" /> :
+                  <Icon name="chevron-small-up" size={20} color="#1E2135" />}
 
 
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
 
               <View>
@@ -276,8 +287,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     Fracspace serves as a facilitator, offering users an internet platform to choose and reserve a specific hotel. In this sense, "hotels" refers to all types of lodging, including farm houses, bed and breakfasts, homestays, and any other type of lodging.
                   </Text>
@@ -287,8 +299,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     All hotel-related information, such as the hotel's categorization, pictures, room type, and amenities and services, is in accordance with the data that the hotel gave Fracspace. This data should only be used as a guide. If there is a difference between the hotel's actual settings and the photographs on the website or app, the user should bring it up with the hotel directly, and the issue will be settled between the two parties. Fracspace will not be held accountable for any of these discrepancies or be involved in the resolution process.
                   </Text>
@@ -298,8 +311,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     We are not a "contractual party," thus when you make (or request) a booking, it is done directly with the service provider.
                   </Text>
@@ -309,8 +323,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     After you make your reservation, we verify the information with you and the service provider, including the identities of the guest or guests.
                   </Text>
@@ -320,8 +335,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     If you would like, you may be able to modify or cancel your reservation, depending on its terms. For assistance with anything, please use the Help Center, which is open twenty-four hours a day.
                   </Text>
@@ -344,8 +360,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     The only basis for the hotel booking voucher that Fracspace provides to a user is the
                     information that the hotel has updated or supplied about inventory availability.
@@ -365,8 +382,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     Hotels retain the only right of entry, and Fracspace has no influence over whether a
                     hotel grants or denies admission. Certain hotels may prohibit unmarried or unrelated
@@ -384,8 +402,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     The user's payment for the reservation solely covers their hotel stay. Breakfast
                     and/or meals may be included in certain reservations, as stated at the time of
@@ -399,8 +418,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     During holidays like Christmas, New Year's Eve, or other festivals, hotels may impose
                     an obligatory meal price, as determined by the hotel. You must pay the hotel directly
@@ -428,6 +448,7 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Bold" }}>
                     1.</Text>
@@ -442,6 +463,7 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Bold" }}>
                     2.</Text>
@@ -455,6 +477,7 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Bold" }}>
                     3.</Text>
@@ -468,6 +491,7 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Bold" }}>
                     4.</Text>
@@ -482,6 +506,7 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Bold" }}>
                     5.</Text>
@@ -496,6 +521,7 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Bold" }}>
                     6.</Text>
@@ -526,8 +552,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     Booking of a hotel can either be “Prepaid”, or “Pay at hotel” as per the options made available by a hotel on the Website/App of Fracspace.
                   </Text>
@@ -537,8 +564,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     The "Prepaid" model requires the user to pay the whole booking amount at the time
                     of booking. Taxes, service costs that may be assessed by the real service provider,
@@ -551,8 +579,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     When the merchant location (as specified by the card brand, such as Visa,
                     MasterCard, or American Express) and the card issuer are in separate nations,
@@ -567,8 +596,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     To cover any extra costs that might arise during their stay, certain lodging providers
                     can ask the user and/or the other individuals making the reservation to provide a
@@ -581,8 +611,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     When using the "pay at hotel" model, the hotel in question will receive the full
                     amount due at check-in. The hotel will determine whether to charge payment in
@@ -597,8 +628,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     You agree to pay the full cost of the travel experience, including any applicable fees
                     and taxes, when you make a booking. They may have rounded some of the prices to
@@ -617,8 +649,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     We will store your Payment Method details for future transactions after collecting
                     your consent.
@@ -663,8 +696,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     There may be links to external websites/app link on the app. Fracspace has no authority over these websites/app and is not liable for their content. Users that visit any third-party websites/app do so at their own risk, and Fracspace won't be held responsible for whatever they do.
                   </Text>
@@ -674,8 +708,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     Fracspace is not responsible for any errors, omissions or representations on any of its pages, links or any linked website/app pages to the extent such information is updated or provided directly by the Service Providers or the advertisers.
                   </Text>
@@ -686,9 +721,10 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10,
                     width: '100%'
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     Fracspace does not in any way recommend any of the advertisements on its app or any of the linked websites/app.Users are asked to confirm that all of the information on the third-party websites/app is accurate.
                   </Text>
@@ -699,8 +735,9 @@ export default function TermsAndCondition() {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     padding: 5,
+                    paddingRight:10
                   }}>
-                  <Icon name="dot-single" size={32} color="#1E2135" />
+                  <Icon name="dot-single" size={20} color="#1E2135" />
                   <Text style={{ color: '#1A1A1A', fontSize: 14, fontFamily: "Poppins-Regular" }}>
                     Since Fracspace has no control over the connected websites/app, it cannot be held accountable for the information on any linked website/app, any further links on those websites/app, or any modifications or additions to those websites/app. These links are exclusively offered to users by Fracspace for their convenience.
                   </Text>
@@ -742,7 +779,7 @@ export default function TermsAndCondition() {
             }}>
             Bluhous
           </Text>
-          <Icon name="chevron-small-down" size={32} color="#1E2135" />
+          <Icon name="chevron-small-down" size={20} color="#1E2135" />
 
 
         </TouchableOpacity> */}

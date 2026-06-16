@@ -40,7 +40,7 @@ export default function Chat() {
     {
       question: 'What are the benefits in Fracspace?',
       answer:
-        'We are tech enabled, transparenf and offer a minimum guarantee on rental yields, with no lock in commitments.',
+        'We are tech enabled, transparent and offer a minimum guarantee on rental yields, with no lock in commitments.',
     },
     {
       question: 'What is the Minimum and Maximum Amount?',
@@ -184,7 +184,7 @@ export default function Chat() {
             paddingHorizontal: 20,
             paddingBottom: 20,
             paddingTop: 20,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: '#021265',
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -193,20 +193,22 @@ export default function Chat() {
           }}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('HomePage');
+              // navigation.navigate('HomePage');
+              navigation.goBack();
             }} style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <IconE name={'chevron-left'} size={25} color={'#000000'} />
-            <Text
+            <IconE name={'chevron-left'} size={25} color={'#FFF'} />
+          </TouchableOpacity>
+          <Text
               style={{
                 fontFamily: 'WorkSans-Medium',
                 fontSize: 18,
-                color: '#000000',
+                color: '#FFF',
                 marginLeft: 20,
               }}>
               Chat
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          <View style={{width:25}}/>
+          {/* <TouchableOpacity
             onPress={() => {
               navigation.navigate('HomePage');
             }}>
@@ -218,7 +220,7 @@ export default function Chat() {
               }}>
               Exit
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View
           style={{
@@ -324,7 +326,7 @@ export default function Chat() {
           </View>
           <View style={{ flex: 1 }}></View>
         </View>
-        <View style={{ marginBottom: 30, padding: 10, }}>
+        <View style={{ marginBottom: 40, padding: 10, }}>
           {Quest.map((item, index) => (
             <View key={index}>
               <View

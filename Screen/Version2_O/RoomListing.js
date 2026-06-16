@@ -200,37 +200,22 @@ export default function RoomListing(props) {
                 translucent={false}
             /> */}
             <ScrollView style={{backgroundColor:'#FFFFFF'}}>
-                <View style={{ backgroundColor: '#0D2038', width: width, height: height * 0.24 }}>
+                <View style={{ backgroundColor: '#0D2038', width: width, height: height * 0.07 }}>
                     <View style={{ padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <TouchableOpacity onPress={() => {
                             navigation.navigate('DreamscapeHome');
                         }}>
                             <Icon name={'left'} size={20} color={'#FFFFFF'} />
                         </TouchableOpacity>
-                        <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 16, color: '#FFFFFF' }}>Dreamscape Hotel Rooms</Text>
+                        <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 16, color: '#FFFFFF' }}>Available Hotels</Text>
                         {/* <Icon name={'phone'} size={20} color={'#FFFFFF'} style={{ transform: [{ rotate: '90deg' }] }} /> */}
                         <View></View>
                     </View>
                 </View>
 
-                <View style={{ marginHorizontal: 20, borderRadius: 15, marginTop: -height * 0.14, backgroundColor: '#FFFFFF', elevation: 5, marginBottom: 20 }}>
+                {/* <View style={{ marginHorizontal: 20, borderRadius: 15, marginTop: -height * 0.14, backgroundColor: '#FFFFFF', elevation: 5, marginBottom: 20 }}>
                     <View style={{ paddingHorizontal: 15, marginTop: 20 }}>
                         <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 16, color: '#000000' }}>Select a Location</Text>
-                        {/* <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={{ fontSize: 14, color: '#000000' }}
-                            selectedTextStyle={{ fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#0D1E36' }}
-                            data={data}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            itemTextStyle={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#0D1E36' }}
-                            placeholder={'Select location'}
-                            value={value}
-                            onChange={(item) => {
-                                setValue(item.value);
-                            }}
-                        /> */}
                         <View style={[styles.dropdown,{justifyContent:'center'}]}>
                             <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#0D1E36' }}>{value}</Text>
                         </View>
@@ -273,7 +258,7 @@ export default function RoomListing(props) {
                         <TouchableOpacity onPress={() => {
                             setFilter(!filter);
                         }} style={{ backgroundColor: '#0E1E36F2', flex: 1, borderRadius: 25, padding: 14, marginHorizontal: 15, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/filter.png' }} style={{ width: 20, height: 20 }} />
+                            <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/filter.png' }} style={{ width: 20, height: 20 }} />
                             <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 12, color: '#E09E3B', marginLeft: 5 }}>FILTERS</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
@@ -283,90 +268,7 @@ export default function RoomListing(props) {
                             <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 12, color: '#E09E3B', marginLeft: 5 }}>SORTS</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
-
-                {/* {details.map((item, index) => (
-                <TouchableOpacity onPress={() => {
-                    navigation.navigate('RoomDescription');
-                }} key={ index } style={{backgroundColor:'#FFFFFF',borderRadius:25,marginHorizontal:20,marginVertical:15,elevation:5,alignSelf:'center',width:width*0.9,overflow:'hidden'}}>
-                    <View>
-                        <FlatList
-                            ref={flatListRef}
-                            data={images}
-                            horizontal
-                            pagingEnabled
-                            showsHorizontalScrollIndicator={false}
-                            onScroll={handleScroll}
-                            keyExtractor={(id, index) => index.toString()}
-                            style={{width:'100%',height:height*0.2}}
-                            renderItem={({ item }) => (
-                                <Image source={item} style={{width:width*0.9,height:height*0.22,}} />
-                            )}
-                        />
-
-                        <View style={{position: "absolute",top: 15,left: 15,}}>
-                          
-                            <LinearGradient colors={['#0000006B','#9999996B']} style={{padding:8,borderRadius:25,paddingHorizontal:10,borderColor:'#FFFFFF',borderWidth:1,alignItems:'center',justifyContent:'center'}}>
-                                <Text style={{fontFamily:'Montserrat-Bold',fontSize:12,color:'#FFFFFF'}}>{item.offer}</Text>
-                            </LinearGradient>
-                        </View>
-                        <View style={{position: "absolute",top: 15,right: 15,}}>
-                            <LinearGradient colors={['#0000006B', '#9999996B']} onPress={() => {
-                                toggleLikes(item.name)
-                            }} style={{width:35,height:35,borderRadius:35,justifyContent:'center',alignItems:'center',borderColor:'#FFFFFF',borderWidth:1}}>
-                                { like.includes(item.name) ?
-                                    <Icon name={'heart'} size={15} color={'white'}/>
-                                    : <Icon name={'hearto'} size={15} color={'#FFFFFFD1'}/>
-                                }
-                            </LinearGradient>
-                        </View>
-
-                        <View style={{position:'absolute',bottom:10, left:15,flexDirection:'row',alignItems:'center'}}>
-                            <View style={{backgroundColor:'#0D2038',width:25,height:25,borderTopRightRadius:5,borderTopLeftRadius:5,borderBottomRightRadius:5,alignItems:'center',justifyContent:'center'}}>
-                                <Text style={{fontFamily:'Poppins-Medium',fontSize:10,color:'#FFFFFF'}}>{item.star}</Text>
-                            </View>
-                            <Text style={{fontFamily:'Poppins-Medium',fontSize:10,color:'#FFFFFF',marginLeft:5}}>{( `${item.rating}` )}</Text>
-                        </View>
-                
-                  
-                        <View style={{position: "absolute",bottom: 10,left:'50%',flexDirection: "row",transform: [{ translateX: -20 }]}}>
-                            {images.map((_, index) => (
-                            <View
-                                key={index}
-                                style={[
-                                styles.dot,
-                                currentIndex === index ? styles.activeDot : {},
-                                ]}
-                            />
-                            ))}
-                        </View>
-
-                        <View style={{position:"absolute",bottom:10,right:15}}>
-                            <View style={{backgroundColor:'rgba(153, 153, 153, 0.42)',width:30,height:30,borderRadius:5,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#FFFFFF33'}}>
-                                <Image resizeMode='contain' source={require('./assets/Video2.png')} style={{width:20,height:20}}/>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={{padding:10,flexDirection:'row',justifyContent:'space-between'}}>
-                        <View>
-                            <View style={{}}>
-                                <Text style={{fontFamily:'Montserrat-SemiBold',fontSize:17,color:'#000000'}}>{item.hotelRoom}</Text>
-                                <Text style={{fontFamily:'Montserrat-Medium',fontSize:13,color:'#0E2037'}}>{( `${item.roomType}` )}</Text>
-                            </View>
-                            <View style={{flexDirection:'row',}}>
-                                <Ico name={'location-outline'} size={15} color={'#262D3D'}/>
-                                <Text style={{fontFamily:'Montserrat-Regular',fontSize:12,color:'#262D3D',marginLeft:5}}>{item.location}</Text>
-                            </View>
-                        </View>
-                        <View style={{alignItems:'flex-end'}}>
-                            <Text style={{fontFamily:'Montserrat-Bold',fontSize:17,color:'#0D2038'}}>{item.price}</Text>
-                            <Text style={{fontFamily:'Montserrat-Medium',fontSize:9,color:'#0E2037'}}>+232 taxes & fees </Text>
-                            <Text style={{fontFamily:'Montserrat-Medium',fontSize:10,color:'#0E2037',}}>Per Night</Text>
-                        </View>
-                    </View>
-                </TouchableOpacity>))} */}
-
-
+                </View> */}
 
                 {[...hotelDetails]
                     .filter((hotel) => {
@@ -385,7 +287,7 @@ export default function RoomListing(props) {
                             return b.price - a.price;
                         }
                         return 0;
-                    }).map((item, index) => {
+                    })?.map((item, index) => {
                         const itemName = item?.name;
                         if (!scaleAnimations[itemName]) {
                             scaleAnimations[itemName] = new Animated.Value(1);
@@ -407,19 +309,21 @@ export default function RoomListing(props) {
                                               }}
                                             dotStyle={{ backgroundColor: '#0E213861', width: 8, height: 8, borderRadius: 4 }}
                                             activeDotStyle={{ backgroundColor: '#0E2138', width: 8, height: 8, borderRadius: 4 }}
-                                            autoplay
+                                            // autoplay
                                         >
-                                            {item.images.map((img, imgIndex) => (
+                                            {item.images?.map((img, imgIndex) => (
                                                 <Image key={imgIndex} source={{ uri: img }} style={{ width: width * 0.9, height: height * 0.22 }} />
                                             ))}
                                         </Swiper>
                                     )}
 
+                                    {item?.offers &&
                                     <View style={{ position: "absolute", top: 15, left: 15, }}>
                                         <LinearGradient colors={['#0000006B', '#9999996B']} style={{ padding: 8, borderRadius: 25, paddingHorizontal: 10, borderColor: '#FFFFFF', borderWidth: 1, alignItems: 'center', justifyContent: 'center' }}>
                                             <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 12, color: '#FFFFFF' }}>{item?.offers}</Text>
                                         </LinearGradient>
                                     </View>
+                                    }
 
                                     <View style={{ position: "absolute", top: 15, right: 15 }}>
                                         <TouchableOpacity onPress={() => {
@@ -449,33 +353,29 @@ export default function RoomListing(props) {
                                         </TouchableOpacity>
                                     </View>
 
+                                    {(item?.name == 'DREAMSCAPE' || item?.name == 'Fracspace Abode' || item?.name == 'Eleven Views' || item?.name == 'Hilltop By Fracspace')  &&
                                     <View style={{ position: "absolute", bottom: 0, right: 0 }}>
                                         <TouchableOpacity onPress={() => {
                                             if (item?.name == 'DREAMSCAPE') {
-                                                navigation.navigate('VideoTour', { vlink: `https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/dreamscapes-video1.mp4`, location: 'DREAMSCAPE' });
+                                                navigation.navigate('VideoTour', { vlink: `https://duixj37yn5405.cloudfront.net/videos/dreamscapes-video1.mp4`, location: 'DREAMSCAPE' });
                                             } else if (item?.name == 'Fracspace Abode') {
-                                                navigation.navigate('VideoTour', { vlink: `https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/abode-video1.mp4`, location: 'Fracspace Abode' });
+                                                navigation.navigate('VideoTour', { vlink: `https://duixj37yn5405.cloudfront.net/videos/abode-video1.mp4`, location: 'Fracspace Abode' });
 
                                             } else if (item?.name == 'Eleven Views') {
-                                                navigation.navigate('VideoTour', { vlink: `https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/IMG_4124.MP4`, location: 'Eleven Views' });
+                                                navigation.navigate('VideoTour', { vlink: `https://duixj37yn5405.cloudfront.net/videos/IMG_4124.MP4`, location: 'Eleven Views' });
 
                                             } else if (item?.name == 'Hilltop By Fracspace') {
 
-                                                navigation.navigate('VideoTour', { vlink: `https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/MunnarVideo.mp4`, location: 'Hilltop By Fracspace' });
+                                                navigation.navigate('VideoTour', { vlink: `https://duixj37yn5405.cloudfront.net/videos/MunnarVideo.mp4`, location: 'Hilltop By Fracspace' });
 
                                             }
-
-
-
-
-
-
                                         }} style={{ position: "absolute", bottom: 10, right: 15 }}>
                                             <View style={{ backgroundColor: 'rgba(153, 153, 153, 0.42)', width: 40, height: 35, borderRadius: 5, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#FFFFFF33' }}>
-                                                <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/videoo.png' }} style={{ width: 20, height: 20 }} />
+                                                <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/videoo.png' }} style={{ width: 20, height: 20 }} />
                                             </View>
                                         </TouchableOpacity>
                                     </View>
+                                    }
                                 </View>
                                 <View style={{ padding: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
                                     <View style={{ flex: 1 }}>
@@ -659,7 +559,7 @@ export default function RoomListing(props) {
                             <Text style={{ fontFamily: 'Poppins-Meidum', fontSize: 16, color: '#000000' }}>Property Type: </Text>
 
                             <View style={{ flexDirection: 'row', gap: 15, flexWrap: 'wrap', marginTop: 10 }}>
-                                {propertyTypes.map((item, index) => (
+                                {propertyTypes?.map((item, index) => (
                                     <TouchableOpacity key={index} onPress={() => {
                                         setPropertyType(prev => prev === item ? "" : item);
                                     }} style={{ borderWidth: 1, borderColor: propertyType == item ? '#E09E3B' : '#62626233', backgroundColor: propertyType == item ? '#E09E3B' : '#FFFFFF', borderRadius: 5, paddingVertical: 10, paddingHorizontal: 20 }}>
@@ -676,7 +576,7 @@ export default function RoomListing(props) {
                             <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 16, color: '#000000' }}>Room Type: </Text>
 
                             <View style={{ flexDirection: 'row', gap: 15, flexWrap: 'wrap', marginTop: 10 }}>
-                                {roomTypes.map((item, index) => (<TouchableOpacity key={index} onPress={() => {
+                                {roomTypes?.map((item, index) => (<TouchableOpacity key={index} onPress={() => {
                                     // setRoomType(item);
                                     setRoomType(prev => prev === item ? "" : item); // Deselect if same
                                 }} style={{ borderWidth: 1, borderColor: roomType == item ? '#E09E3B' : '#62626233', backgroundColor: roomType == item ? '#E09E3B' : '#FFFFFF', borderRadius: 5, paddingVertical: 10, paddingHorizontal: 20 }}>
@@ -691,7 +591,7 @@ export default function RoomListing(props) {
                         <Text style={{fontFamily:'Poppins-Medium',fontSize:16,color:'#000000'}}>Room Amenities: </Text>
 
                         <View style={{flexDirection:'row',gap:15,flexWrap:'wrap',marginVertical:10}}>
-                            { amenities.map((item, index) => (<TouchableOpacity key={index} onPress={() => {
+                            { amenities?.map((item, index) => (<TouchableOpacity key={index} onPress={() => {
                                 toggleAmenity(item);
                             }} style={{borderWidth:1,borderColor:roomAmenities.includes(item)?'#E09E3B':'#62626233',backgroundColor:roomAmenities.includes(item)?'#E09E3B':'#FFFFFF',borderRadius:5,paddingVertical:10,paddingHorizontal:15,}}>
                                 <Text style={{fontFamily:'Montserrat-Medium',fontSize:12,color:roomAmenities.includes(item)?'#FFFFFF':'#00000099'}}>{item}</Text>

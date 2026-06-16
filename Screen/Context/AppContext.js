@@ -8,6 +8,7 @@ const AppProvider = ({children}) => {
     userEmail:'',
     userPhone:'',
     ProDetails: [],
+    prior: '',
     LableProDetails:[],
     token: '',
     Login:false,
@@ -21,8 +22,15 @@ const AppProvider = ({children}) => {
     PropertyBuyAnsRent:[],
     currentLocation:[],
     ProprtyListingForm1:[],
-    HotelUserDetails:{}
-    
+    HotelUserDetails:{},
+    AllProperty: [],
+    altairaPromo: [],
+    pendingDeepLinkType: "",
+    pendingDeepLinkId: "",
+    HotelDetails: [],
+    location: [],
+    ourStays: [],
+    liveVersion: "",
   });
   
 

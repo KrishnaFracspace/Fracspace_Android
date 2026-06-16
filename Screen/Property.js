@@ -1,28 +1,34 @@
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  FlatList,
-  Linking,
-  ScrollView,
-  Alert,
- 
-} from 'react-native';
-import { useState, useContext, useEffect } from 'react';
+import {View,Text,Image,TouchableOpacity,StyleSheet,Dimensions,FlatList,Linking,ScrollView,Alert,Share,ImageBackground,Animated,Modal, TextInput, ActivityIndicator} from 'react-native';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Swiper from 'react-native-swiper';
 import openMap, { createOpenLink } from 'react-native-open-maps';
 import { AppContext } from './Context/AppContext';
 const { width, height } = Dimensions.get('window');
-import Icon from 'react-native-vector-icons/Ionicons';
+// import Icon from 'react-native-vector-icons/Ionicons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
-import Iconcall from 'react-native-vector-icons/Feather';
-import { DisLike, Like, LikeData, NewUpdate, SiteVisit } from './Services/UserApi';
+import IconMail from 'react-native-vector-icons/Feather';
+import { DisLike, Like, LikeData, NewUpdate, PropertyDetailsById, SiteVisit, UploadEnquiry } from './Services/UserApi';
 import * as Progress from 'react-native-progress';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchNewUpdates, profileDetailsById } from './redux/reducer/propertyReducer';
+import PropertySkeleton from './component/PropertySkeleton ';
+import appsFlyer from 'react-native-appsflyer';
+// import Share from 'react-native-share'
+
+import Icon from 'react-native-vector-icons/Entypo'
+import Ico from 'react-native-vector-icons/Ionicons'
+import Icoo from 'react-native-vector-icons/FontAwesome'
+import Carousel from "react-native-reanimated-carousel";
+import LinearGradient from 'react-native-linear-gradient';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+// import Test from './Test';
+import Test from './Test';
+import Video from 'react-native-video';
+import FastImage from 'react-native-fast-image';
+import analytics from '@react-native-firebase/analytics';
+
 
 export default function Property(props) {
  
@@ -34,17 +40,100 @@ export default function Property(props) {
   const [Status1, setStatus1] = useState(true);
   const navigation = useNavigation();
   const [showFullText, setShowFullText] = useState(false);
+  const [image, setImage] = useState([]);
+  // console.log("prop:", props?.route?.params);
 
-  const [PropertiesArray, setPropertiesArray] = useState(
-    props?.route?.params?.details || []);
+  // const [PropertiesArray, setPropertiesArray] = useState(props?.route?.params?.details || []);
+  const [PropertiesArray, setPropertiesArray] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  // console.log("Propety: ", props?.route?.params?.details);
   const [Newupdate, setNewupdate] = useState([]);
-  const [propertyStatu, setPropertyStatu] = useState(
-    props?.route?.params?.details?.PropertyStatus || 0,
-  );
+  const [propertyStatu, setPropertyStatu] = useState(0);
+  const propertyId = props?.route?.params?.Id || globalState?.pendingDeepLinkId;
+  const [open, setOpen] = useState(false);
+  const [viewEnquire, setViewEnquire] = useState(false);
+  const [showFullDesc, setShowFullDesc] = useState(false);
+  const [showFullReview, setShowFullReview] = useState(false);
+  const [selectHeader, setSelectHeader] = useState(PropertiesArray?.video?.Video1 ? 'Video':'Camera');
+  const [viewEnquiry, setViewEnquiry] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [name, setName] = useState(globalState?.userName);
+  const [email, setEmail] = useState(globalState?.userEmail);
+  const [phone, setPhone] = useState(globalState?.userDetails?.phoneNumber);
+  const [success, setSuccess] = useState(false);
+  // console.log("id: ",propertyId);
+  
 
+  // console.log("Testim: ",PropertiesArray?.testimonial[1]);
+
+  // const proId = props.route?.params?.Id;
+  // const dispatch = useDispatch();
+  // const Newupdate1 = useSelector(state => state.property.newUpdates);
+  // const PropertiesArray1 = useSelector(
+  //   state => state.property.PropertyDetailsById,
+  // );
+  // // console.log("newUp: ",Newupdate1);
+  // // console.log("prope: ",PropertiesArray1);
+  // const loading = useSelector(state => state.property.loading);
+  // const [CustomerReview, setCustomerReview] = useState([]);
   const GgoToYosemite = location => {
-    openMap({ query: location });
+    openMap({query: location});
   };
+
+  // useEffect(() => {
+  //   dispatch(fetchNewUpdates());
+  //   dispatch(profileDetailsById({id: proId}));
+  // }, []);
+
+    useEffect(() => {
+        analytics().logEvent('view_property', {
+            property_id: propertyId,
+        });
+    }, []);
+
+  useEffect(() => {
+    fetchPropById(propertyId);
+    handleUpdate();
+    // handleAllLike();
+  }, []);
+
+  useEffect(() => {
+    if(!email) return;
+    handleAllLike();
+  }, []);
+
+    useEffect(() => {
+        const imageObject = PropertiesArray?.image || {};
+        const imageArray = Object.values(imageObject).filter(Boolean);
+        setImage(imageArray);
+    }, [PropertiesArray]);
+
+  const fetchPropById = async (id) => {
+    setIsLoading(true);
+
+    try {
+      const { data: res } = await PropertyDetailsById(id);
+      // console.log("Data: ",res);
+      if (res) {
+        // console.log("Data: ",res?.property);
+        setPropertiesArray(res?.property); // force array
+        setPropertyStatu(res?.property?.PropertyStatus);
+      } else {
+        setPropertiesArray([]);
+      }
+
+    } catch (error) {
+      console.error(
+        'Error in fetching Prop by Id:',
+        error?.response?.data || error?.message
+      );
+      setPropertiesArray([]);
+    }
+
+    setIsLoading(false);
+  };
+
 
   const handleUpdate = async () => {
     try {
@@ -52,6 +141,7 @@ export default function Property(props) {
 
       if (res?.success) {
         setNewupdate(res?.updates);
+        // console.log("Updarte: ",res?.updates);
         // setProperties(res?.properties);
       }
     } catch (error) {
@@ -64,6 +154,29 @@ export default function Property(props) {
       }
     }
   };
+
+    const handleEnquiryForm = async () => {
+        let payload = JSON.stringify({
+            name: globalState?.userName,
+            email: globalState?.userEmail,
+            phoneNumber: globalState?.userDetails?.phoneNumber,
+            message: `Enquiry for Altaira Villa. ${message}`
+        });
+        // console.log('payload: ', payload);
+        try {
+            let { data: res } = await UploadEnquiry(payload);
+            if (res?.success) {
+                // Alert.alert('Thank You', 'Your Enquiry Submitted Successfully');
+                setViewEnquiry(false);
+            }
+            console.log('Uploaded Successful: ', res?.message);
+            return res;
+        } catch (error) {
+            console.error('Error in uploading enquiry form: ', error?.response?.message || error.message);
+            return null;
+        }
+    };
+
   const handleDisLike = async Productid => {
     let payload = JSON.stringify({
       email: globalState?.userEmail,
@@ -140,1645 +253,851 @@ export default function Property(props) {
       }
     }
   };
-  useEffect(() => {
-    handleUpdate();
-    handleAllLike();
-  }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={{ alignItems: 'center', flex: 1, padding: 8 }}>
-      <Image
-        style={[styles.maskGroupIconLayout]}
-        resizeMode="cover"
-        source={{ uri: item?.image }}
-      />
-      <View style={{ alignItems: 'center' }}>
-        <Text
-          style={{
-            fontSize: 12,
-            // fontWeight: 400,
-            fontFamily: 'OpenSans-SemiBold',
-            letterSpacing: 0.3,
-            //fontFamily: 'Montserrat-SemiBold',
-            color: '#2E2E2E',
-            textAlign: 'center',
-          }}>
-          {item?.name}
-        </Text>
-      </View>
-    </View>
-  );
-  const renderItemSec = ({ item }) => (
-    <View style={{ alignItems: 'center', flex: 1, padding: 8, flexDirection: 'row', backgroundColor: '#ffffff', borderRadius: 5, borderColor: '#E8ECF3', borderBottomWidth: 1 }}>
-      <Image
-        style={[styles.maskGroupIconLayout, { borderRadius: 10 }]}
-        resizeMode="cover"
-        source={{ uri: item?.image }}
-      />
-      <View style={{ alignItems: 'flex-start', marginHorizontal: 5, flex: 1 }}>
-        <Text
-          style={{
-            fontSize: 12,
-            // fontWeight: 400,
-            fontFamily: 'OpenSans-SemiBold',
-            letterSpacing: 0.3,
-            //fontFamily: 'Montserrat-SemiBold',
-            color: '#2E2E2E',
-            textAlign: 'center',
-          }}>
-          {item?.name}
-        </Text>
-      </View>
+  const SafeImage = ({ source, fallback, ...props }) => {
+    // If require('image.png')
+    if (typeof source === 'number') {
+      return <Image {...props} source={source} />;
+    }
 
-    </View>
-  );
+    const uri = source?.uri;
+
+    const isValidUri =
+      uri && typeof uri === 'string' && uri.trim() !== '';
+
+    return (
+      <Image
+        {...props}
+        source={
+          isValidUri
+            ? { uri }
+            : fallback || require('./assets/placeholder.png')
+        }
+      />
+    );
+  };
+
+
+  const handleCallNow = () => {
+    const phoneNumber = '+919880626111';
+    const phoneUrl = `tel:${phoneNumber}`;
+
+    Linking.openURL(phoneUrl)
+      .then(supported => {
+        if (!supported) {
+          Alert.alert('Error', 'Phone number is not supported');
+        }
+      })
+      .catch(error => console.log('Error making phone call:', error));
+  };
+  const handleMail = () => {
+    const mailto = 'mailto:support@fracspace.com';
+    Linking.openURL(mailto)
+      .catch((err) => console.error('An error occurred', err));
+  };
+
+  const handleSiteVist = async date => {
+
+    let payload = JSON.stringify({
+      email: globalState?.userEmail,
+      userName: globalState?.userName,
+      propertyId: PropertiesArray?._id,
+      propertyName: PropertiesArray?.name,
+      price: PropertiesArray?.Price,
+      FC_Price: PropertiesArray?.FC_Price,
+      phoneNumber: globalState?.userDetails?.phoneNumber,
+      date: date,
+      time: date,
+    });
+    // console.log(payload);
+    try {
+      let { data: res } = await SiteVisit(payload);
+        // console.log("ResL :",res);
+      if (res?.success) {
+        Alert.alert(
+          'Successful Schedule Site Visit',
+          `Your Site Visit Schedule is ${date}`,
+        );
+      }
+    } catch (error) {
+      if (error?.response) {
+        Alert.alert('Response Error', `${error?.response?.data?.message}`);
+      } else if (error?.request) {
+
+        Alert.alert('Request error:', 'Please Check Your Internet Connection');
+      } else {
+        Alert.alert('Error:', `${error?.message}`);
+      }
+    }
+  };
+
+  const hideDatePicker = () => {
+    setOpen(false);
+  };
+
+  const handleConfirm = date => {
+    //console.log(date);
+
+    handleSiteVist(new Date(date).toLocaleString());
+    hideDatePicker();
+  };
+
+  // const shareProperty = propertyIdd => {
+  //   const link = `https://fracspace.onelink.me/OVdL/oh6t4r97?deep_link_value=property_share&deep_link_sub1=${propertyIdd}`;
+  //   // https://fracspace.onelink.me/OVdL/oh6t4r97?deep_link_value=property_share&deep_link_sub1=65ba3687d41d5864da96625d
+  //   Share.share({ message: link });
+  // };
+
+  const shareProperty = (propertyIdd) => {
+        analytics().logEvent('share_property', {
+            property_id: propertyIdd,
+        });
+      const link =
+        `https://fracspace.onelink.me/OVdL/oh6t4r97` +
+        `?deep_link_value=property_share` +
+        `&deep_link_sub1=${propertyIdd}`;
+
+      const message = `🏠 A property was shared with you on Fracspace.
+
+    Tap below to view:
+    ${link}`;
+
+      Share.share({ message });
+  };
+
+    const availableFrac = (PropertiesArray?.TotalFractions - PropertiesArray?.AvailableFractions)/(PropertiesArray?.TotalFractions) * 100;
+
+  if(isLoading){
+    return <PropertySkeleton/>
+  }
+//   console.log("Propettjhdfvjbfe: ", PropertiesArray?.name);
+
   return (
-    <SafeAreaView style={{ flex: 1,}}>
 
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 20,
-        width: '100%',
-        paddingHorizontal: 15,
-        borderBottomWidth: 1,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-        elevation: 1,
-        borderBottomColor: '#DDE1E5',
-        backgroundColor: '#021265'
-      }}>
-        <TouchableOpacity style={{ flex: 1 }}
-          onPress={() => {
-            if(props?.route?.params?.nav){
-               navigation.navigate('HomePage');
+    <SafeAreaView style={{flex:1,backgroundColor:'#021265'}}>
+        <ScrollView style={{ flex: 1, backgroundColor: "#FAFAFA" }}
+            stickyHeaderIndices={[0]}
+            showsVerticalScrollIndicator={false}
+        >
+            <View style={{zIndex:0}}>
+              {selectHeader === 'Camera' &&
+                <SafeImage
+                    source={{uri: image[0]}}
+                    style={{ width: "100%", height: height*0.45 }}
+                />
+              }
+              {selectHeader === 'Video' &&
+                <Video resizeMode='cover' volume={0} source={{uri: PropertiesArray?.video?.Video1}} style={{width:'100%',height:height*0.45}}/>
+              }
+                {/* Icons on image */}
+              
+                <View style={{position: "absolute",top: 25,left: 0,right: 0, }} >
+                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:20}}>
+                        <TouchableOpacity onPress={() => {
+                            navigation.goBack();
+                        }}>
+                            <Icon name={'chevron-left'} size={25} color={'#FFF'}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {shareProperty(propertyId);}}>
+                            <SafeImage source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/ShareButton.png'}} style={{width:25,height:25}}/>
+                        </TouchableOpacity>
+                    </View>
+                </View>
 
-            }else{
-            navigation.navigate('Home',{details:globalState?.ProDetails});
-            }
-           
-          }}>
-          <Icon name="chevron-back-outline" size={25} color={'#FFFFFF'} />
-        </TouchableOpacity>
-        <Text style={{
-          fontSize: 18,
-          fontFamily: 'WorkSans-SemiBold',
-          color: '#FFFFFF',
-        }}>
-          Property Details
-        </Text>
-        <TouchableOpacity
-          style={{ flex: 1, alignItems: 'flex-end' }}
-          onPress={() => {
-           navigation.navigate('HomePage');
-          }}>
-          <Text style={{
-          fontSize: 18,
-          fontFamily: 'WorkSans-SemiBold',
-          color: '#FFFFFF',
-        }}>
-          Exit
-        </Text>
+                <View style={{position:'absolute',bottom:0,right:0,left:0}}>
+                  <LinearGradient colors={['#00000000','#000000B3','#000000E6','#000000']} style={{}}>
+                    <View style={{paddingHorizontal:20,paddingVertical:10,flexDirection:'row',alignItems:'center'}}>
+                      {PropertiesArray?.video?.Video1 &&
+                        <TouchableOpacity onPress={() => {
+                          setSelectHeader('Video');
+                        }} style={{alignItems:'center',paddingHorizontal:15,borderBottomWidth:selectHeader === 'Video' ? 2:0,borderColor:'#FFF',marginRight:20}}>
+                          <SafeImage source={{uri:'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/VideoIcon.png'}} style={{width:22,height:22}}/>
+                          <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#FFF',marginVertical:5}}>Video</Text>
+                        </TouchableOpacity>
+                      }
+                      <TouchableOpacity onPress={() => {
+                        setSelectHeader('Camera');
+                      }} style={{alignItems:'center',paddingHorizontal:15,borderBottomWidth:selectHeader === 'Camera' ? 2:0,borderColor:'#FFF'}}>
+                        <SafeImage source={{uri:'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/CameraIcon.png'}} style={{width:22,height:22}}/>
+                        <Text style={{fontFamily:'WorkSans-regular',fontSize:12,color:'#FFF',marginVertical:5}}>Image</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </LinearGradient>
+                </View>
 
-
-        </TouchableOpacity>
-        {/* <View  style={{ flex: 1, alignItems: 'flex-end' }}></View> */}
-      </View>
-      <ScrollView
-        style={{
-          backgroundColor: '#f5f7fe',
-        }}>
-        <TouchableOpacity
-          style={{ paddingBottom: 30, backgroundColor: 'white' }}
-          onPress={() => {
-            navigation.navigate('BookingStatus', {
-              Image: PropertiesArray?.image,
-            });
-          }}>
-          <Swiper
-            style={styles.wrapper}
-            height={240}
-            onMomentumScrollEnd={(e, state, context) => { }}
-            dot={
-              <View
-                style={{
-                  backgroundColor: '#D9D9D9',
-                  width: 10,
-                  height: 10,
-                  borderRadius: 10,
-                  marginLeft: 3,
-                  marginRight: 3,
-                  marginTop: 3,
-                  // marginBottom: 3
-                }}
-              />
-            }
-            activeDot={
-              <View
-                style={{
-                  backgroundColor: '#043862',
-                  width: 10,
-                  height: 10,
-                  borderRadius: 10,
-                  marginLeft: 3,
-                  marginRight: 3,
-                  marginTop: 3,
-                  //   marginBottom: 3,
-                }}
-              />
-            }
-            paginationStyle={{
-              bottom: -23,
-              // left: null,
-              right: 10,
-            }}
-            // loop={false}
-            autoplay>
-            <Image
-              // resizeMode="stretch"
-              style={styles.image}
-              source={{ uri: PropertiesArray?.image?.Image1 }}
-            />
-
-            <Image
-              //resizeMode="stretch"
-              style={styles.image}
-              source={{ uri: PropertiesArray?.image?.Image2 }}
-            />
-
-            <Image
-              // resizeMode="stretch"
-              style={styles.image}
-              source={{ uri: PropertiesArray?.image?.Image3 }}
-            />
-
-            <Image
-              // resizeMode="stretch"
-              style={styles.image}
-              source={{ uri: PropertiesArray?.image?.Image4 }}
-            />
-          </Swiper>
-
-
-          {/* <View style={{
-            flexDirection: 'row',
-            position: 'absolute',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingVertical: 10,
-            width: '100%',
-            paddingHorizontal: 15,
-            //  borderBottomWidth: 1,
-            //shadowColor: '#000',
-            // shadowOffset: { width: 0, height: 2 },
-            // shadowOpacity: 0.8,
-            // shadowRadius: 2,
-            // elevation: 1,
-            //  borderBottomColor: '#DDE1E5'
-          }}>
-            
-            <View></View>
-            <TouchableOpacity style={{ flex: 1, padding: 5 }}
-              onPress={() => {
-                navigation.navigate('HomePage');
-
-              }}>
-              <Text style={{
-                fontSize: 15,
-                fontFamily: 'WorkSans-SemiBold',
-                color: '#0424CB',
-                textAlign: 'right'
-              }}>EXIT</Text>
-            </TouchableOpacity>
-          </View> */}
-
-
-          {/* <View
-            style={{
-              width: '100%',
-              height: 240,
-              position: 'absolute',
-              justifyContent: 'flex-end',
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'flex-end',
-              // alignItems:'baseline',
-              //backgroundColor:'white',
-
-              // marginTop:height*0.06,
-             // marginLeft: width * 0.08,
-              // borderWidth:1
-            }}>
-              <View style={{backgroundColor:'#FFFFFF',}}>
-            <IconEnty name={'image-inverted'} size={50} color={'#E34234'} />
-            </View>
-          </View> */}
-        </TouchableOpacity>
-
-        <View
-          style={{
-            // paddingHorizontal: 20,
-            backgroundColor: 'white',
-            //paddingVertical: 10,
-            marginVertical: 10,
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginVertical: 10,
-              paddingHorizontal: 20,
-              flex: 1,
-              width: '100%'
-            }}>
-            <View style={{ flex: 1 }} >
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontFamily: 'WorkSans-SemiBold',
-                  color: '#000000',
-                  //letterSpacing:0.5
-                }}>
-                {PropertiesArray?.name}
-              </Text>
-              <View
-                style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1, width: '90%', alignItems: 'center' }}>
-
-                <Icon name="location-sharp" size={20} color="#043862" />
-                <Text
-                  style={{
-                    fontSize: 13,
-                    // fontWeight: 700,
-                    color: '#1E2135',
-                    fontFamily: 'Poppins-SemiBold',
-                  }}>
-                  {PropertiesArray?.Location}
-                </Text>
-              </View>
+              {selectHeader === 'Camera' &&
+                <View style={{position:'absolute',top:height*0.1,right:10,zIndex:1}}>
+                    <View style={{padding:5,borderTopLeftRadius:6}}>
+                        {image.slice(1,3).map((item, index) => (
+                            <TouchableOpacity onPress={() => {
+                                navigation.navigate('PropertyImages', { data: image });
+                            }} key={index} style={{ borderColor: '#ffffff', borderWidth: 2, borderRadius: 6,marginBottom:5}}>
+                                <SafeImage source={{ uri: item }} style={{ width: 65, height: 65, borderRadius: 6 }} />
+                            </TouchableOpacity>
+                        ))}
+                        <TouchableOpacity onPress={() => {
+                            navigation.navigate('PropertyImages', { data: image });
+                        }} style={{ alignItems: 'center', justifyContent: 'center',borderWidth:2,borderColor:'#ffffff',borderRadius: 6  }}>
+                            <SafeImage source={{ uri: image[3] }} style={{ width: 65, height: 65, borderRadius: 6 }} />
+                            <View style={{position:'absolute',top:0,left:0,bottom:0,right:0,backgroundColor:'#00000092',alignItems:'center',justifyContent:'center',borderRadius:6}}>
+                                <Text style={{fontFamily:'WorkSans-Medium',fontSize:12,color:'#FFF'}}>+{image?.length}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+              }
             </View>
 
-            <TouchableOpacity
-              onPress={() => {
-                if (IsLike.includes(`${PropertiesArray?._id}`)) {
-                  handleDisLike(PropertiesArray?._id);
-                } else {
-                  handleLike(PropertiesArray);
+            <View style={{backgroundColor:'#FAFAFA',padding:20,zIndex:99,position:'relative',borderTopLeftRadius:20,borderTopRightRadius:20}}>
+                <View style={{position:'absolute',top:8,alignSelf:'center'}}>
+                    <View style={{padding:2,width:width*0.15,backgroundColor:'#D9D9D9',borderRadius:5}}/>
+                </View>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:5,flex:1,marginRight:11}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:18,color:'#000',marginRight:15}}>{PropertiesArray?.name}</Text>
+                    {/* <Ico name={'heart-outline'} size={20} color={'#000'}/> */}
+
+                    {email && (
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (IsLike.includes(`${PropertiesArray?._id}`)) {
+                                handleDisLike(PropertiesArray?._id);
+                            } else {
+                                handleLike(PropertiesArray);
+                            }
+                        }}>
+                        {IsLike.includes(`${PropertiesArray?._id}`) ? (
+                            <IconM name={'cards-heart'} size={23} color={'#EB2C19'} />
+                        ) : (
+                            <IconM name={'cards-heart-outline'} size={23} color={'#EB2C19'} />
+                        )}
+                    </TouchableOpacity>
+                    )}
+                </View>
+
+                <View style={{borderTopWidth:0.5,borderBottomWidth:0.5,borderTopColor:'#0000001A',borderBottomColor:'#0000001A',paddingVertical:10,marginTop:5}}>
+                    <View style={{flexDirection:'row',alignItems:'center',flex:1}}>
+                        <View style={{flex:2}}>
+                            <Text style={{fontFamily:'WorkSans-Medium',fontSize:12,color:'#000',marginRight:10,lineHeight:18}}>{PropertiesArray?.Location}</Text>
+                        </View>
+                        <TouchableOpacity onPress={() => {
+                            if(PropertiesArray?.GoogleMapLink){
+                                Linking.openURL(PropertiesArray?.GoogleMapLink);
+                            }else{
+                                GgoToYosemite(PropertiesArray?.Location);
+                            }
+                        }} style={{flex:1.3,alignItems:'flex-end'}}>
+                            <SafeImage source={{uri: PropertiesArray?.LocationImage}} style={{width:'100%',height:70,borderRadius:5}}/>
+                            <View style={{position:'absolute',top:0,bottom:0,left:0,right:0,backgroundColor:'#00000040',borderRadius:5}}></View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {Newupdate[0]?.Status && Newupdate[0]?.eventName != PropertiesArray?.name && (
+                    <View style={{ backgroundColor: '#D0DDD080',paddingHorizontal:12,paddingVertical:10,borderRadius:10,marginTop:15 }}>
+                        
+                        <TouchableOpacity disabled={Event} onPress={() => {
+                            // const filtered = globalState?.ProDetails.filter(user =>
+                            //     user?.name.includes(Newupdate[0]?.eventName),
+                            // );
+                            navigation.push('Property', {Id: Newupdate[0]?.id,status: true,});
+                        }} style={{flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',marginTop:5}}>
+                            <View style={{ flex: 2 ,gap:5}}>
+                                <View style={{backgroundColor:'#B1CFB1',borderRadius:15,padding:5,paddingHorizontal:10,alignSelf:'flex-start'}}>
+                                    <Text style={{fontFamily:'WorkSans-Medium',fontSize:10,color:'#000'}}>NEW LAUNCH</Text>
+                                </View>
+                                <Text style={{ fontSize: 14, fontFamily: 'WorkSans-SemiBold', color: '#000000', }}>
+                                    {/* {'          '} */}
+                                    {Newupdate[0]?.eventName}
+                                </Text>
+                                <Text
+                                numberOfLines={2}
+                                style={{ fontSize: 10, fontFamily: 'Poppins-Regular', letterSpacing: 0.3, color: '#000000Bf', }}>
+                                    {/* {' '} */}
+                                    {Newupdate[0]?.Description}
+                                </Text>
+                                <Text style={{fontFamily:'WorkSans-Medium',fontSize:12,color:'#2C762C'}}>View Property</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center',marginLeft:10 }}>
+                                <SafeImage
+                                    style={{ width: 114, height: 105, borderRadius: 10 }}
+                                    resizeMode="cover"
+                                    source={{ uri: Newupdate[0]?.Image }}
+                                />
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                <View style={{marginTop:15}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>
+                        Description
+                    </Text>
+
+                    <Text
+                        numberOfLines={showFullDesc ? undefined : 3}
+                        style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#000',marginTop:8,lineHeight:15}}
+                    >
+                        {PropertiesArray?.Description}
+                    </Text>
+
+                    <Text
+                        onPress={() => setShowFullDesc(!showFullDesc)}
+                        style={{fontFamily:'WorkSans-SemiBold',fontSize:12,color:'#021265',marginTop:4}}
+                    >
+                        {showFullDesc ? 'Read less' : 'Read more'}
+                    </Text>
+                </View>
+
+                <View style={{marginTop:15}}>
+                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                        <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Property Status</Text>
+                        <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:14,color:'#000'}}>{propertyStatu}%</Text>
+                    </View>
+                </View>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 15 }}>
+                    {PropertiesArray?.propertyUpdates?.map((item, index) => {
+                        const isCompleted = item.completed === true;
+                        const isCurrent = item.stage === "underConstruction";
+                        return (
+                          <View key={index} style={{ alignItems: 'center', width: width * 0.14, zIndex: 1}}>    
+                              <View
+                                  style={{
+                                      width: 24,height: 24,borderRadius: 12,alignItems: 'center',justifyContent: 'center',borderWidth: 2,
+                                      backgroundColor: '#fff',
+                                      borderColor: isCompleted || isCurrent ? '#021265' : '#BDBDBD'
+                                  }}
+                              >
+                                  {isCompleted && (
+                                      <Ico name={'checkmark-circle'} size={20} color={'#021265'} />
+                                  )}
+                                  {isCurrent && (
+                                      <View style={{width: 8,height: 8,borderRadius: 4,backgroundColor: '#021265' }} />
+                                  )}
+                              </View>
+                          </View>
+                        );
+                    })}
+                    <View style={{ position: 'absolute', top: 12, left: 20, right: 20, height: 2, backgroundColor: '#D3D3D3' }}/>
+                </View>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                  {PropertiesArray?.propertyUpdates?.map((item, index) => {
+                    const isCurrent = item?.stage === 'underConstruction'
+                    return(
+                    <View key={index} style={{width:width*0.14}}>
+                      <Text style={{fontFamily:isCurrent ? 'WorkSans-Medium' : 'WorkSans-Regular',fontSize: 8,color:isCurrent ? '#000':'#00000065',textAlign: 'center',marginTop: 6 }} >
+                          {item.data}
+                      </Text>
+                    </View>
+                  )})}
+                </View>
+
+                {/* <Test data={PropertiesArray?.propertyUpdates}/> */}
+
+                <View style={{marginTop:15}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Property Details</Text>
+
+                    {PropertiesArray?.investmentDetails?.show &&
+                    <View style={{backgroundColor:'#021265',padding:18,borderRadius:10,gap:10,marginTop:15}}>
+                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#FFFFFFB3'}}>{PropertiesArray?.investmentDetails?.product}</Text>
+                        <Text style={{fontFamily:'WorkSans-Medium',fontSize:15,color:'#FFFFFF'}}>{PropertiesArray?.investmentDetails?.type}</Text>
+                        <View style={{flexDirection:'row',alignItems:'center'}}>
+                            <View style={{backgroundColor:'#FFFFFF1F',paddingHorizontal:10,paddingVertical:5,borderRadius:20}}>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#FFF'}}>{PropertiesArray?.investmentDetails?.positioning}</Text>
+                            </View>
+                            <View style={{backgroundColor:'#FFD75A2E',paddingHorizontal:10,paddingVertical:5,borderRadius:20,marginLeft:10}}>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#FFD75A'}}>PRE-LAUNCH</Text>
+                            </View>
+                        </View>
+                    </View>
+                    }
+
+                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:15}}>
+                        <View style={{backgroundColor:'#9DB2CE1A',paddingHorizontal:12,paddingVertical:8,flex:1,borderRadius:5}}>
+                            <View style={{flexDirection:'row',alignItems:'center'}}>
+                                <View style={{backgroundColor:'#E1E6F0BF',borderRadius:20,padding:10}}>
+                                    <SafeImage source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/Squaree.png'}} style={{width:15,height:15}}/>
+                                </View>
+                                <View style={{marginLeft:10}}>
+                                    <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#000000BF'}}>AREA</Text>
+                                    <Text style={{fontFamily:'WorkSans-Medium',fontSize:12,color:'#000'}}>{PropertiesArray?.area}</Text>
+                                </View>
+                            </View>
+                        </View>
+                        <View style={{backgroundColor:'#9DB2CE1A',paddingHorizontal:12,paddingVertical:8,flex:1,marginLeft:15,borderRadius:5}}>
+                            <View style={{flexDirection:'row',alignItems:'center'}}>
+                                <View style={{backgroundColor:'#E1E6F0BF',borderRadius:20,padding:10}}>
+                                    <SafeImage source={{uri:'https://duixj37yn5405.cloudfront.net/appImages/PprtyType.png'}} style={{width:15,height:15}}/>
+                                </View>
+                                <View style={{marginLeft:10}}>
+                                    <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#000000BF'}}>Type</Text>
+                                    <Text style={{fontFamily:'WorkSans-Medimu',fontSize:12,color:'#000'}}>{PropertiesArray?.P_Type}</Text>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+
+                <View style={{marginTop:15}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Investment Breakdown</Text>
+
+                    {/* <View style={{backgroundColor:'#021265',padding:18,borderRadius:10,marginTop:15}}>
+                        <View>
+                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#FFFFFFBF'}}>TOTAL PROPERTY VALUE</Text>
+                            <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:20,color:'#FFF'}}>₹{PropertiesArray?.Price}</Text>
+                        </View>
+                        <View style={{flexDirection:'row',alignItems:'center',marginTop:20,justifyContent:'space-around',flex:1}}>
+                            <View style={{borderLeftWidth:2,borderLeftColor:'#FFF',paddingLeft:7,flex:1}}>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#FFFFFFBF'}}>FRAC VALUE</Text>
+                                <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:14,color:'#FFF'}}>₹{PropertiesArray?.FC_Price}</Text>
+                            </View>
+                            <View style={{borderLeftWidth:2,borderLeftColor:'#FFF',paddingLeft:7,flex:1}}>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#FFFFFFBF'}}>BOOKING VALUE</Text>
+                                {PropertiesArray?.name == 'ALTAIRA – FRACTIONAL OWNERSHIP VILLA' ?
+                                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:14,color:'#FFF'}}>${PropertiesArray?.BookingAmt}</Text>
+                                    :
+                                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:14,color:'#FFF'}}>₹{PropertiesArray?.BookingAmt}</Text>
+                                }
+                            </View>
+                            {PropertiesArray?.SPV &&
+                                <View style={{borderLeftWidth:2,borderLeftColor:'#FFF',paddingLeft:7,flex:1}}>
+                                    <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#FFFFFFBF'}}>SPV VALUE</Text>
+                                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:14,color:'#FFF'}}>₹{PropertiesArray?.SPV}</Text>
+                                </View>
+                            }
+                        </View>
+                    </View> */}
+
+                    <Test PropertiesArray={PropertiesArray}/>
+                </View>
+
+                <View style={{marginTop:15,borderColor:'#00000080',borderWidth:0.5,borderRadius:10,padding:20,backgroundColor:'#FFF'}}>
+                    <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#000000BF'}}>AVAILABILITY</Text>
+                    {availableFrac < 100 && availableFrac > 10 ?
+                        <Text style={{fontFamily:'WorkSans-Medium',fontSize:16,color:'#000'}}>Only <Text style={{color:'#EB2C19'}}>{PropertiesArray?.AvailableFractions} {PropertiesArray?.name == "ALTAIRA – VILLA" ?  "Villas" : "Frac"}</Text> left!</Text>
+                        :
+                        <Text style={{fontFamily:'WorkSans-Medium',fontSize:16,color:'#000'}}><Text style={{color:'#EB2C19'}}>{PropertiesArray?.AvailableFractions} {PropertiesArray?.name == "ALTAIRA – VILLA" ?  "Villas" : "Frac"}</Text> left!</Text>
+                    }
+
+                    <View style={{width:'100%',height:8,borderRadius:6,backgroundColor:'#02126533',marginTop:12}}>
+                        <View style={{width:`${availableFrac}%`,height:8,borderRadius:6,backgroundColor:'#021265'}}></View>
+                    </View>
+                    {availableFrac == 0 ?
+                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#000000BF',marginTop:5}}>Be among the first to own a frac in this property.</Text>
+                        :
+                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#000000BF',marginTop:5}}>{availableFrac}% of the property is already owned by {PropertiesArray?.TotalFractions - PropertiesArray?.AvailableFractions} investors</Text>
+                    }
+                </View>
+
+                {PropertiesArray?.investmentDetails?.show &&
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:15}}>
+                    {/* <View style={{backgroundColor:'#FFF',borderRadius:14,padding:12,gap:10,flex:1}}>
+                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                            <View style={{backgroundColor:'#E6F4EA',padding:3,borderRadius:5}}>
+                                <IconMail name={'dollar-sign'} size={13} color={'#1A6E38'}/>
+                            </View>
+                            <View style={{backgroundColor:'#E6F4EA',padding:3,borderRadius:5,paddingHorizontal:6}}>
+                                <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#1A6E38'}}>{PropertiesArray?.investmentDetails?.broi?.tenure}</Text>
+                            </View>
+                        </View>
+                        <View style={{gap:3}}>
+                            <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:20,color:'#111827'}}>{PropertiesArray?.investmentDetails?.broi?.percentage}%</Text>
+                            <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#0F1130'}}>{PropertiesArray?.investmentDetails?.broi?.label}</Text>
+                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#00000099'}}>{PropertiesArray?.investmentDetails?.broi?.description}</Text>
+                        </View>
+                    </View> */}
+                    <View style={{backgroundColor:'#FFF',borderRadius:14,padding:12,gap:10,flex:1}}>
+                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                            <View style={{backgroundColor:'#0212651A',padding:3,borderRadius:5}}>
+                                <IconMail name={'trending-up'} size={13} color={'#021265'}/>
+                            </View>
+                            <View style={{backgroundColor:'#0212651A',padding:3,borderRadius:5,paddingHorizontal:6}}>
+                                <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#021265'}}>{PropertiesArray?.investmentDetails?.appreciation?.duration}</Text>
+                            </View>
+                        </View>
+                        <View style={{gap:3}}>
+                            <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:20,color:'#111827'}}>{PropertiesArray?.investmentDetails?.appreciation?.expectedUpside}</Text>
+                            <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#0F1130'}}>{PropertiesArray?.investmentDetails?.appreciation?.label}</Text>
+                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#00000099'}}>{PropertiesArray?.investmentDetails?.appreciation?.entry}</Text>
+                        </View>
+                    </View>
+                </View>
                 }
-              }}>
-              {IsLike.includes(`${PropertiesArray?._id}`) ? (
-                <IconM name={'cards-heart'} size={40} color={'#FF3659'} />
-              ) : (
-                <IconM
-                  name={'cards-heart-outline'}
-                  size={36}
-                  color={'#FF3659'}
-                />
-              )}
-            </TouchableOpacity>
-          </View>
 
-          {Newupdate[0]?.Status && (
-            <View style={{ backgroundColor: '#dafdd5' }}>
-              <View
-                style={{
-                  // borderColor: 'red',
-                  backgroundColor: '#dde8ff',
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                  width: '15%',
-                  paddingVertical: 10,
-                  borderBottomRightRadius: 40,
-                }}>
-                <Text
-                  style={{
-                    //color: 'black',
-                    color: '#1E2135',
-                    fontSize: 12,
-                    fontFamily: 'Futura Heavy font',
-                    //fontFamily: 'Montserrat-Bold',
-                  }}>
-                  New
-                </Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'flex-start',
-                  marginHorizontal: 20,
-                  marginTop: -15,
-                  alignItems: 'center',
-                }}>
-                <View style={{ flex: 2 }}>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      fontFamily: 'WorkSans-SemiBold',
-                      color: '#000000',
-                    }}>
-                    {'          '}
-                    {Newupdate[0]?.eventName}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      fontFamily: 'Poppins-Regular',
-                      // fontFamily: 'Montserrat-Medium',
-                      // fontWeight: 700,
-                      letterSpacing: 0.3,
-                      color: '#1E2135',
-                      // textAlign: 'center',
-                      // paddingBottom: 5,
-                    }}>
-                    {' '}
-                    {Newupdate[0]?.Description}
-                  </Text>
+                <View style={{marginTop:15}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Ownership Advantages</Text>
+
+                    <View>
+                        {PropertiesArray?.Benefits?.map((item, index) => (
+                            <View key={index} style={{backgroundColor:"#9DB2CE1A",paddingHorizontal:13,paddingVertical:10,borderRadius:5,borderLeftColor:'#021265',borderLeftWidth:6,marginTop:13}}>
+                                <View style={{flexDirection:'row',alignItems:'center'}}>
+                                    <SafeImage source={{uri: item?.image}} style={{width:40,height:40,borderRadius:5}}/>
+                                    <View style={{marginLeft:15,flex:1}}>
+                                        <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:12,color:'#000'}}>{item?.name}</Text>
+                                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#00000080',marginTop:5}}>{item?.description}</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
                 </View>
-                <TouchableOpacity
-                  disabled={Event}
-                  style={{ flexDirection: 'row', alignItems: 'center' }}
-                  onPress={() => {
-                    const filtered = globalState?.ProDetails.filter(user =>
-                      user?.name.includes(Newupdate[0]?.eventName),
-                    );
-                    navigation.push('Property', {
-                      details: filtered[0],
-                      status: true,
-                    });
-                  }}>
-                  <Image
-                    style={{ width: 80, height: 80, borderRadius: 10 }}
-                    resizeMode="cover"
-                    source={{ uri: Newupdate[0]?.Image }}
-                  />
-                  <IconM
-                    name="chevron-right-circle"
-                    size={30}
-                    color="#2F5233"
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={{ alignItems: 'center', padding: 5 }}>
-                {/* <IconM name="dots-horizontal" size={30} color="black" /> */}
-              </View>
-            </View>
-          )}
 
-          {/* <ScrollView horizontal={true}> */}
-          {/* <View
-            style={{
-              flexDirection: 'row',
-              flex: 1,
-              width: '100%',
-              marginTop: 10,
-              paddingVertical: 10,
-            }}>
-            <View style={{flexDirection: 'row', marginRight: 20, flex: 1}}> */}
-          {/* <View style={{alignItems: 'center', marginRight: 60}}>
-                <Image
-                  style={{width: 60, height: 60}}
-                  resizeMode="cover"
-                  source={require('./assets/Vector.jpg')}
-                />
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: '#1E2135',
-                    // top: -5,
-                    // paddingBottom: 5,
-                  }}>
-                  4 Rooms
-                </Text>
-              </View>
-              <View style={{alignItems: 'center', marginRight: 60}}>
-                <Image
-                  style={{width: 60, height: 60}}
-                  resizeMode="cover"
-                  source={require('./assets/Group10.jpg')}
-                />
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: '#1E2135',
-                    // top: -5,
-                    // paddingBottom: 5,
-                  }}>
-                  4 Bathrooms
-                </Text>
-              </View> */}
-          {/* <View style={{alignItems: 'center'}}>
-            <Image
-              style={{width: 60, height: 60}}
-              resizeMode="cover"
-              source={require('./assets/Group12.jpg')}
-            />
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: 400,
-                color: '#1E2135',
-               // top: -5,
-                // paddingBottom: 5,
-              }}>
-               {PropertiesArray[0]?.area}
-            </Text>
-           
-          </View> */}
+                {/* {PropertiesArray?.investmentDetails?.show &&
+                    <View style={{marginTop:15}}>
+                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                            <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Payment Plan</Text>
+                            <View style={{backgroundColor:'#FFF',padding:5,borderRadius:5}}>
+                                <Text style={{fontFamily:'WorkSans-Medium',fontSize:10,color:'#0F1E5A'}}>₹50L total</Text>
+                            </View>
+                        </View>
 
-          {/* <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                marginHorizontal: 90,
-                justifyContent: 'space-between',
-              }}>
-              <View style={{alignItems: 'center', marginRight: 70}}>
-                <Image
-                  style={{width: 60, height: 60}}
-                  resizeMode="cover"
-                  source={require('./assets/Group12.jpg')}
-                />
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: '#1E2135',
-                    // top: -5,
-                    // paddingBottom: 5,
-                  }}>
-                  {PropertiesArray[0]?.area}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center'}}>
-                <Image
-                  style={{width: 60, height: 60}}
-                  resizeMode="cover"
-                  source={require('./assets/Group12.jpg')}
-                />
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: '#1E2135',
-                    // top: -5,
-                    // paddingBottom: 5,
-                  }}>
-                  {PropertiesArray[0]?.area}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center'}}></View>
-            </View> */}
+                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:15}}>
+                            {PropertiesArray?.investmentDetails?.paymentPlan?.map((item, index) => {
+                                const isFirst = index === 0;
+                                return (
+                                    <View key={index} style={{paddingHorizontal:20,paddingVertical:10,borderRadius:5,gap:3,backgroundColor:isFirst?'#021265':'#FFF',alignItems:'center'}}>
+                                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:isFirst?'#FFFFFF99':'#02126599'}}>{item?.timeline}</Text>
+                                        <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:isFirst?'#FFFFFF':'#021265'}}>{item?.amount}</Text>
+                                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:isFirst?'#FFFFFF99':'#02126599'}}>{item?.description}</Text>
+                                    </View>
+                            )})}
+                        </View>
+                    </View>
+                } */}
 
-          {/* <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            //paddingVertical:8,
-            //paddingHorizontal: 60,
-          }}>
-          <View style={{alignItems: 'center'}}>
-            <Image
-              style={{width: 60, height: 60}}
-              resizeMode="cover"
-              source={require('./assets/Vector.jpg')}
-            />
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: 400,
-                color: '#1E2135',
-               // top: -5,
-                // paddingBottom: 5,
-              }}>
-              4 Rooms
-            </Text>
-          
-          </View>
-          <View style={{alignItems: 'center'}}>
-            <Image
-              style={{width: 60, height: 60}}
-              resizeMode="cover"
-              source={require('./assets/Group10.jpg')}
-            />
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: 400,
-                color: '#1E2135',
-               // top: -5,
-                // paddingBottom: 5,
-              }}>
-              4 Bathrooms
-            </Text>
-          
-          </View>
-        
-          <View style={{alignItems: 'center'}}>
-            <Image
-              style={{width: 60, height: 60}}
-              resizeMode="cover"
-              source={require('./assets/Group12.jpg')}
-            />
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: 400,
-                color: '#1E2135',
-               // top: -5,
-                // paddingBottom: 5,
-              }}>
-               {PropertiesArray[0]?.area}
-            </Text>
-           
-          </View>
-        </View> */}
-          {/* </ScrollView> */}
-        </View>
-        <View
-          style={{
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            backgroundColor: 'white',
-            //marginVertical:10
-          }}>
-          <Text
-            style={{
-              fontSize: 18,
-              fontFamily: 'WorkSans-SemiBold',
-              color: '#000000',
-              // paddingVertical:8
-              paddingBottom: 5,
-            }}>
-            Description
-          </Text>
+                <View style={{marginTop:15}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Signature Amenities</Text>
 
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              color: '#1E2135',
-              letterSpacing: 0.3,
-              // paddingBottom: 5,
-            }}>
-            {showFullText
-              ? PropertiesArray?.Description
-              : PropertiesArray?.Description?.slice(0, 160)}
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              setShowFullText(!showFullText);
-            }}>
-            <Text
-              style={{
-                fontSize: 14,
-                // fontWeight: 600,
-                fontFamily: 'OpenSans-SemiBold',
-                letterSpacing: 0.3,
-                // fontFamily: 'Montserrat-SemiBold',
-                color: '#043862',
-                // paddingBottom: 5,
-              }}>
-              {showFullText ? 'Read less' : 'Read more...'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginTop:15}}>
+                        {PropertiesArray?.DistinctiveAmenities?.map((item,index) => (
+                            <View key={index} style={{backgroundColor:'#9DB2CE1A',width:width*0.3,padding:15,alignItems:'center',borderRadius:7,marginRight:13}}>
+                                <View style={{backgroundColor:'#FFF',padding:6,borderRadius:20}}>
+                                    <SafeImage source={{uri: item?.image}} style={{width:28,height:28}}/>
+                                </View>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#0F1130',textAlign:'center'}}>{item?.name}</Text>
+                            </View>
+                        ))}
+                    </ScrollView>
 
-        <View
-          style={{
-            backgroundColor: 'white',
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            paddingBottom: 20,
-          }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8 }}>
-            <Text style={{
-              fontSize: 18,
-              fontFamily: 'WorkSans-SemiBold',
-              color: '#000000',
-              // paddingVertical:8
-              paddingBottom: 5,
-            }}>Property Status</Text>
-            <Text style={{
-              fontSize: 18, fontFamily: 'OpenSans-SemiBold', letterSpacing: 0.2, color: '#1E2135',
-              // paddingVertical:8
-              paddingBottom: 5,
-            }}>{propertyStatu}%</Text>
-          </View>
-          <Progress.Bar
-            progress={parseInt(propertyStatu) / 100}
-            width={width - 40}
-            borderColor={'#252b5d'}
-            color={'#252b5d'}
-            borderWidth={1}
-            height={5}
-          />
-        </View>
-        <View
-          style={{
-            backgroundColor: 'white',
-            marginVertical: 20,
-          }}>
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 10,
-              //flexDirection: 'row',
-              // justifyContent: 'space-between',
-            }}>
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'WorkSans-SemiBold',
-                color: '#000000',
-                paddingBottom: 15,
-              }}>
-              Property Details
-            </Text>
-          </View>
-
-          <View
-            style={{
-              borderWidth: 1,
-              marginHorizontal: 20,
-              borderColor: '#DADADA',
-              //padding: 10,
-              borderRadius: 15,
-              marginBottom: 10,
-              backgroundColor: 'white',
-              padding: 10,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 10,
-                borderBottomWidth: 1,
-                borderBottomColor: '#DADADA',
-                paddingVertical: 10,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-SemiBold',
-                  color: '#1E2135',
-                }}>
-                Property Type
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-SemiBold',
-                  color: '#1E2135',
-                  textTransform: 'capitalize'
-                }}>
-                {PropertiesArray?.P_Type} {"  "}
-              </Text>
-            </View>
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: '#DADADA',
-                paddingVertical: 10,
-                marginTop: 10,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-SemiBold',
-                  color: '#1E2135',
-                }}>
-                Area Details
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 5,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                }}>
-                Total Area
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                }}>
-                {PropertiesArray?.area}
-              </Text>
-            </View>
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: '#DADADA',
-                paddingVertical: 10,
-                marginTop: 10,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-SemiBold',
-                  color: '#1E2135',
-                }}>
-                Price Details
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 10,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                }}>
-                Property Value
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                }}>
-                {' '}
-                {'\u20B9 '}
-                {PropertiesArray?.Price}
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 5,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                  // flex:3
-                }}>
-                Frac Value
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                  //flex:1,
-                  textAlign: 'center'
-                }}>
-                {' '}
-                {'\u20B9 '}
-                {PropertiesArray?.FC_Price}
-              </Text>
-            </View>
-            {PropertiesArray?.SPV && <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 10,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-
-                }}>
-                SPV Value
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-
-                }}>
-                {' '}
-                {'\u20B9 '}
-                {PropertiesArray?.SPV}
-              </Text>
-            </View>}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 5,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-
-                }}>
-                Booking Value
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-
-                }}>
-                {' '}
-                {'\u20B9 '}
-                {PropertiesArray?.BookingAmt}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: '#DADADA',
-                paddingVertical: 10,
-                marginTop: 10,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-SemiBold',
-                  color: '#1E2135',
-                }}>
-                Fracs Details
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 10,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                }}>
-                Total Fracs
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                }}>
-                {PropertiesArray?.TotalFractions}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 5,
-              }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                }}>
-                Available Fracs
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'OpenSans-Medium',
-                  color: '#1E2135',
-                }}>
-                {PropertiesArray?.AvailableFractions}
-              </Text>
-            </View>
-
-            {PropertiesArray?.name == 'FRACSPACE @ HAVELOCK CITY' && <View>
-              <View
-                style={{
-                  borderBottomWidth: 1,
-                  borderBottomColor: '#DADADA',
-                  paddingVertical: 10,
-                  marginTop: 10,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-SemiBold',
-                    color: '#1E2135',
-                  }}>
-                  Pool Details
-                </Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingVertical: 10,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-SemiBold',
-                    color: '#1E2135',
-                  }}>
-                  Pool-I
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                  }}>
-                  6/15
-                </Text>
-
-              </View>
-              <View style={{
-                borderBottomWidth: 1,
-                borderBottomColor: '#DADADA', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingBottom: 10
-              }}>
-                <Icon name="ellipse" size={10} color={'#1E2135'} />
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                    paddingLeft: 10
-
-
-                  }}>
-                  Earn fixed 12% yield.
-                </Text>
-              </View>
-
-
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingVertical: 10,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-SemiBold',
-                    color: '#1E2135',
-                  }}>
-                  Pool-II
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                  }}>
-                  20/20
-                </Text>
-
-              </View>
-              <View style={{
-                borderBottomWidth: 1,
-                borderBottomColor: '#DADADA', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingBottom: 10
-              }}>
-                <Icon name="ellipse" size={10} color={'#1E2135'} />
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                    paddingLeft: 8
-
-
-                  }}>
-                  Equal distribution of rentals after possession of the Property.
-                </Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingVertical: 10,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-SemiBold',
-                    color: '#1E2135',
-                  }}>
-                  Pool-III
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                  }}>
-                  15/15
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingBottom: 10 }}>
-                <Icon name="ellipse" size={10} color={'#1E2135'} />
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                    paddingLeft: 10
-                  }}>
-                  Only capital appreciation.
-                </Text>
-              </View>
-            </View>}
-
-
-
-
-            {/* <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingVertical: 5,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                  }}>
-                  Status
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                  }}>
-                  {PropertiesArray?.AvailableFractions==0?'Not Available':'Available'}
-                </Text>
-              </View> */}
-            {/* <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 5,
-              }}>
-              <Text
-                style={{fontSize: 14, fontWeight: 700, color: 'black'}}></Text>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('Enquire', {
-                    proName: PropertiesArray?.name,
-                    fracPrice: PropertiesArray?.FC_Price,
-                  });
-                }}
-                style={{
-                  alignItems: 'center',
-                  // backgroundColor: '#0B0B45',
-                  //backgroundColor: '#043862',
-                  borderRadius: 12,
-                  borderColor: '#043862',
-                  borderWidth: 2,
-                  padding: 10,
-                }}>
-                <Text style={{color: '#043862', fontSize: 16, fontWeight: 600}}>
-                  Enquiry now
-                </Text>
-              </TouchableOpacity>
-              <Text
-                style={{fontSize: 14, fontWeight: 700, color: 'black'}}></Text>
-            </View> */}
-          </View>
-        </View>
-
-        <View style={{ backgroundColor: '#FFFFFF' }}>
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 10,
-            }}>
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'WorkSans-SemiBold',
-                color: '#000000',
-
-              }}>
-              Benefits
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 10,
-            }}>
-            {PropertiesArray?.Benefits.map((item, index) => (
-              <View key={index} style={{ alignItems: 'center', flex: 1, padding: 5 }}>
-                <Image
-                  style={{ width: 90, height: 90 }}
-                  resizeMode="cover"
-                  source={{ uri: item?.image }}
-                />
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'OpenSans-Medium',
-                    color: '#1E2135',
-                    textAlign: 'center',
-                    top: -10,
-                    // paddingBottom: 5,
-                  }}>
-                  {item?.name}
-                </Text>
-              </View>))}
-
-
-          </View>
-        </View>
-
-        <TouchableOpacity
-          onPress={() => {
-            GgoToYosemite(PropertiesArray?.Location);
-            //navigation.navigate('Contact');
-          }}
-          style={{
-            backgroundColor: 'white',
-            marginVertical: 10,
-            paddingBottom: 10,
-          }}>
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 10,
-              paddingBottom: 10,
-            }}>
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'WorkSans-SemiBold',
-                color: '#000000',
-                // paddingBottom: 5,
-              }}>
-              Property Location
-            </Text>
-          </View>
-          <Image
-            style={{ width: '100%', height: 300 }}
-            source={{ uri: PropertiesArray?.LocationImage }}
-          />
-        </TouchableOpacity>
-
-        <View style={{ backgroundColor: 'white', marginBottom: 10 }}>
-          <TouchableOpacity
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 10,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}
-            onPress={() => {
-              setStatus(!Status);
-            }}>
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'WorkSans-SemiBold',
-                color: '#000000',
-                paddingBottom: Status ? 0 : 20,
-              }}>
-              Distinctive Amenities
-            </Text>
-            {Status ? (
-              <Iconcall name="chevron-down" size={30} color="#1E2135" />
-            ) : (
-              <Iconcall name="chevron-right" size={30} color="#1E2135" />
-            )}
-          </TouchableOpacity>
-
-          {Status && (
-            <View
-              style={{
-                borderWidth: 1,
-                marginHorizontal: 10,
-                backgroundColor: '#E8ECF3',
-                borderColor: '#DADADA',
-                //padding: 10,
-                borderRadius: 10,
-                marginVertical: 10,
-                //backgroundColor: 'white',
-                padding: 10,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <FlatList
-                  data={PropertiesArray?.DistinctiveAmenities}
-                  numColumns={3}
-                  scrollEnabled={false}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={renderItem}
-                />
-              </View>
-            </View>
-          )}
-        </View>
-
-        <View style={{ backgroundColor: 'white', marginBottom: 10 }}>
-          <TouchableOpacity
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 10,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}
-            onPress={() => {
-              setStatus1(!Status1);
-            }}>
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'WorkSans-SemiBold',
-                color: '#000000',
-                //letterSpacing: 0.8,
-                paddingBottom: Status ? 0 : 20,
-              }}>
-              Location Highlights
-            </Text>
-            {Status1 ? (
-              <Iconcall name="chevron-down" size={30} color="#1E2135" />
-            ) : (
-              <Iconcall name="chevron-right" size={30} color="#1E2135" />
-            )}
-          </TouchableOpacity>
-
-          {Status1 && (
-            <View
-              style={{
-                //borderWidth: 1,
-                marginHorizontal: 10,
-                //backgroundColor: '#E8ECF3',
-                //borderColor: '#DADADA',
-                //padding: 10,
-                borderRadius: 10,
-                marginVertical: 10,
-                //backgroundColor: 'white',
-                //padding: 10,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <FlatList
-                  data={PropertiesArray?.locationHighlights}
-                  numColumns={1}
-                  scrollEnabled={false}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={renderItemSec}
-                />
-              </View>
-            </View>
-          )}
-        </View>
-
-
-
-
-        <View style={{ backgroundColor: '#FFFFFF' }}>
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingTop: 10,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'WorkSans-SemiBold',
-                color: '#000000',
-             
-              }}>
-              Testimonials
-            </Text>
-            {/* <TouchableOpacity
-
-              onPress={() => {
-
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'WorkSans-SemiBold',
-                  color: '#021265',
-                  textDecorationLine: 'underline'
-                  // paddingBottom: 5,
-                }}>
-                + Record testimonial
-              </Text>
-            </TouchableOpacity> */}
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <ScrollView horizontal={true}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('VideoTour', { vlink: PropertiesArray?.testimonial[1], location: 'Testimonials' });
-                }}
-                style={{
-                  backgroundColor: 'white',
-                  margin: 10,
-                  paddingBottom: 10,
-                }}>
-                <Image
-                  style={{ width: 150, height: 130, borderRadius: 10 }}
-                  source={require('./assets/Video1.jpeg')}
-                />
-                <View
-                  style={{
-                    position: 'absolute',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    height: 130
-                  }}>
-                  <Icon name={'caret-forward'} size={30} color={'#AEAEAE'} />
+                    {PropertiesArray?.investmentDetails?.show &&
+                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:15}}>
+                        <View style={{backgroundColor:'#021265',padding:15,borderRadius:10,flex:1,gap:3}}>
+                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#FFFFFFB3'}}>{PropertiesArray?.investmentDetails?.exitType?.label}</Text>
+                            <Text style={{fontFamily:'WorkSans-Medium',fontSize:14,color:'#FFFFFF'}}>{PropertiesArray?.investmentDetails?.exitType?.type}</Text>
+                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:11,color:'#FFFFFFB3'}}>{PropertiesArray?.investmentDetails?.exitType?.duration}</Text>
+                        </View>
+                        <View style={{backgroundColor:'#021265',padding:15,borderRadius:10,flex:1,gap:3,marginLeft:15}}>
+                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#FFFFFFB3'}}>{PropertiesArray?.investmentDetails?.possession?.label}</Text>
+                            <Text style={{fontFamily:'WorkSans-Medium',fontSize:14,color:'#FFFFFF'}}>{PropertiesArray?.investmentDetails?.possession?.estd}</Text>
+                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:11,color:'#FFFFFFB3'}}>{PropertiesArray?.investmentDetails?.possession?.description}</Text>
+                        </View>
+                    </View>
+                    }
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
 
-                  navigation.navigate('VideoTour', { vlink: PropertiesArray?.testimonial[0], location: 'Testimonials' });
+                <View style={{marginTop:15}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Location Highlights</Text>
 
-                }}
-                style={{
-                  backgroundColor: 'white',
-                  margin: 10,
-                  paddingBottom: 10,
-                }}>
-                <Image
-                  style={{ width: 150, height: 130, borderRadius: 10 }}
-                  source={require('./assets/Video2.jpeg')}
-                />
-                <View
-                  style={{
-                    position: 'absolute',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    height: 130
-                  }}>
-                  <Icon name={'caret-forward'} size={30} color={'#AEAEAE'} />
+                    <View style={styles.container}>
+
+                        <Carousel
+                            loop
+                            width={width*0.9}
+                            height={270}
+                            data={PropertiesArray?.locationHighlights}
+                            scrollAnimationDuration={200}
+                            mode="parallax"
+                            modeConfig={{
+                                parallaxScrollingScale: 0.9,
+                                parallaxScrollingOffset: 200,
+                                parallaxAdjacentItemScale: 0.8,
+                            }}
+                            style={{elevation:5}}
+                            renderItem={({ item }) => (
+                                <View style={styles.cardContainer}>
+                                    <ImageBackground resizeMode='cover' source={{ uri: item.image }} style={styles.card} imageStyle={{ borderRadius: 10 }} >
+
+                                    <View style={styles.overlay}>
+                                        <Text style={styles.title}>{item.name}</Text>
+                                        {/* <Text style={styles.location}>{item.location}</Text> */}
+                                    </View>
+
+                                    </ImageBackground>
+                                </View>
+                            )}
+                        />
+
+                    </View>
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                 
-                  navigation.navigate('VideoTour', { vlink: PropertiesArray?.testimonial[2], location: 'Testimonials' });
 
-                }}
-                style={{
-                  backgroundColor: 'white',
-                  margin: 10,
-                  paddingBottom: 10,
-                }}>
-                <Image
-                  style={{ width: 150, height: 130, borderRadius: 10 }}
-                  source={require('./assets/Video3.jpeg')}
-                />
-                <View
-                  style={{
-                    position: 'absolute',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    height: 130
-                  }}>
-                  <Icon name={'caret-forward'} size={30} color={'#AEAEAE'} />
-                </View>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
+                {PropertiesArray?.userReviews?.length > 0 &&
+                  <View style={{marginTop:0}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Reviews</Text>
 
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{}}>
+                      {PropertiesArray?.userReviews?.map((item, index) => (
+                      <View key={index} style={{alignItems:'center',width:width*0.7,marginRight:10,marginBottom:5}}>
+                          <View style={{backgroundColor:'#FFF',borderRadius:5,padding:20,alignItems:'center',gap:10,marginTop:15,elevation:2}}>
+                            <View style={{alignItems:'center'}}>
+                              <Text numberOfLines={showFullReview ? undefined : 3} style={{fontFamily:'Monserrat-Regular',fontSize:13,color:'#000',textAlign:'center'}}>{item?.review}</Text>
+                              <Text
+                                  onPress={() => setShowFullReview(!showFullReview)}
+                                  style={{fontFamily:'WorkSans-SemiBold',fontSize:12,color:'#021265',marginTop:5}}
+                              >
+                                  {showFullReview ? 'Read less' : 'Read more'}
+                              </Text>
+                            </View>
+                              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    {[1, 2, 3, 4, 5].map((star, i) => {
+                                        const isFilled = star <= item?.rating;
 
+                                        return (
+                                        <View key={i} style={{ marginRight: 6 }}>
+                                            <Icoo
+                                            name={isFilled ? 'star' : 'star-o'} // 👈 important
+                                            size={20}
+                                            color={isFilled ? '#F3BF0D' : '#D3D3D3'}
+                                            />
+                                        </View>
+                                        );
+                                    })}
+                              </View>
+                              <View style={{flexDirection:'row',alignItems:'center'}}>
+                                  <Image source={require('../Screen/assets/NewProfileImage.jpg')} style={{width:25,height:25}}/>
+                                  <Text style={{fontFamily:'Montserrat-Regular',fontSize:13,color:'#000',marginLeft:4}}>{item?.userName}</Text>
+                              </View>
+                              
+                          </View>
 
-        {PropertiesArray?.propertyReviewVideos.length != 0 &&
-          <View style={{ backgroundColor: 'white' }}>
-            <View
-              style={{
-                paddingHorizontal: 20,
-                paddingTop: 10,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontFamily: 'WorkSans-SemiBold',
-                  color: '#000000',
-                 
-                }}>
-                Customers Reviews
-              </Text>
-              {/* <TouchableOpacity
-
-                onPress={() => {
-                  navigation.navigate('CustomersReview', { PropertyName: PropertiesArray?.name })
-
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'WorkSans-SemiBold',
-                    color: '#021265',
-                    textDecorationLine: 'underline'
-                    // paddingBottom: 5,
-                  }}>
-                  + Add Review
-                </Text>
-              </TouchableOpacity> */}
-
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <ScrollView horizontal={true}>
-                {PropertiesArray?.propertyReviewVideos.map((item, index) => (<TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                   
-                    navigation.navigate('VideoDispay', { vlink: item });
-                  }}
-                  style={{
-                    backgroundColor: 'white',
-                    margin: 10,
-                    paddingBottom: 10,
-                  }}>
-                  <Image
-                    style={{ width: 150, height: 180, borderRadius: 15 }}
-                    source={{ uri: PropertiesArray?.userReviewImages[index] }}
-                  />
-                  <View
-                    style={{
-                      position: 'absolute',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
-                      height: 180
-                    }}>
-                    <Icon name={'caret-forward'} size={40} color={'#AEAEAE'} />
+                          {/* <Text style={{fontFamily:'Montserrat-Regular',fontSize:12,color:'#2F74E4',marginTop:10}}>Read all reviews →</Text> */}
+                      </View>
+                      ))}
+                    </ScrollView>
                   </View>
-                </TouchableOpacity>))}
-                {/* <TouchableOpacity
-                onPress={() => {
-                  //  GgoToYosemite(PropertiesArray?.Location);
-                  //navigation.navigate('Contact');
-                  navigation.navigate('VideoDispay',{vlink:PropertiesArray?.propertyReviewVideos[2]});
-                }}
-                style={{
-                  backgroundColor: 'white',
-                  margin: 10,
-                  paddingBottom: 10,
-                }}>
-                <Image
-                  style={{width: 150, height: 220}}
-                  source={{uri:PropertiesArray?.userReviewImages[1]}}
-                />
-                 <View
-                  style={{
-                    position: 'absolute',
-                    alignItems: 'center',
-                    justifyContent: 'center', 
-                    width:'100%' ,
-                    height: 180       
-                  }}>
-                  <Icon name={'caret-forward'} size={40} color={'#AEAEAE'} />
+                }
+
+                <View style={{flexDirection:'row',alignItems:'center',marginTop:20}}>
+                    {PropertiesArray?.currencyType == 'INR' &&
+                    <TouchableOpacity onPress={() => {
+                        // navigation.navigate('Enquirenew', { property: PropertiesArray });
+                        setViewEnquire(true);
+                    }} style={{backgroundColor:'#EEF2F6',borderColor:'#BBC7D8',borderWidth:0.5,borderRadius:5,flex:1,padding:15,alignItems:'center',marginRight:15}}>
+                        <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Enquire Now</Text>
+                    </TouchableOpacity>
+                    }
+                    <TouchableOpacity
+                    disabled={PropertiesArray?.AvailableFractions == 0 ? true : false}
+                    onPress={() =>{
+                        if(PropertiesArray?.currencyType != 'INR'){
+                            setViewEnquiry(true);
+                        }else{
+                            navigation.navigate('Book', { property: PropertiesArray });
+                        }
+                    }} style={{backgroundColor:PropertiesArray?.AvailableFractions == 0 ? '#AEAEAE' : '#021265',borderRadius:5,flex:1,padding:15,alignItems:'center'}}>
+                        <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#FFF'}}>{PropertiesArray?.AvailableFractions==0?'Not Available':'Book Now'}</Text>
+                    </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  //  GgoToYosemite(PropertiesArray?.Location);
-                  //navigation.navigate('Contact');
-                  navigation.navigate('VideoDispay',{vlink:PropertiesArray?.propertyReviewVideos[0]});
-                }}
-                style={{
-                  backgroundColor: 'white',
-                  margin: 10,
-                  paddingBottom: 10,
-                }}>
-                <Image
-                  style={{width: 150, height: 220}}
-                  source={{uri:PropertiesArray?.userReviewImages[2]}}
-                />
-                <View
-                  style={{
-                    position: 'absolute',
-                    alignItems: 'center',
-                    justifyContent: 'center', 
-                    width:'100%' ,
-                    height: 180       
-                  }}>
-                  <Icon name={'caret-forward'} size={40} color={'#AEAEAE'} />
-                </View>
-              </TouchableOpacity> */}
-              </ScrollView>
             </View>
-          </View>}
+        </ScrollView>
 
+        <Modal visible={viewEnquiry} transparent animationType='fade'>
+            <View style={{ flex: 1, backgroundColor: '#000000b3' }}>
+                <TouchableOpacity onPress={() => {
+                    setViewEnquiry(false);
+                }} style={{ flex: 1 }} />
+                <View style={{ position: 'absolute', bottom: 0, backgroundColor: '#E9E8E5', width: width, padding: 20, borderTopLeftRadius: 30, borderTopRightRadius: 30, borderWidth: 0.5, borderColor: '#00000099' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <TouchableOpacity onPress={() => {
+                            setViewEnquiry(false);
+                        }}>
+                            <Icon name={'chevron-left'} size={20} color={'#000'} />
+                        </TouchableOpacity>
+                        <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: '#000' }}>Enquiry Form</Text>
+                        <View style={{ width: 20 }} />
+                    </View>
 
+                    <View style={{ paddingVertical: 20, paddingHorizontal: 10 }}>
+                        <View>
+                            <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#000' }}>Name</Text>
 
+                            <View style={{ borderWidth: 0.5, borderColor: '#00000099', borderRadius: 5, marginTop: 10 }}>
+                                <TextInput
+                                    placeholder='Enter Name'
+                                    placeholderTextColor={'#00000086'}
+                                    value={name}
+                                    onChangeText={setName}
+                                    style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000', marginLeft: 8, marginVertical: -3 }}
+                                />
+                            </View>
+                        </View>
 
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, gap: 15 }}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#000' }}>Mobile Number</Text>
 
-      </ScrollView>
-      <View
-        style={{
-          width: '100%',
-          backgroundColor: '#f5f7fe',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: 10,
-          paddingVertical: 10,
-          height:80,
-        //  marginBottom:80
-          // opacity:0.4
-        }}>
-        <TouchableOpacity
-          disabled={PropertiesArray?.AvailableFractions == 0 ? true : false}
-          style={{
-            backgroundColor: PropertiesArray?.AvailableFractions == 0 ? '#AEAEAE' : '#56018A',
-            flex: 1,
-            borderRadius: 10,
-            alignItems: 'center',
-            padding: 20,
-            marginRight: 10,
-          }}
-          onPress={() => {
-            // if (globalState?.userDetails?.verification) {
-            //   navigation.navigate('Book', { property: PropertiesArray });
+                                <View style={{ borderWidth: 0.5, borderColor: '#00000099', borderRadius: 5, marginTop: 10 }}>
+                                    <TextInput
+                                        placeholder='Enter Phone'
+                                        placeholderTextColor={'#00000086'}
+                                        value={phone}
+                                        onChangeText={setPhone}
+                                        keyboardType='number-pad'
+                                        style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000', marginLeft: 8, marginVertical: -3 }}
+                                    />
+                                </View>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#000' }}>Email ID</Text>
 
-            // } else {
-            //   navigation.navigate('BookNow', { property: PropertiesArray });
-            // }
-            navigation.navigate('Book', { property: PropertiesArray });
+                                <View style={{ borderWidth: 0.5, borderColor: '#00000099', borderRadius: 5, marginTop: 10 }}>
+                                    <TextInput
+                                        placeholder='Enter Mail'
+                                        placeholderTextColor={'#00000086'}
+                                        value={email}
+                                        onChangeText={setEmail}
+                                        style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000', marginLeft: 8, marginVertical: -3 }}
+                                    />
+                                </View>
+                            </View>
+                        </View>
 
-          }}>
-          <Text
-            style={{
-              fontFamily: 'Roboto',
-              fontSize: 15,
-              fontFamily: "Montserrat-Bold",
-              color: '#FFFFFF',
-            }}>
-            {PropertiesArray?.AvailableFractions == 0 ? 'Not Available' : 'Book Now'}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            backgroundColor: '#021265',
-            flex: 1,
-            borderRadius: 10,
-            alignItems: 'center',
-            padding: 20,
-          }}
-          onPress={() => {
+                        <View style={{ marginTop: 20 }}>
+                            <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#000' }}>Your Message</Text>
 
-            navigation.navigate('Enquirenew', { property: PropertiesArray });
-          }}>
-          <Text
-            style={{
-              fontSize: 15,
-              fontFamily: 'OpenSans-Bold',
-              color: '#FFFFFF',
-            }}>
-            Enquire Now
-          </Text>
-        </TouchableOpacity>
-      </View>
+                            <View style={{ borderWidth: 0.5, borderColor: '#00000099', borderRadius: 5, marginTop: 10 }}>
+                                <TextInput
+                                    // placeholder='Enter Message'
+                                    placeholderTextColor={'#00000086'}
+                                    numberOfLines={5}
+                                    value={message}
+                                    onChangeText={setMessage}
+                                    style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000', marginLeft: 8, marginVertical: -3 }}
+                                />
+                            </View>
+                        </View>
+
+                        <TouchableOpacity
+                            disabled={loading}
+                            onPress={async () => {
+                                if (name === "" || phone === "" || email === "" || message === "") {
+                                    Alert.alert('Missing Information', 'Please fill in all required details.');
+                                    return;
+                                }
+
+                                setLoading(true); // 🔥 start loader
+
+                                try {
+                                    const res = await handleEnquiryForm();
+                                    console.log("Data: ", res);
+
+                                    if (res?.success) {
+                                        // Alert.alert('Thank You', 'Your Enquiry Submitted Successfully');
+                                        setSuccess(true);
+                                        setViewEnquiry(false);
+                                    }
+                                } finally {
+                                    setLoading(false); // 🔥 stop loader (always)
+                                }
+                            }} style={{backgroundColor: loading ? '#021265aa' : '#021265',borderRadius: 10,padding: 12,alignItems: 'center',marginTop: 30}}
+                        >
+                            {loading ? (
+                                <ActivityIndicator color="#FFF" />
+                            ) : (
+                                <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 16, color: '#FFF' }}>Submit</Text>
+                            )}
+                        </TouchableOpacity>
+
+                    </View>
+                </View>
+            </View>
+        </Modal>
+
+        <Modal visible={success} transparent animationType='fade'>
+            <TouchableOpacity onPress={() => {
+                setSuccess(false);
+            }} style={{flex:1,backgroundColor:'#00000066',justifyContent:'center',alignItems:'center'}}>
+                <View style={{width:width*0.65,backgroundColor:"#FFF",borderRadius:12,padding:20,elevation:10}}>
+                    <FastImage source={require('../Screen/Version2_O/assets/TickAnim.gif')}
+                        style={{width:115,height:115,alignSelf:'center'}}
+                        resizeMode={FastImage.resizeMode.cover}
+                    />
+                    <Text style={{fontFamily:'WorkSans-Medium',fontSize:14,opacity:0.8,color:'#000',textAlign:'center'}}>
+                        Thank you for your enquiry. Our team will get back to you within 2 business days.
+                    </Text>
+                    <TouchableOpacity onPress={() => {
+                        setSuccess(false);
+                    }} style={{backgroundColor:'#021265',borderRadius:13,padding:7,alignItems:'center',marginTop:20}}>
+                        <Text style={{fontFamily:'Poppins-Medium',fontSize:16,color:'#FFF'}}>Done</Text>
+                    </TouchableOpacity>
+                </View>
+            </TouchableOpacity>
+        </Modal>
+
+        <Modal visible={viewEnquire} transparent animationType='slide'>
+            <TouchableOpacity onPress={() => {
+                setViewEnquire(false);
+            }} style={{flex:1,backgroundColor:'#000000a8'}}/>
+            <View style={{position:'absolute',bottom:0,left:0,right:0}}>
+                <View style={{backgroundColor:'#FFF',borderTopLeftRadius:10,borderTopRightRadius:10,padding:20}}>
+                    <View>
+                        <SafeImage source={{uri: image[0]}} style={{width:'100%',height:170,borderRadius:10}}/>
+                        <View style={{position:'absolute',bottom:5,left:10,right:10,zIndex:1}}>
+                            <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#FFF'}}>{PropertiesArray?.name}</Text>
+                            <View style={{flexDirection:'row',alignItems:'center',marginTop:3}}>
+                                <Ico name={'location-outline'} size={15} color={'#FFF'}/>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#FFF'}}>{PropertiesArray?.Location}</Text>
+                            </View>
+                        </View>
+                        <LinearGradient colors={['#00000000', '#00000066', '#000000A6', '#000000CC']} 
+                            style={{position:'absolute',bottom:0,left:0,right:0,height:70,zIndex:0}}
+                        ></LinearGradient>
+                    </View>
+
+                    <View style={{marginTop:15}}>
+                        <Text style={{fontFamily:'WorkSans-Medium',fontSize:16,color:'#000'}}>Need Help With This Property?</Text>
+                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#000'}}>We’re here to assist you</Text>
+
+                        <TouchableOpacity onPress={() => {
+                            handleCallNow();
+                        }} style={{backgroundColor:'#021265',padding:10,marginVertical:15,borderRadius:5,alignItems:'center'}}>
+                            <View style={{flexDirection:'row',alignItems:'center'}}>
+                                <Ico name={'call-outline'} size={18} color={'#FFF'}/>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:16,color:'#FFF',marginLeft:8}}>Call Us</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            handleMail();
+                        }} style={{borderColor:'#00000080',borderWidth:0.5,padding:10,borderRadius:5,alignItems:'center'}}>
+                            <View style={{flexDirection:'row',alignItems:'center'}}>
+                                <IconMail name={'mail'} size={18} color={'#000'}/>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:16,color:'#000',marginLeft:8}}>Mail Us</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            setOpen(true);
+                        }} style={{borderColor:'#00000080',borderWidth:0.5,padding:10,marginVertical:15,borderRadius:5,alignItems:'center'}}>
+                            <View style={{flexDirection:'row',alignItems:'center'}}>
+                                <Ico name={'calendar-outline'} size={18} color={'#000'}/>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:16,color:'#000',marginLeft:8}}>Schedule a visit</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+
+        <DateTimePickerModal
+            isVisible={open}
+            mode="datetime"
+            onConfirm={handleConfirm}
+            onCancel={hideDatePicker}
+        />
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   maskGroupIconLayout: {
     width: width * 0.2,
@@ -1788,8 +1107,6 @@ const styles = StyleSheet.create({
     width: width * 0.2,
     height: height * 0.12,
   },
-
-
   iconLayout1: {
     height: 16,
     width: 16,
@@ -1800,8 +1117,48 @@ const styles = StyleSheet.create({
     width,
     flex: 1,
   },
-  wrapper: {},
-  container: {
-    flex: 1,
-  },
+    container: {
+      marginTop: 0,
+      alignItems:'center',
+      flex:1
+    },
+  
+    cardContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+  
+    card: {
+      width: width * 0.5,
+      height: 260,
+      borderRadius: 0,
+      overflow: "hidden",
+      justifyContent: "flex-start",
+  
+      shadowColor: "#000",
+      shadowOpacity: 0.2,
+      shadowRadius: 12,
+      elevation: 6,
+    },
+  
+    overlay: {
+      margin: 18,
+      padding: 12,
+      borderRadius: 12,
+      backgroundColor: "#00000065"
+    },
+  
+    title: {
+      fontFamily:'Montserrat-SemiBold',
+      fontSize: 12,
+      color:'#FFF'
+    },
+  
+    location: {
+      fontFamily:'Montserrat-Regular',
+      fontSize: 10,
+      color:'#FFF',
+      marginTop: 2,
+    },
 });

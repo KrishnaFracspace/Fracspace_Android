@@ -47,7 +47,7 @@ export default function RoomDescription(props) {
                     autoplay
                 >
                     {description?.name == 'DREAMSCAPE'
-                        ? RoomType?.roomImages.map((img, imgIndex) => (
+                        ? RoomType?.roomImages?.map((img, imgIndex) => (
                             <Image
                                 resizeMode="cover"
                                 key={imgIndex}
@@ -55,7 +55,7 @@ export default function RoomDescription(props) {
                                 style={{ width: width, flex: 1 }}
                             />
                         ))
-                        : description?.images.map((img, imgIndex) => (
+                        : description?.images?.map((img, imgIndex) => (
                             <Image
                                 resizeMode="cover"
                                 key={imgIndex}
@@ -68,15 +68,15 @@ export default function RoomDescription(props) {
 
                 <View style={{ paddingHorizontal: 20, paddingVertical: 15 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-                        <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 20, color: '#000000' }}>{description?.name}-</Text>
+                        <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 16, color: '#000000' }}>{description?.name}-</Text>
                         <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 16, color: '#000000' }}>{RoomType?.type}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
-                        <Ic name={'location-sharp'} size={20} color={'#0D2037'} />
-                        <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 14, color: '#0424CB', textDecorationLine: 'underline', marginLeft: 5 }}>{`${description?.location?.address}, ${description?.location?.city}`}</Text>
+                        <Ic name={'location-sharp'} size={15} color={'#0D2037'} />
+                        <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, color: '#000', marginLeft: 5 }}>{`${description?.location?.address}, ${description?.location?.city}`}</Text>
                     </View>
                 </View>
-                <View style={{ paddingHorizontal: 20, paddingVertical: 15 }}>
+                <View style={{ paddingHorizontal: 20, }}>
                     <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, color: '#000000' }}>Property Description</Text>
                     <View style={{ marginTop: 10 }}>
                         <Text style={{ fontFamily: 'WorkSans-Regular', fontSize: 14, color: '#000000', flex: 1 }}>
@@ -104,7 +104,7 @@ export default function RoomDescription(props) {
                         }
                         {description?.majorAmenities?.includes('Room service') &&
                             <View style={{ borderColor: '#62626233', borderWidth: 1, marginHorizontal: 5, backgroundColor: '#FFFFFF', borderRadius: 15, padding: 20, alignItems: 'center', justifyContent: 'center' }}>
-                                {/* <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon3.png' }} style={{ width: 30, height: 22 }} /> */}
+                                {/* <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon3.png' }} style={{ width: 30, height: 22 }} /> */}
                                 <Iconn name={'room-service'} size={20} color={'#000000'} />
                                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 10, color: '#101010', marginTop: 5 }}>Room</Text>
                                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 10, color: '#101010', }}>Service</Text>
@@ -118,25 +118,25 @@ export default function RoomDescription(props) {
                         }
                         {description?.majorAmenities?.includes('Restaurant') &&
                             <View style={{ borderColor: '#62626233', borderWidth: 1, marginHorizontal: 5, backgroundColor: '#FFFFFF', borderRadius: 15, padding: 20, alignItems: 'center', justifyContent: 'center' }}>
-                                <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon2.png' }} style={{ width: 30, height: 23 }} />
+                                <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon2.png' }} style={{ width: 30, height: 23 }} />
                                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 10, color: '#101010', marginTop: 5 }}>Dinner</Text>
                             </View>
                         }
                         {/* {description?.roomsAndCorrespondingPrice[0]?.amenities?.includes('Spa') &&
                             <View style={{ borderColor: '#62626233', borderWidth: 1, marginHorizontal: 5, backgroundColor: '#FFFFFF', borderRadius: 15, padding: 20, alignItems: 'center', justifyContent: 'center' }}>
-                                <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon4.png' }} style={{ width: 30, height: 25 }} />
+                                <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon4.png' }} style={{ width: 30, height: 25 }} />
                                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 10, color: '#101010', marginTop: 5 }}>Spa</Text>
                             </View>
                         } */}
                         {/* {description?.majorAmenities?.includes('Ac') &&
                             <View style={{ borderColor: '#62626233', borderWidth: 1, marginHorizontal: 5, backgroundColor: '#FFFFFF', borderRadius: 15, padding: 20, alignItems: 'center', justifyContent: 'center' }}>
-                                <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon1.png' }} style={{ width: 30, height: 22 }} />
+                                <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon1.png' }} style={{ width: 30, height: 22 }} />
                                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 10, color: '#101010', marginTop: 5 }}>Ac</Text>
                             </View>
                         } */}
                         {description?.majorAmenities?.includes('Gym') &&
                             <View style={{ borderColor: '#62626233', borderWidth: 1, marginHorizontal: 5, backgroundColor: '#FFFFFF', borderRadius: 15, padding: 20, alignItems: 'center', justifyContent: 'center' }}>
-                                {/* <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon5.png' }} style={{ width: 30, height: 30 }} /> */}
+                                {/* <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon5.png' }} style={{ width: 30, height: 30 }} /> */}
                                 <Iccoo name={'dumbbell'} size={20} color={'#000000'} />
                                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 10, color: '#101010', marginTop: 10 }}>GYM</Text>
                             </View>
@@ -156,7 +156,7 @@ export default function RoomDescription(props) {
                                 <Image
                                     resizeMode="contain"
                                     source={{
-                                        uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon1.png',
+                                        uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon1.png',
                                     }}
                                     style={{ width: 30, height: 22 }}
                                 />
@@ -185,7 +185,7 @@ export default function RoomDescription(props) {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                 }}>
-                                {/* <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon5.png' }} style={{ width: 30, height: 30 }} /> */}
+                                {/* <Image resizeMode='contain' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon5.png' }} style={{ width: 30, height: 30 }} /> */}
                                 <Iccoo name={'dumbbell'} size={20} color={'#000000'} />
                                 <Text
                                     style={{
@@ -353,7 +353,7 @@ export default function RoomDescription(props) {
                                 <Image
                                     resizeMode="contain"
                                     source={{
-                                        uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon2.png',
+                                        uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon2.png',
                                     }}
                                     style={{ width: 30, height: 23 }}
                                 />
@@ -409,26 +409,25 @@ export default function RoomDescription(props) {
 
                     {visible1 == "Restaurants" &&
                         <View style={{ marginTop: 15, gap: 15 }}>
-                            {description?.sightseeing?.Restaurants.map((item, index) => (
-                                <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', marginRight: 20, }}>
-                                    <View style={{ flexDirection: 'row', flex: 1 }}>
+                            {description?.sightseeing?.Restaurants?.map((item, index) => (
+                                <View key={index} style={{flex:1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 20, }}>
+                                    <View style={{ flexDirection: 'row',}}>
                                         <Image source={require('./assets/spoon.png')} style={{ width: 20, height: 20 }} />
                                         <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginHorizontal: 20 }}>{item?.name}</Text>
                                     </View>
-                                    <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between' }}>
-                                        <Icon name={'arrowright'} size={18} color={'#0424CB'} style={{ transform: [{ rotate: '315deg' }] }} />
+                                    <View style={{ flexDirection: 'row', }}>
                                         <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000' }}>{item?.Dist}</Text>
                                     </View>
                                 </View>))}
-                            <View style={{ borderWidth: 1, borderColor: '#62626233', backgroundColor: '#FFFFFF', padding: 7, alignItems: 'center', marginTop: 10 }}>
+                            {/* <View style={{ borderWidth: 1, borderColor: '#62626233', backgroundColor: '#FFFFFF', padding: 7, alignItems: 'center', marginTop: 10 }}>
                                 <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 12, color: '#000000' }}>Load more</Text>
-                            </View>
+                            </View> */}
                         </View>
                     }
 
                     {visible1 == "Cafe" &&
                         <View style={{ marginTop: 15, gap: 10 }}>
-                            {description?.sightseeing?.Cafe.map((item, index) => (
+                            {description?.sightseeing?.Cafe?.map((item, index) => (
                                 <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ico name={'coffee'} size={20} color={'#000000'} />
                                     <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>{item?.name}</Text>
@@ -442,7 +441,7 @@ export default function RoomDescription(props) {
 
                     {visible1 == "Shopping" &&
                         <View style={{ marginTop: 15, gap: 15 }}>
-                            {description?.sightseeing?.Shopping.map((item, index) => (
+                            {description?.sightseeing?.Shopping?.map((item, index) => (
                                 <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Icco name={'shopping-bag'} size={20} color={'#000000'} />
                                     <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>{item?.name}</Text>
@@ -453,7 +452,7 @@ export default function RoomDescription(props) {
 
                     {visible1 == "Transport" &&
                         <View style={{ marginTop: 15, gap: 10 }}>
-                            {/* {description?.sightseeing?.Transport.map((item, index) => ( */}
+                            {/* {description?.sightseeing?.Transport?.map((item, index) => ( */}
                             <View style={{ flexDirection: 'row' }}>
                                 <Iconn name={'bus'} size={20} color={'#000000'} />
                                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>{description?.sightseeing?.Transport[0]?.name}</Text>
@@ -469,118 +468,6 @@ export default function RoomDescription(props) {
                         </View>
                     }
                 </View>
-
-
-                {/* <View style={{ paddingHorizontal: 20, paddingVertical: 15 }}>
-                    <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, color: '#000000' }}>Nearby Places to Explore</Text>
-                    <View style={{ marginTop: 15, flexDirection: 'row', gap: 30 }}>
-                        <TouchableOpacity onPress={() => {
-                            setVisible1("Restaurants");
-                        }} style={{ borderBottomWidth: visible1 == "Restaurants" ? 1.5 : 0, borderBottomColor: '#000000' }}>
-                            <Text style={{ fontFamily: visible1 == "Restaurants" ? 'Poppins-SemiBold' : 'Poppins-Medium', fontSize: 12, color: '#000000' }}>Restaurants</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            setVisible1("Cafe");
-                        }} style={{ borderBottomWidth: visible1 == "Cafe" ? 1.5 : 0, borderBottomColor: '#000000' }}>
-                            <Text style={{ fontFamily: visible1 == "Cafe" ? 'Poppins-SemiBold' : 'Poppins-Medium', fontSize: 12, color: '#000000' }}>Cafe</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            setVisible1("Shopping");
-                        }} style={{ borderBottomWidth: visible1 == "Shopping" ? 1.5 : 0, borderBottomColor: '#000000' }}>
-                            <Text style={{ fontFamily: visible1 == "Shopping" ? 'Poppins-SemiBold' : 'Poppins-Medium', fontSize: 12, color: '#000000' }}>Shopping</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            setVisible1("Transport");
-                        }} style={{ borderBottomWidth: visible1 == "Transport" ? 1.5 : 0, borderBottomColor: '#000000' }}>
-                            <Text style={{ fontFamily: visible1 == "Transport" ? 'Poppins-SemiBold' : 'Poppins-Medium', fontSize: 12, color: '#000000' }}>Transport</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {visible1 == "Restaurants" &&
-                        <View style={{ marginTop: 15 }}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginRight: 20 }}>
-                                <View style={{ flexDirection: 'row', flex: 1 }}>
-                                    <Image source={require('./assets/spoon.png')} style={{ width: 20, height: 20 }} />
-                                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginHorizontal: 20 }}>Mehfil</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between' }}>
-                                    <Icon name={'arrowright'} size={18} color={'#0424CB'} style={{ transform: [{ rotate: '315deg' }] }} />
-                                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000' }}>0.8km</Text>
-                                </View>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginRight: 20, marginVertical: 15 }}>
-                                <View style={{ flexDirection: 'row', flex: 1 }}>
-                                    <Image source={require('./assets/spoon.png')} style={{ width: 20, height: 20 }} />
-                                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginHorizontal: 20 }}>Paradise</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between' }}>
-                                    <Icon name={'arrowright'} size={18} color={'#0424CB'} style={{ transform: [{ rotate: '315deg' }] }} />
-                                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000' }}>1.8km</Text>
-                                </View>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginRight: 20 }}>
-                                <View style={{ flexDirection: 'row', flex: 1 }}>
-                                    <Image source={require('./assets/spoon.png')} style={{ width: 20, height: 20 }} />
-                                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginHorizontal: 20 }}>Bawarchi Green</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between' }}>
-                                    <Icon name={'arrowright'} size={18} color={'#0424CB'} style={{ transform: [{ rotate: '315deg' }] }} />
-                                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000' }}>3.2km</Text>
-                                </View>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginRight: 20, marginVertical: 15 }}>
-                                <View style={{ flexDirection: 'row', flex: 1 }}>
-                                    <Image source={require('./assets/spoon.png')} style={{ width: 20, height: 20 }} />
-                                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginHorizontal: 20 }}>Hotel Luna</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between' }}>
-                                    <Icon name={'arrowright'} size={18} color={'#0424CB'} style={{ transform: [{ rotate: '315deg' }] }} />
-                                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000' }}>4.8km</Text>
-                                </View>
-                            </View>
-                            <View style={{ borderWidth: 1, borderColor: '#62626233', backgroundColor: '#FFFFFF', padding: 7, alignItems: 'center', marginTop: 10 }}>
-                                <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 12, color: '#000000' }}>Load more</Text>
-                            </View>
-                        </View>
-                    }
-
-                    {visible1 == "Cafe" &&
-                        <View style={{ marginTop: 15, gap: 10 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Ico name={'coffee'} size={20} color={'#000000'} />
-                                <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>Cafe de paris</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Ico name={'coffee'} size={20} color={'#000000'} />
-                                <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>Cafe de paris</Text>
-                            </View>
-                        </View>
-                    }
-
-                    {visible1 == "Shopping" &&
-                        <View></View>
-                    }
-
-                    {visible1 == "Transport" &&
-                        <View style={{ marginTop: 15, gap: 10 }}>
-                            <View style={{ flexDirection: 'row' }}>
-                                <Ic name={'airplane-outline'} size={20} color={'#000000'} style={{ transform: [{ rotate: '-90deg' }], }} />
-                                <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>Airport</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row' }}>
-                                <Ic name={'train-outline'} size={20} color={'#000000'} />
-                                <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>Metro</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row' }}>
-                                <Iconn name={'gas-station-outline'} size={20} color={'#000000'} />
-                                <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>Shell petrol bunk</Text>
-                            </View>
-                        </View>
-                    }
-                </View> */}
-
-
-
 
                 <View style={{ paddingHorizontal: 20, paddingVertical: 15 }}>
                     <TouchableOpacity onPress={() => {
@@ -612,7 +499,7 @@ export default function RoomDescription(props) {
                                 </View>
                             </View>
 
-                            <View style={{ marginTop: 10 }}>
+                            {/* <View style={{ marginTop: 10 }}>
                                 <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 12, color: '#1A1A1A' }}>During your stay</Text>
                                 <View style={{ marginVertical: 10 }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -624,12 +511,11 @@ export default function RoomDescription(props) {
                                         <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>No Smoking</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        {/* <Iconn name={'account-check-outline'} size={20} color={'#333333'}/> */}
-                                        <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon6.png' }} style={{ width: 20, height: 20 }} />
+                                        <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/icon6.png' }} style={{ width: 20, height: 20 }} />
                                         <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000000', marginLeft: 10 }}>No parties or events</Text>
                                     </View>
                                 </View>
-                            </View>
+                            </View> */}
                             <View style={{ borderWidth: 1, borderColor: '#F0EFFB', marginTop: 10 }}></View>
                         </>}
                 </View>
@@ -677,7 +563,7 @@ export default function RoomDescription(props) {
                 <TouchableOpacity onPress={() => {
                     navigation.navigate('EnquirtyFS', { Hotel_id: description?._id });
                 }} style={{ backgroundColor: '#0D2037', borderRadius: 12, padding: 10, flex: 1, alignItems: 'center', justifyContent: 'center', marginHorizontal: 20 }}>
-                    <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 14, color: '#FFFFFF' }}>Pay on hotel</Text>
+                    <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 14, color: '#FFFFFF' }}>Pay at hotel</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

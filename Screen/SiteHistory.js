@@ -9,7 +9,7 @@ import {
 import React, {useState} from 'react';
 const { width, height } = Dimensions.get('window');
 import { SafeAreaView } from 'react-native-safe-area-context';
-import IconCheck from 'react-native-vector-icons/Ionicons';
+import IconCheck from 'react-native-vector-icons/FontAwesome6';
 import { useNavigation } from '@react-navigation/native';
 export default function SiteHistory(props) {
   const navigation = useNavigation();
@@ -17,10 +17,17 @@ export default function SiteHistory(props) {
   
 
   return (
-    // <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f7fe' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#021265' }}>
     
      
         <ScrollView style={{flex:1, backgroundColor: '#f5f7fe' }}>
+          <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'#021265',padding:20}}>
+            <TouchableOpacity onPress={() => {navigation.goBack()}}>
+              <IconCheck name={'angle-left'} size={20} color={'#FFF'}/>
+            </TouchableOpacity>
+            <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:18,color:'#FFF'}}>SiteVisit History</Text>
+            <View style={{width:30}}/>
+          </View>
           {SiteData.length != 0 ?
             <>
               {SiteData.map((item, index) => (<View
@@ -103,6 +110,6 @@ export default function SiteHistory(props) {
 
         </ScrollView>
 
-    // {/* </SafeAreaView> */}
+     </SafeAreaView>
   );
 }

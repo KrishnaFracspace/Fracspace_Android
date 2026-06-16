@@ -23,8 +23,9 @@ export default function Privacy() {
             }}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('HomePage');
-              }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                // navigation.navigate('HomePage');
+                navigation.goBack();
+              }} style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'space-between',flex:1 }}>
               <Icon name={'chevron-left'} size={25} color={'#000000'} />
               <Text
                 style={{
@@ -35,10 +36,12 @@ export default function Privacy() {
                 }}>
                 Privacy Policy
               </Text>
+              <View style={{width:50}}/>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => {
-                navigation.navigate('HomePage');
+                // navigation.navigate('HomePage');
+                navigation.goBack();
               }}>
               <Text
                 style={{
@@ -48,7 +51,7 @@ export default function Privacy() {
                 }}>
                 Exit
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           <View style={{ padding: 20 }}>
             <Text

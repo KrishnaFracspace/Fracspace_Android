@@ -1,8 +1,7 @@
 let hasShownHomePopup = false; // ✅ module-level (shared for app session)
 
-import { View, Text, ScrollView, Image, StyleSheet, Animated, Easing, TouchableOpacity, Linking, Dimensions, Alert, ImageBackground, StatusBar, BackHandler, Modal, } from 'react-native'
+import { View, Text, ScrollView, Image, StyleSheet, Animated, Easing, TouchableOpacity, Linking, Dimensions, Alert, ImageBackground, StatusBar, BackHandler, Modal, PanResponder, Pressable, } from 'react-native'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconF from 'react-native-vector-icons/FontAwesome6';
 import IconI from 'react-native-vector-icons/AntDesign';
@@ -10,28 +9,38 @@ import Iconn from 'react-native-vector-icons/Feather';
 import Ico from 'react-native-vector-icons/Fontisto';
 import Icoo from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { CallRecord, DisLike, GetAllNotification, Like, LikeData, PopularDestination, ProfileDetails, PropertyDetails } from '../Services/UserApi';
+import { CallRecord, DisLike, DreamscapeHotels, GetAllNotification, GetCarousel, Like, LikeData, PopularDestination, ProfileDetails, PropertyDetails, updateFCMToken } from '../Services/UserApi';
 import { AppContext } from '../Context/AppContext';
 const { width, height } = Dimensions.get('window');
 import Swiper from 'react-native-swiper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 // import FastImage from 'react-native-fast-image';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Video, { VideoRef } from 'react-native-video';
 import Svg, { Path } from 'react-native-svg';
 import Footer from '../Footer';
+import {useDispatch, useSelector} from 'react-redux'
+import { fetchPopularHotels, fetchProperties } from '../redux/reducer/homeReducer';
+import HomeSkeleton from '../component/HomeSkeleton';
+import CustomSwiper from '../component/CustomSwiper';
+import CountdownTimer from '../component/CountdownTimer/CountdownTimer';
+import EdgeFab from './altaira/FloatingButton';
+import crashlytics from '@react-native-firebase/crashlytics';
+import messaging from '@react-native-firebase/messaging';
+import analytics from '@react-native-firebase/analytics';
+// import CountdownTimer from '../CountdownTimer';
 
 export default function HomePage() {
 
-  const { globalState, setGlobalState } = useContext(AppContext);
+  const { globalState, setGlobalState} = useContext(AppContext);
   const [notification, setNotification] = useState([]);
   const navigation = useNavigation();
   const placeholders = [
     "Hyderabad",
     "Goa",
     "Delhi",
-    "Banglore",
+    "Bangalore",
   ];
   const animatedValue = useRef(new Animated.Value(0)).current;
 
@@ -49,17 +58,175 @@ export default function HomePage() {
   const [selectCountry, setSelectCountry] = useState('India');
   const [srilankaProp, setSrilankaProp] = useState([]);
   const [indianProp, setIndianProp] = useState([]);
+  // console.log("Pendingdepp: ",globalState?.pendingDeepLinkType);
+  const [ourStays, setOurStays] = useState([]);
+  
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [carousel, setCarousel] = useState([]);
+  // const [popUpArray, setPopUpArray] = useState([]);
+  
   const [popUp, setPopUp] = useState(false);
+  const [activePopup, setActivePopup] = useState(null);
+  const popupShownRef = useRef(false);
 
+ 
+  // const[loading, setLoading] = useState(false);
+  const [loadingCount, setLoadingCount] = useState(0);
+  const loading = loadingCount > 0;
+
+  // const [priority, setPriority] = useState('');
+//   // const dispatch = useDispatch();
+  // const Offer = useSelector(state => state.home.offer);
+  // //const [Offer, setOffer] = useState(Offers);
+  // const Properties = useSelector(state => state.home.Properties);
+  // const loading = useSelector(state => state.home.loading);
+
+// console.log("ofer: ",Properties);
   const iconTranslateX = useRef(new Animated.Value(0)).current;
-const iconOpacity = useRef(new Animated.Value(0.3)).current;
+  const iconOpacity = useRef(new Animated.Value(0.3)).current;
+
+  const insets = useSafeAreaInsets();
+
+  const isValidUri = (uri) =>
+    typeof uri === 'string' && uri.trim()?.length > 0;
+
+  useEffect(() => {
+    handleProfle()
+    handleProperties();
+    fetchCarousel();
+    // handlePopular();
+    closeMenu();
+    // FetchAllNotification();
+    handleListedHotels();
+    // getDeviceToken();
+
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = messaging().onTokenRefresh(async token => {
+      const email = await AsyncStorage.getItem('Email');
+      console.log("FCM Token Refreshed:", token);
+
+      let payload = JSON.stringify({
+        email: email,
+        fcmToken: token,
+      });
+      console.log("update token: ", payload);
+
+      await updateFCMToken(payload);
+      await AsyncStorage.setItem('fcmToken', token);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const getDeviceToken = async (fcmToken) => {
+    try {
+      // Request permission (important for iOS)
+      await messaging().requestPermission();
+
+      const newToken = await messaging().getToken();
+      const savedToken = await AsyncStorage.getItem('fcmToken');
+      const email = await AsyncStorage.getItem('Email');
+
+        // console.log("Current FCM Token:", newToken);
+        // console.log("Saved Token: ", savedToken);
+
+      if (fcmToken !== newToken) {
+        let payload = JSON.stringify({
+          email: email,
+          fcmToken: newToken,
+        });
+        // console.log("Payload update fcm token: ", payload);
+
+        const res = await updateFCMToken(payload);
+        console.log('FCM update response:', res?.data);
+
+        // Save only if API success
+        if (res?.data?.success) {
+          console.log("FCM is updating....");
+          await AsyncStorage.setItem('fcmToken', newToken);
+        }
+      }
+    } catch (error) {
+      console.log('FCM token error:', error?.response?.message || error?.response?.data);
+    }
+  };
+
+  const fetchCarousel = async () => {
+      setLoadingCount(c => c + 1);
+      try{
+        let {data: res} = await GetCarousel();
+        // console.log("Carousel: ", res?.data);
+        setCarousel(res?.data);
+
+        const popupList = res?.data?.popup || [];
+
+        setGlobalState(prevState => ({
+          ...prevState,
+          liveVersion: res?.data?.androidCurrentVersion
+        }));
+
+        const popupToShow = popupList.find(p => p.visibility === true);
+
+        // const { pendingDeepLinkType } = globalState;
+        // console.log("PenfdinffL: ", pendingDeepLinkType);
+        const initialUrl = await Linking.getInitialURL();
+        if (popupToShow && !hasShownHomePopup && initialUrl == null) {
+          setActivePopup(popupToShow);
+          setPopUp(true);
+          hasShownHomePopup = true;
+        }
+      }catch(error){
+        console.error("Error in fetching carousel: ",error?.response?.data || error?.response?.message);
+      }finally{
+        setLoadingCount(c => c - 1);
+      }
+  }
+
+
+  const cardsFromApi = carousel?.cards || [];
+
+  const offerCards = cardsFromApi.filter(card => {
+    if (!card.enabled) return false;
+
+    if (card.type === 'COUNTDOWN') {
+      const endTimeMs =
+        card?.endTime && !isNaN(new Date(card.endTime).getTime())
+          ? new Date(card.endTime).getTime()
+          : null;
+
+      const isExpired = endTimeMs ? Date.now() >= endTimeMs : true;
+
+      if (!isExpired) {
+        return isValidUri(card.image);
+      }
+
+      return isValidUri(card.watchLiveStreamImage);
+    }
+
+    return isValidUri(card.image);
+  });
 
 
   useEffect(() => {
-    if (!hasShownHomePopup) {
-      setPopUp(true);
-      hasShownHomePopup = true;
-    }
+    const checkDeepLink = async () => {
+      const initialUrl = await Linking.getInitialURL();
+      // console.log("Intial: ",initialUrl);
+
+      if (initialUrl) {
+        // 🚀 App opened from deep link
+        return; // ❌ Don't show popup
+      }
+
+      // Normal app open
+      // if (!hasShownHomePopup) {
+      //   setPopUp(true);
+      //   hasShownHomePopup = true;
+      // }
+    };
+
+    checkDeepLink();
   }, []);
 
   useEffect(() => {
@@ -95,73 +262,32 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
             ]),
         ])
     ).start();
-}, []);
-
-
-
-  const handleCallRecord = async () => {
-    let payload = JSON.stringify({
-      email: globalState?.userEmail,
-      ContactNumberOfFs: "+919880626111",
-      enquiryAbout: "Home Page call"
-    });
-
-
-    try {
-      let { data: res } = await CallRecord(payload);
-      if (res?.success) {
-        handleCallNow();
-      }
-    } catch (error) {
-      if (error?.response) {
-        // Alert.alert('Response Error', `${error?.response?.data?.message}`);
-      } else if (error?.request) {
-        //Alert.alert('Request error:', `${JSON.stringify(error?.request)}`);
-        // Alert.alert('Request Error:', 'Please Check Your Internet Connection');
-        // Alert.alert('Request error:', `${JSON.stringify(error?.request)}`);
-      } else {
-        // Alert.alert('Error:', `${error}`);
-      }
-    }
-  };
-
-  const handleCallNow = () => {
-
-    const phoneNumber = '+919880626111';
-    const phoneUrl = `tel:${phoneNumber}`;
-    Linking.openURL(phoneUrl)
-      .then(supported => {
-        if (!supported) {
-          Alert.alert('Error', 'Phone number is not supported');
-        }
-      })
-      .catch(error => console.log('Error making phone call:', error));
-  };
-
-  const handleRating = () => {
-
-    const appStoreUrl = 'https://play.google.com/store/apps/details?id=com.fracspace';
-    Linking.openURL(appStoreUrl).catch(error => console.error('Error opening Play Store', error));
-  };
-
-
+  }, []);
 
   const handleProperties = async () => {
+    setLoadingCount(c => c + 1);
     try {
       let { data: res } = await PropertyDetails();
+      // console.log("Data: ", res?.properties);
       if (res?.success) {
         setOffer(res?.offers)
         const filteredNumbers = res?.properties.filter(number => number.H_property == true);
         setRecommended(filteredNumbers);
 
-        let Prop = res?.properties.filter(number => number.PropertyType == 'Domastic');
+        // setPriority(res?.priority);
+        let priority = res?.priority;
+
+        let Prop = res?.properties.filter(number => number.PropertyType == 'Domastic' || number.PropertyType == 'International-Villa');
+        // console.log("Prop: ",Prop);
         Prop.sort((a, b) => (a.num > b.num ? 1 : -1));
         let PropLable = res?.properties.filter(number => number.PropertyType == 'Label');
         PropLable.sort((a, b) => (a.num > b.num ? 1 : -1));
 
         setGlobalState(prevState => ({
           ...prevState,
+          AllProperty: res?.properties,
           ProDetails: Prop,
+          prior: priority,
           LableProDetails: PropLable
         }));
         setProperties(Prop);
@@ -188,10 +314,13 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
         Alert.alert('Error:', `${error?.message}`);
         //setLoader(false);
       }
+    }finally{
+      setLoadingCount(c => c - 1);
     }
   };
 
   const handlePopular = async () => {
+    setLoadingCount(c => c + 1);
     try {
       let { data: res } = await PopularDestination();
       // console.log(res?.hotels[1]);
@@ -212,6 +341,8 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
         Alert.alert('Error:', `${error?.message}`);
         //setLoader(false);
       }
+    }finally{
+      setLoadingCount(c => c - 1);
     }
   };
 
@@ -224,7 +355,7 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
         useNativeDriver: true,
       }).start(() => {
         // After slide-out, update the placeholder and reset animation
-        setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholders.length);
+        setPlaceholderIndex((prevIndex) => (prevIndex + 1) % placeholders?.length);
         animatedValue.setValue(0); // Reset animation to start slide-in
       });
     }, 2000); // Change every 2 seconds
@@ -233,19 +364,36 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
     return () => clearInterval(interval);
   }, [animatedValue]);
 
+  const handleUserType = async (userType) => {
+    if (userType) {
+      // Add user to owners group
+      await messaging().subscribeToTopic('owners');
+    } else {
+      // Remove user from owners group
+      await messaging().unsubscribeFromTopic('owners');
+    }
+  };
+
   const handleProfle = async () => {
     const tokenid = await AsyncStorage.getItem('mytoken');
+    // console.log("Token id: ",tokenid);
     const emailId = await AsyncStorage.getItem('Email');
     let payload = JSON.stringify({
       email: emailId,
     });
-
     try {
       let { data: res } = await ProfileDetails(payload, tokenid);
-      //console.log(res);
-
-
+      getDeviceToken(res?.data?.fcmToken);
       if (res?.success) {
+        const userType = res.data?.verification || res?.data?.ownedProperties?.length > 0; // owner or normal
+        if(userType){
+          analytics().setUserProperty('user_type', 'owners');
+        }else{
+          analytics().setUserProperty('user_type', 'normal');
+        }
+
+        handleUserType(userType);
+
         setGlobalState(prevState => ({
           ...prevState,
           userName: res?.data?.userName,
@@ -260,7 +408,7 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
     } catch (error) {
       if (error?.response) {
         if (error?.response?.data?.message == 'Invalid token.') {
-          navigation.navigate('LoginPage');
+          navigation.navigate('NewLogin');
         } else {
           Alert.alert(
             'Response ErrorProfile',
@@ -276,15 +424,17 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
       }
     }
   };
+
   const FetchAllNotification = async () => {
+    const emailId = await AsyncStorage.getItem('Email');
     let payload = JSON.stringify(
       {
-        email: globalState?.userEmail
+        email: emailId
       }
     );
     try {
       let { data: res } = await GetAllNotification(payload);
-      // console.log(res?.data[0]?.buttonClicks);
+      // console.log(res?.data);
       setNotification(res?.data);
       // setNotification(res?.data);
     } catch (error) {
@@ -299,40 +449,83 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
       !item.buttonClicks.some(click => click.email === globalState?.userEmail),
   );
 
+  const handleListedHotels = async () => {
+      try {
+          let { data: res } = await DreamscapeHotels();
+
+          const cities = [
+              ...new Set(res?.hotels?.map(hotel => hotel?.location?.city))
+          ];
+          // console.log("City name: ",cities);
+
+          setGlobalState(prevState => ({
+            ...prevState,
+            location: cities,
+            ourStays: res?.citySummary,
+            HotelDetails: res?.hotels
+          }))
+
+          // setLocation(cities);
+          setOurStays(res?.citySummary);
+          // setHotelDetails(res?.hotels);
+      } catch (error) {
+          console.log("Errorin Listed Hotels: ", error);
+      }
+  };
 
 
 
-
-
-
-  useEffect(() => {
-    handleProfle()
-    handleProperties();
-    handlePopular();
-    closeMenu();
-    FetchAllNotification();
-
-
-  }, []);
 
   const { width } = Dimensions.get('window');
   const [menuAnimation] = useState(new Animated.Value(-width * 0.8)); // Initially hidden off-screen
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const openMenu = () => {
+    setIsMenuOpen(true);
     Animated.timing(menuAnimation, {
       toValue: 0,
-      duration: 300,
+      duration: 250,
       useNativeDriver: true,
     }).start();
   };
 
   const closeMenu = () => {
     Animated.timing(menuAnimation, {
-      toValue: -width * 0.8,
-      duration: 300,
+      toValue: -MENU_WIDTH,
+      duration: 250,
       useNativeDriver: true,
-    }).start();
+    }).start(() => {
+      setIsMenuOpen(false);
+    });
   };
+
+  const MENU_WIDTH = width * 0.8;
+
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gesture) =>
+      isMenuOpen && Math.abs(gesture.dx) > Math.abs(gesture.dy),
+
+    onPanResponderMove: (_, gesture) => {
+      const translateX = Math.min(
+        0,
+        Math.max(gesture.dx, -MENU_WIDTH)
+      );
+
+      menuAnimation.setValue(translateX);
+    },
+
+    onPanResponderRelease: (_, gesture) => {
+      const shouldClose =
+        gesture.dx < -MENU_WIDTH / 3 || gesture.vx < -0.5;
+
+      if (shouldClose) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    },
+  });
+
 
   const handleLogOut = async () => {
     await AsyncStorage.setItem('mytoken', '');
@@ -340,6 +533,7 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
     //navigation.push('LoginPage', { country: '+91', phone: '', email: '' });
     navigation.push('NewLogin');
   };
+
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
@@ -362,11 +556,10 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
       email: emailId,
     });
 
-
     try {
       let { data: res } = await LikeData(payload);
       if (res?.success) {
-        const likeProp = res?.properties.map(item => item._id);
+        const likeProp = res?.properties?.map(item => item._id);
         // console.log("Likes: ",likeProp);
         setLikedProperty(likeProp);
       } else {
@@ -422,10 +615,11 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
 
   useFocusEffect(
     useCallback(() => {
+      FetchAllNotification();
       fetchLikedProperty();
 
       return () => {
-        setPlayStates(prev => prev.map(() => false));
+        setPlayStates(prev => prev?.map(() => false));
         videoRefs.current.forEach(ref => {
           if (ref) {
             ref.pause && ref.pause();
@@ -481,13 +675,14 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
       }),
     ]).start();
   };
+
   const testimonials = [
     {
       name: 'Abdul Basith',
       video:
-        'https://fracspace-properties.s3.ap-south-1.amazonaws.com/fracspace_properties_images/testimonials/testimonial2.mp4',
+        'https://duixj37yn5405.cloudfront.net/hls-videos/testimonial2/720p/index.m3u8',
       image:
-        'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/testimonial1.png',
+        'https://duixj37yn5405.cloudfront.net/appImages/testimonial1.png',
       transcript: [
         {
           start: 0.0,
@@ -519,9 +714,9 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
     {
       name: 'Srinivas',
       video:
-        'https://fracspace-properties.s3.ap-south-1.amazonaws.com/fracspace_properties_images/testimonials/testimonial3.mp4',
+        'https://duixj37yn5405.cloudfront.net/hls-videos/2417b25a-897f-4c20-b42e-8b2a42d5ace3/720p/index.m3u8',
       image:
-        'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/testimonial2.png',
+        'https://duixj37yn5405.cloudfront.net/appImages/testimonial2.png',
       transcript: [
         {
           start: 0.0,
@@ -549,19 +744,19 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
           end: 29.0,
           text: "I request all of you to consider it. It's a good option.",
         },
-        {
-          start: 30.0,
-          end: 37.0,
-          text: 'I find it interesting and getting to know a lot of people coming into this community. I am enjoying it a lot. Thanks.',
-        },
+        // {
+        //   start: 30.0,
+        //   end: 33.0,
+        //   text: 'I find it interesting and getting to know a lot of people coming into this community. I am enjoying it a lot. Thanks.',
+        // },
       ],
     },
     {
       name: 'Prashanth & Nikita',
       video:
-        'https://fracspace-properties.s3.ap-south-1.amazonaws.com/fracspace_properties_images/testimonials/testimonial1.mp4',
+        'https://duixj37yn5405.cloudfront.net/hls-videos/9677ef67-836b-491f-82b6-9912f837f1c3/720p/index.m3u8',
       image:
-        'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/testimonial3.png',
+        'https://duixj37yn5405.cloudfront.net/appImages/testimonial3.png',
       transcript: [
         {
           start: 0.0,
@@ -597,14 +792,14 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
       ],
     },
   ];
-  const [playStates, setPlayStates] = useState(testimonials.map(() => false));
-  const [currentTimes, setCurrentTimes] = useState(testimonials.map(() => 0));
-  const [durations, setDurations] = useState(testimonials.map(() => 0));
+  const [playStates, setPlayStates] = useState(testimonials?.map(() => false));
+  const [currentTimes, setCurrentTimes] = useState(testimonials?.map(() => 0));
+  const [durations, setDurations] = useState(testimonials?.map(() => 0));
   const transcriptScrollRefs = useRef([]);
   const videoRefs = useRef([]);
-  const [videoEnded, setVideoEnded] = useState(testimonials.map(() => false));
+  const [videoEnded, setVideoEnded] = useState(testimonials?.map(() => false));
   const [showThumbnails, setShowThumbnails] = useState(
-    testimonials.map(() => true),
+    testimonials?.map(() => true),
   );
   const cardWidth = 250;
   const wireHeight = 100;
@@ -660,21 +855,54 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
     }
   };
 
+  if (loading) {
+    return <HomeSkeleton />;
+  }
 
-
-
-
+  const SafeImage = ({ source, fallback, ...props }) => {
+      // If require('image.png')
+      if (typeof source === 'number') {
+        return <Image {...props} source={source} />;
+      }
+  
+      const uri = source?.uri;
+  
+      const isValidUri =
+        uri && typeof uri === 'string' && uri.trim() !== '';
+  
+      return (
+        <Image
+          {...props}
+          source={
+            isValidUri
+              ? { uri }
+              // : fallback || require('./assets/placeholder.png')
+              :fallback || require('../assets/placeholder.png')
+          }
+        />
+      );
+    };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#021265' }}>
+    <SafeAreaView style={{flex:1,backgroundColor:'#021265'}}>
+
+      <Animated.ScrollView
+      showsVerticalScrollIndicator={false}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        scrollEventThrottle={16}>
+
+    {/* <SafeAreaView style={{ flex: 1, backgroundColor: '#021265' }}> */}
       <StatusBar
         barStyle="light-content"
         backgroundColor="#021265"
         translucent={false}
       />
-      <ScrollView style={{ backgroundColor: '#FFFFFF', }}
+      <ScrollView style={{ backgroundColor: '#FFFFFF' }}
         onScroll={handleVerticalScroll} scrollEventThrottle={16}>
-        <View style={{ backgroundColor: "#021265", width: '100%', paddingHorizontal: 15, paddingTop: 20, paddingBottom: 10, marginBottom: 20 }}>
+        <View style={{ backgroundColor: "#021265", width: '100%', paddingHorizontal: 15, paddingTop: 0, paddingBottom: 10, marginBottom: 0 }}>
           <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
               <TouchableOpacity style={{ paddingTop: 8 }} onPress={() => {
@@ -696,220 +924,89 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
               /> */}
 
             </View>
-            <View style={{ flexDirection: 'row', width: '35%', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+            <View style={{ flexDirection: 'row',gap:14, alignItems: 'flex-end',justifyContent:'space-between' }}>
               <TouchableOpacity onPress={() => {
                 navigation.navigate('NotificationsScreen')
               }}>
-                <Ico name={'bell'} size={22} color={'#FFFFFF'} />
+                {/* <Ico name={'bell'} size={22} color={'#FFFFFF'} /> */}
+                <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/notification-01.png'}} style={{width:22,height:22}}/>
                 {unreadNotifications &&
                   <View style={{ width: 9, height: 9, borderRadius: 9, backgroundColor: '#FF0000', position: 'absolute', top: 0, right: 0 }}></View>
                 }
               </TouchableOpacity>
 
-
               <TouchableOpacity onPress={() => {
-                navigation.navigate('Chat');
-
-              }} style={{ alignItems: 'flex-end', width: '100%', flex: 1, }}>
-                <Icon name="chatbubbles-outline" size={23} color={'#FFFFFF'} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('FeedbackForm');
-                }}
-                style={{ alignItems: 'flex-end', width: '100%', flex: 1 }}>
-                <Image
-                  style={{ width: 22, height: 22 }}
-                  resizeMode="cover"
-                  source={{
-                    uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/message.png',
-                  }}
-                />
+                navigation.navigate('Like');
+              }}>
+                <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/favourite.png'}} style={{width:22,height:22}}/>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
                   navigation.navigate('WalletAmount');
 
                 }}
-                style={{ alignItems: 'flex-end', width: '100%', flex: 1 }}>
-                <Icon name={'wallet-outline'} size={25} color={'#FFFFFF'} />
+                style={{ }}>
+                {/* <Icon name={'wallet-outline'} size={25} color={'#FFFFFF'} /> */}
+                <Image source={{uri: 'https://duixj37yn5405.cloudfront.net/appImages/wallet-03.png'}} style={{width:25,height:25}}/>
               </TouchableOpacity>
-
-
-
             </View>
 
           </View>
-
-
-
         </View>
 
 
+        <View style={{height:215}}>
+        {offerCards?.length > 0 && (
+          <CustomSwiper
+            data={offerCards}
+            height={210}
+            // autoplay={true}
+            autoplay={carousel?.autoPlay}
+          />
 
-        <Swiper
-          style={styles.wrapper}
-          height={200}
-          showsPagination={true}
-          // autoplayTimeout={2}
-          dot={
-            <View
-              style={{
-                backgroundColor: '#D9D9D9',
-                width: 8,
-                height: 8,
-                borderRadius: 8,
-                marginLeft: 3,
-                marginRight: 3,
-                marginTop: 5,
+        )}
+        </View>
 
-              }}
-            />
-          }
-          activeDot={
-            <View
-              style={{
-                backgroundColor: '#043862',
-                width: 8,
-                height: 8,
-                borderRadius: 8,
-                marginLeft: 3,
-                marginRight: 3,
-                marginTop: 5,
-
-              }}
-            />
-          }
-          onIndexChanged={(index) => setPosition(index)}
-          paginationStyle={{
-            bottom: -5,
-            right: 10,
-          }}
-          loop={true}
-          autoplay={true}
-        >
-          <TouchableOpacity onPress={() => {
-            navigation.navigate('IntroAnim');
-          }} style={{ flex: 1, alignItems: 'center' }}>
-            <Image
-              resizeMode='cover'
-              style={[styles.image]}
-              source={{ uri: Offer[0]?.image5 }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            navigation.navigate('Home', { details: Properties });
-          }} style={{ flex: 1, alignItems: 'center' }}>
-            <Image
-              resizeMode='cover'
-              style={[styles.image]}
-              source={{ uri: Offer[0]?.image1 }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            // setGlobalState(prevState => ({
-            //   ...prevState,
-            //   userEvent: 'Construction'
-            // }));
-            // navigation.navigate('InteriorForm')
-            navigation.navigate('Packages');
-          }} style={{ flex: 1, alignItems: 'center' }}>
-            <Image
-              resizeMode='cover'
-              style={[styles.image]}
-              source={{ uri: Offer[0]?.image2 }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            setGlobalState(prevState => ({
-              ...prevState,
-              userEvent: 'Construction'
-            }));
-            navigation.navigate('InteriorForm')
-          }} style={{ flex: 1, alignItems: 'center' }}>
-            <Image
-              resizeMode='cover'
-              style={[styles.image]}
-              source={{ uri: Offer[0]?.image3 }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            navigation.navigate('DreamscapeHome');
-          }} style={{ flex: 1, alignItems: 'center' }}>
-            <Image
-              resizeMode='cover'
-              style={[styles.image]}
-              source={{ uri: Offer[0]?.image4 }}
-            />
-          </TouchableOpacity>
-        </Swiper>
+        {/* <TouchableOpacity onPress={() => {
+          // navigation.navigate('Test');
+          testCrash();
+        }} style={{padding:20}}>
+          <Text style={{fontFamily:'Montserrat-Medium',fontSize:12,color:'#000'}}>Test</Text>
+        </TouchableOpacity> */}
 
 
-
-        {/* <Text style={[styles.mostCommonFaqsTypo, { paddingVertical: 15 }]}>
-          Categories
-        </Text> */}
-        {/* <View style={{ marginBottom: 10, marginHorizontal: 20 }}>
-          <View style={[styles.groupChild22, { paddingVertical: 20, }]}>
-            <View style={{ flexDirection: 'row', width: '100%' }}>
-              <TouchableOpacity style={{ alignItems: 'center', flex: 1, }}
-                onPress={() => {
-                  // navigation.navigate('CownHome');
-                     navigation.navigate('BottomNavigations');
-
-                 // navigation.navigate('Home', { details: Properties });
-                }}>
-                <Image
-                  style={{ width: 50, height: 50 }}
-                  resizeMode='contain'
-                  source={require("./assets/Layer1.png")}
-                />
-                <Text style={[styles.airportTypo, { paddingTop: 8 }]}>
-                  Co-ownership
-                </Text>
-              </TouchableOpacity >
-           
-              <TouchableOpacity style={{ alignItems: 'center', flex: 1 }}
-                onPress={() => {
-                  //handleCallNow();
-                  //navigation.navigate('PropertyForm');
-                  setGlobalState(prevState => ({
-                    ...prevState,
-                    userEvent: 'Interiors'
-                  }));
-                  navigation.navigate('InteriorForm');
-                }}>
-                <Image
-                  style={{ width: 50, height: 50 }}
-                  resizeMode='contain'
-                  source={require("./assets/Layer8.png")}
-                />
-                <Text style={[styles.airportTypo, { paddingTop: 8 }]}>
-                  Interiors
-                </Text>
+        <View style={{backgroundColor:'#EBE9F6',paddingVertical:12,}}>
+          <Text style={styles.mostCommonFaqsTypo}>Categories</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{gap:10,paddingHorizontal:20}}>
+            {carousel?.category?.map((item, index) => (
+              <TouchableOpacity onPress={() => {
+                if(item?.heading === 'Co-Own'){
+                  navigation.navigate(item?.androidNavigation, {details: Properties});
+                }else{
+                  navigation.navigate(item?.androidNavigation)
+                }
+              }} key={index} style={{backgroundColor:'#FFF',padding:12,borderRadius:6,width:135,marginRight:20,elevation:5,marginVertical:10}}>
+                <Text style={{fontFamily:'Montserrat-SemiBold',fontSize:15,color:'#021265'}}>{item?.heading}</Text>
+                <View style={{width:60,marginTop:5}}>
+                  <Text style={{fontFamily:'WorkSans-Regular',fontSize:11,color:'#000'}}>{item?.subHeading}</Text>
+                </View>
+                <View style={{position:'absolute',bottom:0,right:5}}>
+                  <Image resizeMode='cover' source={{uri: item?.image}} style={{width:60,height:60}}/>
+                </View>
               </TouchableOpacity>
-              <TouchableOpacity style={{ alignItems: 'center', flex: 1 }}
-                onPress={() => {
-                  navigation.navigate('DreamscapeHome');
-                }}>
-                <Image
-                  style={{ width: 50, height: 50 }}
-                  resizeMode='contain'
-                  source={require("./assets/stay.png")}
-                />
-                <Text style={[styles.airportTypo, { paddingTop: 8 }]}>
-                  Stay
-                </Text>
-              </TouchableOpacity>
-             
-            </View>
-        
-          
-          </View>
-        </View> */}
+            ))}
+          </ScrollView>
+        </View>
+
+        <TouchableOpacity onPress={() => {
+          navigation.navigate('MembershipHome');
+        }} style={{paddingTop:20,paddingHorizontal:20}}>
+          <SafeImage  resizeMode='cover' source={{uri: carousel?.altairaUrl}} style={{width:'100%', height:100,borderRadius:10}}/>
+        </TouchableOpacity>
+
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Text style={[styles.mostCommonFaqsTypo, { paddingVertical: 15, marginTop: 5 }]}>
-            Availabile Properties
+            Available Properties
           </Text>
           <TouchableOpacity
             onPress={() => {
@@ -919,82 +1016,15 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
           </TouchableOpacity>
         </View>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            gap: 10,
-            paddingHorizontal: 20,
-            paddingVertical: 5,
-          }}>
-
-          <TouchableOpacity
-            onPress={() => {
-              setSelectCountry('India');
-            }}
-            style={{
-              backgroundColor: selectCountry == 'India' ? '#0F1130' : '#FFFFFF',
-              paddingHorizontal: 45,
-              paddingVertical: 8,
-              borderRadius: 5,
-              borderColor: '#000000',
-              borderWidth: 1,
-              marginTop: 5
-            }}>
-            <Text
-              style={{
-                color: selectCountry == 'India' ? '#FFFFFF' : '#000000',
-                fontFamily: 'WorkSans-Medium',
-                fontSize: 12,
-              }}>
-              Domestic
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setSelectCountry('International');
-            }}
-            style={{
-              backgroundColor:
-                selectCountry == 'International' ? '#0F1130' : '#FFFFFF',
-              paddingHorizontal: 50,
-              paddingVertical: 8,
-              borderRadius: 5,
-              borderColor: '#000000',
-              borderWidth: 1,
-              marginTop: 5
-            }}>
-            <Text
-              style={{
-                color: selectCountry == 'International' ? '#FFFFFF' : '#000000',
-                fontFamily: 'WorkSans-Medium',
-                fontSize: 12,
-              }}>
-              Global
-            </Text>
-          </TouchableOpacity>
-          {/* <TouchableOpacity
-            onPress={() => {}}
-            style={{
-              backgroundColor: '#0F1130',
-              paddingHorizontal: 30,
-              paddingVertical: 10,
-              borderRadius:10
-            }}>
-            <Text style={{color:'#FFFFFF',fontFamily:'WorkSans-Medium',fontSize:12}}>
-              Lifestyle
-            </Text>
-          </TouchableOpacity> */}
-        </View>
-
-        {selectCountry == 'India' && (
+        {/* {selectCountry == 'India' && ( */}
           <ScrollView
             horizontal={true}
-            style={{ padding: 20 }}
+            style={{ paddingHorizontal: 20 }}
             showsHorizontalScrollIndicator={false}>
-            {indianProp
+            {Properties
               .filter(item => item.AvailableFractions > 0)
-              .map((item, index) => {
+              .sort((a, b) => (a.num > b.num ? 1 : -1))
+              ?.map((item, index) => {
                 const itemName = item?.name;
                 const propId = item?._id;
                 const isLiked = likedProperty.includes(propId);
@@ -1004,21 +1034,11 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
                 return (
                   <TouchableOpacity
                     onPress={() => {
-
-                      navigation.navigate('Property', { details: item, nav: 'HomePage' });
-
+                      navigation.navigate('Property', { details: item, nav: 'HomePage', Id: item?._id });
                     }}
                     key={index}
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      borderColor: '#00000014',
-                      borderWidth: 1,
-                      padding: 10,
-                      borderRadius: 10,
-                      elevation: 5,
-                      width: width * 0.65,
-                      marginRight: 20,
-                    }}>
+                    style={{backgroundColor: '#FFFFFF',borderColor: '#00000014',borderWidth: 1,padding: 10,borderRadius: 10,elevation: 5,width: width * 0.65,marginRight: 20, marginBottom:5}}
+                  >
                     <Image
                       resizeMode="cover"
                       source={{ uri: item?.image?.Image1 }}
@@ -1026,30 +1046,15 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
                     />
                     <View style={{ position: 'absolute', top: 15, left: 15 }}>
                       <View>
-                        <Text
-                          style={{
-                            fontFamily: 'Poppins-SemiBold',
-                            fontSize: 20,
-                            color: '#FFFFFF',
-                          }}>
+                        <Text style={{fontFamily: 'Poppins-SemiBold',fontSize: 20,color: '#FFFFFF',}}>
                           {item?.city}
                         </Text>
                       </View>
                     </View>
                     <View style={{ marginTop: 10 }}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                        }}>
+                      <View style={{   flexDirection: 'row',   justifyContent: 'space-between',   flex: 1, }}>
                         <View style={{ flex: 1 }}>
-                          <Text
-                            style={{
-                              fontFamily: 'Montserrat-SemiBold',
-                              fontSize: 13,
-                              color: '#000000',
-                            }}>
+                          <Text style={{   fontFamily: 'Montserrat-SemiBold',   fontSize: 13,   color: '#000000', }}>
                             {item?.name}
                           </Text>
                         </View>
@@ -1071,156 +1076,70 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
                           }}
                           style={{}}>
                           <LinearGradient
-                            colors={
-                              isLiked
-                                ? ['#FFFFFF', '#FFFFFF']
-                                : ['#FFFFFF', '#FFFFFF']
-                            }
-                            style={{
-                              width: 35,
-                              height: 35,
-                              borderRadius: 20,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              elevation: 5,
-                              backgroundColor: '#FFFFFF',
-                            }}>
+                            colors={isLiked  ? ['#FFFFFF', '#FFFFFF']  : ['#FFFFFF', '#FFFFFF']}
+                            style={{width: 35,height: 35,borderRadius: 20,alignItems: 'center',justifyContent: 'center',elevation: 5,backgroundColor: '#FFFFFF',}}
+                          >
                             <Animated.View
                               style={{
                                 transform: [{ scale: scaleAnimation[itemName] }],
                               }}>
                               {isLiked ? (
-                                <Icon
-                                  name={'heart'}
-                                  size={20}
-                                  color="#ED1C24"
-                                />
+                                <Icon name={'heart'} size={20} color="#ED1C24"/>
                               ) : (
-                                <Icon
-                                  name={'heart-outline'}
-                                  size={20}
-                                  color="#ED1C24"
-                                />
+                                <Icon name={'heart-outline'} size={20} color="#ED1C24"/>
                               )}
                             </Animated.View>
                           </LinearGradient>
                         </TouchableOpacity>
                       </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginTop: 10,
-                        }}>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-Meidum',
-                            fontSize: 11,
-                            color: '#00000099',
-                          }}>
+                      <View style={{   flexDirection: 'row',   alignItems: 'center',   marginTop: 10, }}>
+                        <Text style={{   fontFamily: 'Montserrat-Medium',   fontSize: 11,   color: '#00000099', }}>
                           Total Frac Value:{' '}
                         </Text>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-SemiBold',
-                            fontSize: 11,
-                            color: '#000000',
-                            marginLeft: 5,
-                          }}>
+                        <Text style={{   fontFamily: 'Montserrat-SemiBold',   fontSize: 11,   color: '#000000',   marginLeft: 5, }}>
                           ₹ {item?.Price}
                         </Text>
                       </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginVertical: 8,
-                        }}>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-Medium',
-                            fontSize: 11,
-                            color: '#00000099',
-                          }}>
+                      {item?.name !== 'ALTAIRA – VILLA' &&
+                      <View style={{   flexDirection: 'row',   alignItems: 'center',   marginVertical: 8, }}>
+                        <Text style={{   fontFamily: 'Montserrat-Medium',   fontSize: 11,   color: '#00000099', }}>
                           Frac Value:{' '}
                         </Text>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-SemiBold',
-                            fontSize: 11,
-                            color: '#000000',
-                            marginLeft: 5,
-                          }}>
+                        
+                        <Text style={{   fontFamily: 'Montserrat-SemiBold',   fontSize: 11,   color: '#000000',   marginLeft: 5, }}>
                           ₹ {item?.FC_Price}
                         </Text>
+                        
                       </View>
-                      <View
-                        style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-Medium',
-                            fontSize: 11,
-                            color: '#00000099',
-                          }}>
+                      }
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{   fontFamily: 'Montserrat-Medium',   fontSize: 11,   color: '#00000099', }}>
                           Available Frac:{' '}
                         </Text>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-SemiBold',
-                            fontSize: 11,
-                            color: '#000000',
-                            marginLeft: 5,
-                          }}>
+                        <Text style={{   fontFamily: 'Montserrat-SemiBold',   fontSize: 11,   color: '#000000',   marginLeft: 5, }}>
                           {item?.AvailableFractions}
                         </Text>
                       </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginTop: 10,
-                        }}>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            flex: 1,
-                          }}>
+                      <View style={{   flexDirection: 'row',   justifyContent: 'space-between',   marginTop: 10, }}>
+                        <View style={{   flexDirection: 'row',   alignItems: 'center',   flex: 1, }}>
                           <Image
                             source={{
-                              uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/square.png',
+                              uri: 'https://duixj37yn5405.cloudfront.net/appImages/square.png',
                             }}
                             style={{ width: 15, height: 15 }}
                           />
-                          <Text
-                            style={{
-                              fontFamily: 'Montserrat-Medium',
-                              fontSize: 9,
-                              color: '#181D27',
-                              marginLeft: 10,
-                            }}>
+                          <Text style={{   fontFamily: 'Montserrat-Medium',   fontSize: 9,   color: '#181D27',   marginLeft: 10, }}>
                             {item?.area}
                           </Text>
                         </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            flex: 1,
-                          }}>
+                        <View style={{   flexDirection: 'row',   alignItems: 'center',   flex: 1, }}>
                           <Image
                             source={{
-                              uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/building.png',
+                              uri: 'https://duixj37yn5405.cloudfront.net/appImages/building.png',
                             }}
                             style={{ width: 15, height: 15 }}
                           />
-                          <Text
-                            style={{
-                              fontFamily: 'Montserrat-Medium',
-                              fontSize: 9,
-                              color: '#181D27',
-                              marginLeft: 7,
-                            }}>
+                          <Text style={{   fontFamily: 'Montserrat-Medium',   fontSize: 9,   color: '#181D27',   marginLeft: 7, }}>
                             {item?.P_Type}
                           </Text>
                         </View>
@@ -1230,380 +1149,8 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
                 );
               })}
           </ScrollView>
-        )}
+        {/* )} */}
 
-
-
-        {selectCountry == 'International' && (
-          <ScrollView
-            horizontal={true}
-            style={{ padding: 20 }}
-            showsHorizontalScrollIndicator={false}>
-            {srilankaProp
-              .filter(item => item.AvailableFractions > 0)
-              .map((item, index) => {
-                const itemName = item?.name;
-                const propId = item?._id;
-                const isLiked = likedProperty.includes(propId);
-                if (!scaleAnimation[itemName]) {
-                  scaleAnimation[itemName] = new Animated.Value(1);
-                }
-                return (
-                  <TouchableOpacity
-                    onPress={() => {
-                      navigation.navigate('Property', { details: item, nav: 'HomePage' });
-                      // navigation.navigate('CoOwnPropDetail', { data: item })
-                    }}
-                    key={index}
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      borderColor: '#00000014',
-                      borderWidth: 1,
-                      padding: 10,
-                      elevation: 5,
-                      width: width * 0.65,
-                      marginRight: 20,
-                      borderRadius: 10,
-                    }}>
-                    <Image
-                      resizeMode="cover"
-                      source={{ uri: item?.image?.Image1 }}
-                      style={{ width: '100%', height: 150 }}
-                    />
-                    <View style={{ position: 'absolute', top: 15, left: 15 }}>
-                      <View>
-                        <Text
-                          style={{
-                            fontFamily: 'Poppins-SemiBold',
-                            fontSize: 20,
-                            color: '#FFF',
-                          }}>
-                          {item.city}
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={{ marginTop: 10 }}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          flex: 1,
-                        }}>
-                        <View style={{ flex: 1 }}>
-                          <Text
-                            style={{
-                              fontFamily: 'Montserrat-SemiBold',
-                              fontSize: 13,
-                              color: '#000',
-                            }}>
-                            {item?.name}
-                          </Text>
-                        </View>
-
-                        <TouchableOpacity
-                          onPress={() => {
-                            triggerScaleAnimation(itemName);
-                            toggleLikes(itemName);
-                            if (isLiked) {
-                              handleRemoveLike(propId);
-                              setLikedProperty(prev =>
-                                prev.filter(id => id !== propId),
-                              );
-                            } else {
-                              handleLike(propId);
-                              setLikedProperty(prev => [...prev, propId]);
-                            }
-                          }}>
-                          <LinearGradient
-                            colors={['#FFF', '#FFF']}
-                            style={{
-                              width: 35,
-                              height: 35,
-                              borderRadius: 20,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              elevation: 5,
-                              backgroundColor: '#FFF',
-                            }}>
-                            <Animated.View
-                              style={{
-                                transform: [{ scale: scaleAnimation[itemName] }],
-                              }}>
-                              {isLiked ? (
-                                <Icon
-                                  name={'heart'}
-                                  size={20}
-                                  color="#ed1c24"
-                                />
-                              ) : (
-                                <Icon
-                                  name={'heart-outline'}
-                                  size={20}
-                                  color="#ed1c24"
-                                />
-                              )}
-                            </Animated.View>
-                          </LinearGradient>
-                        </TouchableOpacity>
-                      </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginTop: 10,
-                        }}>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-Medium',
-                            fontSize: 11,
-                            color: '#00000099',
-                          }}>
-                          Total Frac Value:{' '}
-                        </Text>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-SemiBold',
-                            fontSize: 11,
-                            color: '#000',
-                            marginLeft: 5,
-                          }}>
-                          ₹ {item?.Price}
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginVertical: 8,
-                        }}>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-Medium',
-                            fontSize: 11,
-                            color: '#00000099',
-                          }}>
-                          Frac Value:{' '}
-                        </Text>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-SemiBold',
-                            fontSize: 11,
-                            color: '#000',
-                            marginLeft: 5,
-                          }}>
-                          ₹ {item?.FC_Price}
-                        </Text>
-                      </View>
-                      <View
-                        style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-Medium',
-                            fontSize: 11,
-                            color: '#00000099',
-                          }}>
-                          Available Frac:{' '}
-                        </Text>
-                        <Text
-                          style={{
-                            fontFamily: 'Montserrat-SemiBold',
-                            fontSize: 11,
-                            color: '#000',
-                            marginLeft: 5,
-                          }}>
-                          {item?.AvailableFractions}
-                        </Text>
-                      </View>
-
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginTop: 10,
-                        }}>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            flex: 1,
-                          }}>
-                          <Image
-                            source={{
-                              uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/square.png',
-                            }}
-                            style={{ width: 15, height: 15 }}
-                          />
-                          <Text
-                            style={{
-                              fontFamily: 'Montserrat-Medium',
-                              fontSize: 9,
-                              color: '#181d27',
-                              marginLeft: 10,
-                            }}>
-                            {item?.area}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            flex: 1,
-                          }}>
-                          <Image
-                            source={{
-                              uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/building.png',
-                            }}
-                            style={{ width: 15, height: 15 }}
-                          />
-                          <Text
-                            style={{
-                              fontFamily: 'Montserrat-Medium',
-                              fontSize: 9,
-                              color: '#181d27',
-                              marginLeft: 10,
-                            }}>
-                            {item?.P_Type}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-          </ScrollView>
-        )}
-
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('IntroAnim');
-          }}>
-          <LinearGradient
-            colors={['#F6D365', '#FEF3BC', '#F1D269']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
-            style={{
-              borderRadius: 40,
-              borderColor: '#E5AA01',
-              borderWidth: 1.5,
-              paddingHorizontal: 17,
-              paddingVertical: 15,
-              marginHorizontal: 20,
-              marginBottom:20,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-            <View style={{flexDirection: 'row', alignItems: 'center', flex: 2}}>
-              <View>
-                <Image
-                  source={{
-                    uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/premium.png',
-                  }}
-                  style={{width: 35, height: 35}}
-                />
-              </View>
-              <View style={{marginLeft: 5}}>
-                <Text
-                  style={{
-                    fontFamily: 'Poppins-Medium',
-                    fontSize: 14,
-                    color: '#163434',
-                  }}>
-                  Altaira by Fracspace
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: 'Popppins-Regular',
-                    fontSize: 11,
-                    color: '#163434F2',
-                    marginTop: -2,
-                  }}>
-                  Above the Clouds, Beyond Expectations
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                flex: 1,
-                justifyContent: 'flex-end',
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'Poppins-Regular',
-                  fontSize: 12,
-                  color: '#000000',
-                }}>
-                Explore More
-              </Text>
-              <Iconn name={'chevron-right'} size={15} color={'#000000'} />
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <View
-          style={{
-            backgroundColor: '#EBE9F6',
-
-            paddingVertical: 10,
-          }}>
-          <Text style={[styles.mostCommonFaqsTypo, { paddingVertical: 15 }]}>
-            More Than Co-Ownership
-          </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View
-              style={{
-                flexDirection: 'row',
-                gap: 10,
-                paddingHorizontal: 15,
-                paddingTop: 10,
-                paddingBottom: 30
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-
-                  navigation.navigate('Packages');
-                }}>
-                <Image
-                  style={{ width: 135, height: 110, borderRadius: 10 }}
-                  resizeMode="cover"
-                  source={{
-                    uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/package_image1.jpeg',
-                  }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setGlobalState(prevState => ({
-                    ...prevState,
-                    userEvent: 'Interiors',
-                  }));
-                  navigation.navigate('InteriorForm');
-                }}>
-                <Image
-                  style={{ width: 135, height: 110, borderRadius: 10 }}
-                  resizeMode="cover"
-                  source={{
-                    uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/package_image2.jpeg',
-                  }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('DreamscapeHome');
-                }}>
-                <Image
-                  style={{ width: 135, height: 110, borderRadius: 10 }}
-                  resizeMode="cover"
-                  source={{
-                    uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/package_image3.jpeg',
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </View>
 
         <View style={{ backgroundColor: '#FAFAFF', paddingBottom: 15 }}>
           <View style={{ paddingTop: 20, paddingBottom: 15, }}>
@@ -1614,90 +1161,33 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
           <View style={{ paddingLeft: 20, }}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <TouchableOpacity onPress={() => {
+                navigation.navigate('Blogs', { Blogfor: 'SouthIndia' });
+              }} style={{ marginRight: 20 }}>
+                <Image resizeMode='cover' source={{ uri: 'https://duixj37yn5405.cloudfront.net/Postcard+Images/PostCard3.png' }} style={{ width: width * 0.85, height: height * 0.36, borderRadius: 15 }} />
+
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => {
                 navigation.navigate('Blogs', { Blogfor: 'VaranasiBlog' });
               }} style={{ marginRight: 20 }}>
-                <Image resizeMode='cover' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/varanashiPosterImage.jpeg' }} style={{ width: width * 0.85, height: height * 0.36, borderRadius: 15 }} />
+                <Image resizeMode='cover' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/varanashiPosterImage.jpeg' }} style={{ width: width * 0.85, height: height * 0.36, borderRadius: 15 }} />
 
               </TouchableOpacity>
 
               <TouchableOpacity onPress={() => {
                 navigation.navigate('Blogs', { Blogfor: 'SrilankaBlog' });
               }} style={{ marginRight: 20 }}>
-                <Image resizeMode='cover' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/srilankaPosterImage.jpeg' }} style={{ width: width * 0.85, height: height * 0.36, borderRadius: 15 }} />
+                <Image resizeMode='cover' source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/srilankaPosterImage.jpeg' }} style={{ width: width * 0.85, height: height * 0.36, borderRadius: 15 }} />
 
               </TouchableOpacity>
 
             </ScrollView>
           </View>
-
-
-
-
         </View>
-
-
-        {/* 
-        <View style={{ backgroundColor: '#EBE9F6', }}>
-          <View style={{ paddingHorizontal: 15, paddingTop: 25 }}>
-            <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 20, color: '#000000' }}>Explore our services</Text>
-          </View>
-          <ScrollView horizontal={true} style={{ paddingHorizontal: 15, marginTop: 20, marginBottom: 35 }}>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate('Home', { details: Properties });
-            }} style={{ backgroundColor: '#FFFFFF', borderRadius: 11, padding: 15 }}>
-              <View>
-                <Image style={{ width: 80, height: 80, }}
-                  //source={require('./assets/LayerPer.png')}
-                  source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon7.jpeg', }}
-                />
-              </View>
-              <View style={{ width: 141, marginVertical: 10 }}>
-                <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 10, color: '#000000' }}>Start your journey with fractional ownership today </Text>
-              </View>
-            </TouchableOpacity>
-
-
-
-
-            <TouchableOpacity onPress={() => {
-              setGlobalState(prevState => ({
-                ...prevState,
-                userEvent: 'Interiors'
-              }));
-              navigation.navigate('InteriorForm');
-
-
-            }} style={{ backgroundColor: '#FFFFFF', borderRadius: 11, padding: 15, marginLeft: 20 }}>
-              <View>
-                <Image style={{ width: 80, height: 80, }}
-
-                  source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/icon2.jpeg' }} />
-              </View>
-              <View style={{ width: 141, marginVertical: 10 }}>
-                <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 10, color: '#000000' }}>Book Interiors fractional ownership today </Text>
-              </View>
-            </TouchableOpacity>
-
-
-            <TouchableOpacity onPress={() => {
-              navigation.navigate('DreamscapeHome');
-
-            }} style={{ backgroundColor: '#FFFFFF', borderRadius: 11, padding: 15, marginLeft: 20, marginRight: 20 }}>
-              <View>
-                <Image style={{ width: 80, height: 80, }} source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Frame+1.png', }} />
-              </View>
-              <View style={{ width: 141, marginVertical: 10 }}>
-                <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 10, color: '#000000' }}>Unveil the art of luxurious living only at Dreamscape.</Text>
-              </View>
-            </TouchableOpacity>
-          </ScrollView>
-        </View> */}
-
-
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 20, marginTop: 5, alignItems: 'center' }}>
           <Text style={styles.mostCommonFaqsTypo}>
-            Wherever you go we've a stay
+            Wherever you go, we've a stay
           </Text>
           <View style={{ marginRight: 15, alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: '#081F62' }}>
             {/* <Text style={styles.viewTypo11}>VIEW ALL</Text> */}
@@ -1705,33 +1195,19 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <TouchableOpacity
-              onPress={() => {
-
-                navigation.navigate('Ourstay', { location: 'Hyderabad' });
-
-              }}
-              style={{ marginLeft: 20, alignItems: 'center' }}>
-              <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Hyderabad.png' }} style={{ width: width * 0.3, height: height * 0.15, }} />
-              <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: '#000000', marginTop: 5, textAlign: 'center' }}>Hyderabad</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-
-                navigation.navigate('Ourstay', { location: 'Munnar', });
-
-              }} style={{ marginLeft: 20, alignItems: 'center' }}>
-              <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Munnar2.png' }} style={{ width: width * 0.3, height: height * 0.15, }} />
-              <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: '#000000', marginTop: 5, textAlign: 'center' }}>Munnar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate('Ourstay', { location: 'Varanasi', });
-
-            }} style={{ alignItems: 'center', marginLeft: 20, }}>
-              <Image resizeMode='contain' source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Varanasi.png' }} style={{ width: width * 0.3, height: height * 0.15, }} />
-              <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: '#000000', marginTop: 5, textAlign: 'center' }}>Varanasi</Text>
-            </TouchableOpacity>
+            {ourStays
+              ?.filter(item => item.isVisible)
+              ?.map((item, index) => (
+                <TouchableOpacity
+                  key={item.city}
+                  onPress={() => {
+                    navigation.navigate('Ourstay', { location: item?.city });
+                  }}
+                  style={{ marginLeft: 20, alignItems: 'center'}}>
+                    <Image resizeMode='contain' source={{ uri: item?.locationImage }} style={{ width: 90, height: 90, }} />
+                    <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#000000', marginTop: 5, textAlign: 'center' }}>{item?.city}</Text>
+                </TouchableOpacity>
+            ))}
           </View>
         </ScrollView>
 
@@ -1746,7 +1222,7 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
               {/* Wire */}
               <Wire
                 cardCount={3}
-                width={testimonials.length * (cardWidth + 200)}
+                width={testimonials?.length * (cardWidth + 200)}
                 height={wireHeight}
               />
 
@@ -1757,7 +1233,7 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
                   marginTop: 70,
                   paddingHorizontal: 20,
                 }}>
-                {testimonials.map((item, index) => (
+                {testimonials?.map((item, index) => (
                   <View
                     key={index}
                     style={{
@@ -1773,7 +1249,7 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
                     {/* Clip */}
                     <Image
                       source={{
-                        uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/clip.png',
+                        uri: 'https://duixj37yn5405.cloudfront.net/appImages/clip.png',
                       }}
                       style={{
                         width: 40,
@@ -1846,37 +1322,31 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
                         />
 
                         {showThumbnails[index] && (
-                          <Image
-                            source={{ uri: item.image }}
-                            style={{
-                              position: 'absolute',
-                              width: '100%',
-                              height: '100%',
-                              top: 0,
-                              left: 0,
-                              resizeMode: 'cover',
-                              zIndex: 1,
-                            }}
-                          />
+                          <View style={{width: '100%',height: '100%',position: 'absolute',top:0,left:0 }}>
+                            <Image 
+                              source={{ uri: item.image }} 
+                              style={{width: '100%',height: '100%',resizeMode: 'cover', }}
+                            />
+
+                            {/* Play button overlay */}
+                            <View style={{position: 'absolute',top: 0,left: 0,right: 0,bottom: 0,justifyContent: 'center',alignItems: 'center', }}>
+                              <View style={{width: 35,height: 35,borderRadius: 25,backgroundColor: '#d9d9d97a',alignItems: 'center',justifyContent: 'center',}}>
+                                <IconF name="play" size={22} color="#000" />
+                              </View>
+                            </View>
+                          </View>
+
                         )}
                       </TouchableOpacity>
 
-                      <Text
-                        style={{
-                          fontFamily: 'WorkSans-SemiBold',
-                          fontSize: 15,
-                          color: '#000000',
-                          marginBottom: 8,
-                        }}>
-                        {item.name}
-                      </Text>
+                      <Text style={{fontFamily: 'WorkSans-SemiBold',fontSize: 15,color: '#000000',marginBottom: 8, }}> {item.name}</Text>
 
 
                       <ScrollView
                         ref={ref => (transcriptScrollRefs.current[index] = ref)}
                         style={{ maxHeight: 150 }}
                         showsVerticalScrollIndicator={false}>
-                        {item.transcript.map((line, idx) => {
+                        {item.transcript?.map((line, idx) => {
                           const isActive =
                             currentTimes[index] >= line.start &&
                             currentTimes[index] <= line.end;
@@ -1907,64 +1377,19 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
 
         {/* </ScrollView> */}
 
-        {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 20, marginTop: 20, alignItems: 'center' }}>
-
-          <Text style={styles.mostCommonFaqsTypo}>
-            Popular Destinations
-          </Text>
-          <View style={{ marginRight: 15, alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: '#081F62' }}>
-       
-          </View>
-        </View> */}
-        {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 15, width: '100%', }}>
-          <ScrollView horizontal={true}>
-            {Popular.map((item, index) => (
-              <TouchableOpacity style={{ marginRight: 15 }} key={index}
-                onPress={() => {
-                  // navigation.navigate('PopularDestination', { details: item });
-                  setGlobalState(prevState => ({
-                    ...prevState,
-                    HotelUserDetails: {},
-                  }));
-                  navigation.navigate('SelectRoomFS', { detail: item });
-                }}>
-                <Image
-                  style={{ width: 180, height: 180, borderRadius: 8 }}
-                  contentFit="cover"
-                  source={{ uri: item?.images[0] }}
-                //source={require('./assets/Rectangle3.png')}
-                />
-                <View style={{ position: 'absolute', width: '80%' }}>
-
-                  <Text style={{ paddingBottom: 5, paddingTop: 5, fontFamily: "Montserrat-Bold", color: '#FFFFFF', fontSize: 18, paddingLeft: 5 }}>
-                    {item?.location?.city}
-                  </Text>
-                  <View style={{}}>
-                    <ImageBackground source={require("./assets/Sport.png")} style={{
-                      //flex: 1,
-                      justifyContent: 'flex-start',
-                    }} >
-                      <Text style={{ padding: 5, color: '#FFFFFF', fontSize: 10, fontFamily: 'Poppins-Medium', }}>{item?.spotsCount}+ spots to chill</Text>
-                    </ImageBackground>
-                  </View>
-                </View>
-              </TouchableOpacity>))}
-          </ScrollView>
-        </View> */}
-
 
         <Text
           style={[styles.mostCommonFaqsTypo, { paddingTop: 10 }]}>
           In the Media
         </Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:100}}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20 }}>
 
             <Image
               style={{ width: 120, height: 80 }}
               resizeMode="contain"
               source={{
-                uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/news2.jpeg',
+                uri: 'https://duixj37yn5405.cloudfront.net/appImages/news2.jpeg',
               }}
             //source={require('./assets/Rectangle3.png')}
             />
@@ -1972,7 +1397,7 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
               style={{ width: 120, height: 80 }}
               resizeMode="contain"
               source={{
-                uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/news1.jpeg',
+                uri: 'https://duixj37yn5405.cloudfront.net/appImages/news1.jpeg',
               }}
             //source={require('./assets/Rectangle3.png')}
             />
@@ -1980,7 +1405,7 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
               style={{ width: 120, height: 80 }}
               resizeMode="contain"
               source={{
-                uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/news3.jpeg',
+                uri: 'https://duixj37yn5405.cloudfront.net/appImages/news3.jpeg',
               }}
             //source={require('./assets/Rectangle3.png')}
             />
@@ -1988,236 +1413,144 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
               style={{ width: 120, height: 80 }}
               resizeMode="contain"
               source={{
-                uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/news4.jpeg',
+                uri: 'https://duixj37yn5405.cloudfront.net/appImages/news4.jpeg',
               }}
             //source={require('./assets/Rectangle3.png')}
             />
           </View>
         </ScrollView>
 
-        <TouchableOpacity onPress={() => {
-          handleRating();
-
-        }}
-          style={{ alignItems: 'center', }}>
-          <Image
-            style={styles.image}
-            resizeMode='contain'
-            source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Rate_us.jpeg' }}
-          //source={require('./assets/Rectangle3.png')}
-          />
-        </TouchableOpacity>
-
-
-
-        <View style={{ padding: 15 }}>
-          <TouchableOpacity
-            onPress={() => {
-              handleCallRecord();
-              //handleCallNow();
-            }}
-            style={{
-              alignItems: 'center',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              //  backgroundColor: '#56018A',
-              paddingHorizontal: 20,
-              paddingVertical: 15,
-              borderColor: '#021265',
-              borderWidth: 1,
-              borderRadius: 5,
-              width: '100%',
-              marginBottom: 50,
-
-            }}>
-            <Icon name="call" size={20} color="#2955D2" />
-            <Text style={{ fontSize: 16, fontFamily: "Montserrat-Bold", color: '#2955D2' }}>
-              {'  '}Enquire Now
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-
-        {/* <View style={{ padding: 15 }}>
-          <TouchableOpacity
-            onPress={() => {
-              // handleCallRecord();
-              navigation.navigate('Exposcreen')
-              //handleCallNow();
-            }}
-            style={{
-              alignItems: 'center',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              //  backgroundColor: '#56018A',
-              paddingHorizontal: 20,
-              paddingVertical: 15,
-              borderColor: '#021265',
-              borderWidth: 1,
-              borderRadius: 5,
-              width: '100%',
-              marginBottom: 50,
-
-            }}>
-            <Icon name="call" size={20} color="#2955D2" />
-            <Text style={{ fontSize: 16, fontFamily: "Montserrat-Bold", color: '#2955D2' }}>
-              {'  '}Expo Now
-            </Text>
-          </TouchableOpacity>
-        </View> */}
 
         {/* {popUp && */}
-          <Modal modalStyle={{ width }} visible={popUp} transparent animationType='fade'>
+          <Modal visible={popUp} transparent animationType="fade">
             <View style={{flex:1, backgroundColor:'#000000b3'}}>
-              <TouchableOpacity onPress={() => {
+
+            <TouchableOpacity
+              style={{flex:1}}
+              onPress={() => setPopUp(false)}
+            />
+
+            <View style={{width:'100%', height: height*0.53, position:'absolute', bottom:0}}>
+
+            {/* Close button */}
+            <View style={{position:'absolute',top:-40,alignSelf:'center',zIndex:1}}>
+              <TouchableOpacity
+                onPress={() => setPopUp(false)}
+                style={{backgroundColor:'#0000005c', borderRadius:20, padding:5}}
+              >
+                <Iconn name={'x'} size={25} color={'#fff'} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Popup Image */}
+            {activePopup?.image !== "" && (
+            <TouchableOpacity
+              onPress={() => {
                 setPopUp(false);
-              }} style={{flex:1}}/>
-              <View style={{width:'100%', height: height*0.53,position:'absolute',bottom:0}}>
-                <View style={{position:'absolute',top:-40,alignSelf:'center',zIndex:1}}>
-                  <TouchableOpacity onPress={() => {
-                      setPopUp(false);
-                  }} style={{ backgroundColor:'#0000005c', borderRadius: 20, padding: 5 }}>
-                      <Iconn name={'x'} size={25} color={'#fff'} />
-                  </TouchableOpacity>
-                </View>
-                <TouchableOpacity onPress={() => {
-                  setPopUp(false);
-                  navigation.navigate('IntroAnim');
-                }}>
-                  <Image resizeMode='contain' source={{uri : 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/AltairaPopUp.png'}} style={{width:'100%',height:'100%'}}/>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => {
-                  setPopUp(false);
-                  navigation.navigate('IntroAnim');
-                }} style={{position:'absolute',bottom:40,alignSelf:'center'}}>
-                  <LinearGradient colors={['#FAD059', '#FFE7A2', '#EDC249']} start={{x:0, y:0}} end={{x:1, y:0}}
-                    style={{borderRadius:50,padding:15,paddingHorizontal:50}}
-                  >
-                    <View style={{flexDirection:'row',alignItems:'center'}}>
-                      <Text style={{fontFamily:'Montserrat-SemiBold',fontSize:14,color:'#000'}}>Discover Altaira</Text>
 
-                      <View style={{ flexDirection: 'row',alignItems:'center',marginLeft:10}}>
-                        {[...Array(3)].map((_, index) => (
-                            <Animated.View
-                                key={index}
-                                style={{
-                                    marginLeft: index * -1,
-                                    opacity: Animated.multiply(iconOpacity, 1 - index * 0.3),
-                                    transform: [
-                                        {
-                                            translateX: Animated.multiply(
-                                                iconTranslateX,
-                                                1 - index * 0.1
-                                            ),
-                                        },
-                                    ],
-                                }}
-                            >
-                                <IconF name="chevron-right" size={15} color="#000" />
-                            </Animated.View>
-                        ))}
-                    </View>
+                if(activePopup?.navigation && activePopup?.navigationLink){
+                  navigation.navigate(activePopup.navigationLink);
+                }
+              }}
+            >
+            <Image
+            resizeMode="cover"
+            source={{uri: activePopup?.image}}
+            style={{width:'100%', height:'100%'}}
+            />
+            </TouchableOpacity>
+            )}
 
+            {/* Button */}
+            {activePopup?.buttonVisibility &&
+              <TouchableOpacity
+              onPress={()=>{
+                setPopUp(false);
 
-                    </View>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
+                if(activePopup?.navigation && activePopup?.navigationLink){
+                  navigation.navigate(activePopup.navigationLink);
+                }
+              }}
+              style={{position:'absolute', bottom:20, alignSelf:'center'}}
+              >
+
+              <LinearGradient colors={activePopup?.buttonColor || ['#FAD059','#FFE7A2']} start={{x:0,y:0}} end={{x:1,y:0}}
+                style={{borderRadius:50,padding:12,paddingHorizontal:50}}
+              >
+                <Text style={{fontFamily:'Montserrat-SemiBold',fontSize:14,color: activePopup?.buttonTextColor || '#000'}}>{activePopup?.buttonText || "Learn More"}</Text>
+              </LinearGradient>
+
+              </TouchableOpacity>
+            }
+
+            </View>
             </View>
           </Modal>
+
         {/* } */}
 
       </ScrollView>
       {/* <Footer navigation={navigation} activeFooterTab={'HomePage'} /> */}
       
 
-      {/* {ExpoVideos &&
-        <View style={styles.videoContainer}>
-          <TouchableOpacity onPress={() => {
-            setExpoVideos(false);
-
-          }} style={{ backgroundColor: '#021265', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-            <Icon name="close-circle" size={25} color={'#FFFFFF'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            // navigation.navigate('Anniversary');
-            navigation.navigate('Exposcreen');
-
-          }}>
-            <Video
-              // source={{uri:'https://fracspace-updates.s3.ap-south-1.amazonaws.com/videos/Fracspace+Anniversary+Video+-+1+(App)+(8).mp4'}}
-              source={require('./assets/ExpoFinal.mp4')} // Use a URL or local file path
-              style={styles.backgroundVideo}
-              repeat={true} // Optional: Repeat the video
-              muted={true} // Optional: Mute the video
-              resizeMode="cover" // Optional: Choose the right resize mode
-            />
-          </TouchableOpacity>
-        </View>} */}
-
-      {/* <TouchableOpacity onPress={() => {
-            navigation.navigate('Exposcreen');
-
-          }}style={{position:'absolute',  bottom: 10,right:0,}}>
-        
-        <Image
-            style={{width:160,height:100}}
-            resizeMode='contain'
-            source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Dreamscape4.png' }}
-          //source={require('./assets/Rectangle3.png')}
-          />
-
-        </TouchableOpacity> */}
+    {/* </SafeAreaView> */}
 
 
+    </Animated.ScrollView>
+    {carousel?.edgeTab &&
+      <EdgeFab scrollY={scrollY} />
+    }
 
+    
 
+    {/* ------------------------- Slide Menu ------------------------------ */}
+      
+      {isMenuOpen && (
+        <Pressable
+          onPress={closeMenu}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            zIndex: 999,
+          }}
+        />
+      )}
 
-      <Animated.View style={[
-        { transform: [{ translateX: menuAnimation }] },
-        {
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: width * 0.8, // Half screen width
-          backgroundColor: '#fff',
-          paddingHorizontal: 15,
-          paddingVertical: 0,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.3,
-          shadowRadius: 4,
-          elevation: 5,
-        }
-      ]}>
-        <ScrollView style={{ backgroundColor: '#FFFFFF', top: 30 }}>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingHorizontal: 10,
-            paddingBottom: 10
-          }}>
-            <View></View>
-            <TouchableOpacity style={{ paddingVertical: 10, flex: 1, alignItems: 'flex-end' }} onPress={() => {
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[
+          {
+            transform: [{ translateX: menuAnimation }],
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: MENU_WIDTH,
+            backgroundColor: '#fff',
+            paddingHorizontal: 15,
+            paddingBottom: insets.bottom,
+            zIndex: 1000,
+            elevation: 10,
 
-              closeMenu();
-
-            }}>
-              <Iconn name={'x'} size={20} color={'#000000'} />
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              marginHorizontal: 10,
-              borderRadius: 10,
-              backgroundColor: '#021265E5',
-              paddingHorizontal: 10,
-              paddingVertical: 10,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              width: '100%'
-            }}>
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+          },
+        ]}
+      >
+        <ScrollView 
+          style={{ backgroundColor: '#FFFFFF', top: 50 }}
+          contentContainerStyle={{
+            paddingBottom: 90 + insets.bottom,
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={{marginHorizontal: 10,borderRadius: 10,backgroundColor: '#021265E5',paddingHorizontal: 10,paddingVertical: 10,flexDirection: 'row',justifyContent: 'space-between',width: '100%'}}>
             <View style={{ flexDirection: 'row', flex: 2 }}>
               <View>
                 <Image resizeMode='cover' source={globalState?.userProfile ? { uri: globalState?.userProfile } : require('../assets/NewProfileImage.jpg')} style={{ width: 45, height: 45, borderRadius: 45, borderWidth: 1, borderColor: '#FFFFFF' }} />
@@ -2242,33 +1575,6 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
               {/* <IconI name={'right'} color={'#FFFFFF'} size={15} /> */}
             </View>
           </View>
-          <View style={{ marginHorizontal: 15, borderWidth: 1, borderColor: '#DCDCDC', borderRadius: 10, marginVertical: 20, padding: 15, flexDirection: 'row', backgroundColor: '#FFFFFF', justifyContent: 'space-between', elevation: 5 }}>
-            <TouchableOpacity onPress={() => {
-              handleCallRecord();
-
-
-            }} style={{ flexDirection: 'column', alignItems: 'center' }}>
-              <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Ico3.png' }} style={{ width: 50, height: 50 }} />
-              <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 10, color: '#1A1A1A', marginTop: 5 }}>Support</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              handleRating();
-
-
-            }} style={{ flexDirection: 'column', alignItems: 'center' }}>
-              <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Ico2.png' }} style={{ width: 50, height: 50 }} />
-              <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 10, color: '#1A1A1A', marginTop: 5 }}>Rate App</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate('FeedbackForm');
-
-
-
-            }} style={{ flexDirection: 'column', alignItems: 'center' }}>
-              <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/Ico1.png' }} style={{ width: 50, height: 50 }} />
-              <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 10, color: '#1A1A1A', marginTop: 5 }}>Feedback</Text>
-            </TouchableOpacity>
-          </View>
 
           <View style={{ marginHorizontal: 20 }}>
             <View style={{ marginVertical: 10, }}>
@@ -2276,115 +1582,45 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
             </View>
             <TouchableOpacity onPress={() => {
               navigation.navigate('Home', { details: Properties });
-
-
             }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomColor: '#F6F6F6', borderBottomWidth: 1 }}>
               <View style={{ flexDirection: 'row', }}>
                 {/* <Icoon name={'building-o'} size={20} color={'#000000'}/> */}
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/image4.jpeg' }} style={{ width: 20, height: 20 }} />
+                <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/image4.jpeg' }} style={{ width: 20, height: 20 }} />
                 <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Co-own</Text>
               </View>
               <IconI name={'right'} size={15} color={'#081F62'} />
             </TouchableOpacity>
+            
             {/* <TouchableOpacity onPress={() => {
-              navigation.navigate('PropertyForm');
-
-
-            }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomColor: '#F6F6F6', borderBottomWidth: 1 }}>
-              <View style={{ flexDirection: 'row' }}>
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/image6.jpeg' }} style={{ width: 20, height: 20 }} />
-                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>List Your Property</Text>
-              </View>
-              <IconI name={'right'} size={15} color={'#081F62'} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate('PropertyListing', { section: 'Sell' });
-
-
-            }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomColor: '#F6F6F6', borderBottomWidth: 1 }}>
-              <View style={{ flexDirection: 'row' }}>
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/image7.jpeg' }} style={{ width: 20, height: 20 }} />
-                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Buy Property</Text>
-              </View>
-              <IconI name={'right'} size={15} color={'#081F62'} />
-            </TouchableOpacity> */}
-            {/* <TouchableOpacity onPress={() => {
-              navigation.navigate('PropertyListing', { section: 'Rent' });
-
-
-            }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomColor: '#F6F6F6', borderBottomWidth: 1 }}>
-              <View style={{ flexDirection: 'row' }}>
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/image7.jpeg' }} style={{ width: 20, height: 20 }} />
-                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Rent Property</Text>
-              </View>
-              <IconI name={'right'} size={15} color={'#081F62'} />
-            </TouchableOpacity> */}
-            <TouchableOpacity onPress={() => {
               setGlobalState(prevState => ({
                 ...prevState,
                 userEvent: 'Interiors'
               }));
               navigation.navigate('InteriorForm');
-
-
             }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomColor: '#F6F6F6', borderBottomWidth: 1 }}>
               <View style={{ flexDirection: 'row' }}>
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/image8.jpeg' }} style={{ width: 20, height: 20 }} />
+                <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/image8.jpeg' }} style={{ width: 20, height: 20 }} />
                 <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Interiors</Text>
               </View>
               <IconI name={'right'} size={15} color={'#081F62'} />
-            </TouchableOpacity>
-            {/* <TouchableOpacity onPress={() => {
-              setGlobalState(prevState => ({
-                ...prevState,
-                userEvent: 'Construction'
-              }));
-
-              navigation.navigate('InteriorForm');
-
-
-
-            }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomColor: '#F6F6F6', borderBottomWidth: 1 }}>
-              <View style={{ flexDirection: 'row' }}>
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/image5.jpeg' }} style={{ width: 20, height: 20 }} />
-                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Book constructions</Text>
-              </View>
-              <IconI name={'right'} size={15} color={'#081F62'} />
             </TouchableOpacity> */}
-            {/* <TouchableOpacity onPress={() => {
-              navigation.navigate('PropertyManagment');
-
-
-
-            }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomColor: '#F6F6F6', borderBottomWidth: 1 }}>
-              <View style={{ flexDirection: 'row' }}>
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/image9.jpeg' }} style={{ width: 20, height: 20 }} />
-                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Book Professional Services</Text>
-              </View>
-              <IconI name={'right'} size={15} color={'#081F62'} />
-            </TouchableOpacity> */}
+            
             <TouchableOpacity onPress={() => {
               navigation.navigate('DreamscapeHome');
             }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, }}>
               <View style={{ flexDirection: 'row' }}>
-                <Image source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/image10.jpeg' }} style={{ width: 20, height: 20 }} />
+                <Image source={{ uri: 'https://duixj37yn5405.cloudfront.net/appImages/image10.jpeg' }} style={{ width: 20, height: 20 }} />
                 <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Stays</Text>
               </View>
               <IconI name={'right'} size={15} color={'#081F62'} />
             </TouchableOpacity>
-            {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
-              <View style={{ flexDirection: 'row' }}>
-                <Icon name={'airplane-outline'} size={20} style={{ transform: [{ rotate: '270deg' }], }} />
-                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Book Flights</Text>
-              </View>
-              <IconI name={'right'} size={15} color={'#081F62'} />
-            </View> */}
           </View>
 
           <View style={{ marginHorizontal: 20 }}>
             <View style={{ marginVertical: 20 }}>
               <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 16, color: '#1A1A1A' }}>Support</Text>
             </View>
+
             <TouchableOpacity onPress={() => {
               navigation.navigate('MyProfile', { screen: 'home' });
             }} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomColor: '#F6F6F6', borderBottomWidth: 1 }}>
@@ -2423,24 +1659,17 @@ const iconOpacity = useRef(new Animated.Value(0.3)).current;
               <IconI name={'right'} size={15} color={'#081F62'} />
             </TouchableOpacity>
 
-
-
             <TouchableOpacity onPress={() => {
               handleLogOut();
-
             }} style={{ flexDirection: 'row', marginVertical: 20 }}>
               <View style={{ flexDirection: 'row' }}>
                 <Icon name={'log-out-outline'} size={20} color={'#F01212'} style={{ transform: [{ rotate: '180deg' }] }} />
-                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Log out</Text>
+                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: '#1A1A1A', marginLeft: 20 }}>Logout</Text>
               </View>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </Animated.View>
-
-
-
-
 
     </SafeAreaView>
   )
@@ -2513,8 +1742,8 @@ const styles = StyleSheet.create({
     //paddingVertical: 10
   },
   image: {
-    width: width * 0.95,
-    height: height * 0.22,
+    width: '100%',
+    height: 220,
     // flex: 1,
     borderRadius: 15,
     // borderWidth:20
@@ -2566,14 +1795,48 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     marginBottom: 20,
   },
+  image: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+  },
+  countdownCard: {
+    flex: 1,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  overlay: {
+    position: 'absolute',
+    // bottom: 20,
+    // left: 20,
+    alignItems:'center',justifyContent:'center',top:40,left:38
+  },
+  offerTitle: {
+    color: '#FFF',
+    fontSize: 18,
+    // fontWeight: '700',
+    marginBottom: 0,
+    fontFamily:'Poppins-SemiBold',
+  },
+  timerText: {
+    color: '#000',
+    fontSize: 22,
+    fontWeight: '800',
+  },
+  dot: {
+    backgroundColor: '#D9D9D9',
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+    margin: 3,
+  },
+  activeDot: {
+    backgroundColor: '#043862',
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+    margin: 3,
+  },
+
 });
-
-
-
-
-
-
-
-
-
 

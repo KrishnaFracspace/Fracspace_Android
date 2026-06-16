@@ -114,7 +114,8 @@ export default function Enquirenew(props) {
       }}>
         <TouchableOpacity style={{ flex: 1 }}
           onPress={() => {
-            navigation.navigate('Property',{details:PropertiesArray});
+            // navigation.navigate('Property',{details:PropertiesArray});
+            navigation.goBack();
 
           }}>
           <IconLocation name="chevron-back-outline" size={25} color={'#000'} />
@@ -128,7 +129,8 @@ export default function Enquirenew(props) {
         </Text>
         <TouchableOpacity style={{ flex: 1 }}
           onPress={() => {
-            navigation.navigate('HomePage');
+            navigation.popToTop();
+            // navigation.navigate('HomePage');
 
           }}>
           <Text style={{
@@ -175,7 +177,7 @@ export default function Enquirenew(props) {
                 }}>
                 <Image
                   style={{ width: 60, height: 60 }}
-                  source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/app-Image-Icon/V10.png' }}
+                  source={{ uri: 'https://duixj37yn5405.cloudfront.net/offers/app-Image-Icon/V10.png' }}
                   //source={require('./assets/Ima1.png')}
                   resizeMode={'contain'}
                 />
@@ -216,7 +218,7 @@ export default function Enquirenew(props) {
                 }}>
                 <Image
                   style={{ width: 60, height: 60 }}
-                  source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/app-Image-Icon/V11.png' }}
+                  source={{ uri: 'https://duixj37yn5405.cloudfront.net/offers/app-Image-Icon/V11.png' }}
                 // source={require('./assets/Ima2.png')}
                 />
                 <Text
@@ -256,7 +258,7 @@ export default function Enquirenew(props) {
                 }}>
                 <Image
                   style={{ width: 60, height: 60 }}
-                  source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/app-Image-Icon/V13.png' }}
+                  source={{ uri: 'https://duixj37yn5405.cloudfront.net/offers/app-Image-Icon/V13.png' }}
                 //  source={require('./assets/Ima4.png')}
                 />
                 <Text
@@ -296,7 +298,7 @@ export default function Enquirenew(props) {
                 }}>
                 <Image
                   style={{ width: 60, height: 60 }}
-                  source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/app-Image-Icon/V12.png' }}
+                  source={{ uri: 'https://duixj37yn5405.cloudfront.net/offers/app-Image-Icon/V12.png' }}
                 //  source={require('./assets/Ima3.png')}
                 />
                 <Text
@@ -337,7 +339,7 @@ export default function Enquirenew(props) {
                 }}>
                 <Image
                   style={{ width: 60, height: 60 }}
-                  source={{ uri: 'https://fracspace-updates.s3.ap-south-1.amazonaws.com/offers/app-Image-Icon/V14.png' }}
+                  source={{ uri: 'https://duixj37yn5405.cloudfront.net/offers/app-Image-Icon/V14.png' }}
                 //source={require('./assets/Ima5.png')}
                 />
                 <Text
