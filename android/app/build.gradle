@@ -86,9 +86,9 @@ android {
         applicationId "com.fracspace"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // updated from 63 and 2.0.9
-        versionCode 63
-        versionName "2.0.9"
+        // updated from 57 and 2.0.7
+        versionCode 57
+        versionName "2.0.7"
         missingDimensionStrategy "react-native-capture-protection", "base"
         buildConfigField "String", "REVOPUSH_KEY", '"DthMm0PkeJzmwW1YY11Dw4OtOcIfVJ2bkyDomg"'
     }

@@ -1,4 +1,4 @@
-import {View,Text,Image,TouchableOpacity,StyleSheet,Dimensions,FlatList,Linking,ScrollView,Alert,Share,ImageBackground,Animated,Modal, TextInput, ActivityIndicator} from 'react-native';
+import {View,Text,Image,TouchableOpacity,StyleSheet,Dimensions,FlatList,Linking,ScrollView,Alert,Share,ImageBackground,Modal, TextInput, ActivityIndicator} from 'react-native';
 import { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Swiper from 'react-native-swiper';
@@ -28,6 +28,12 @@ import Test from './Test';
 import Video from 'react-native-video';
 import FastImage from 'react-native-fast-image';
 import analytics from '@react-native-firebase/analytics';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 
 export default function Property(props) {
@@ -62,6 +68,7 @@ export default function Property(props) {
   const [email, setEmail] = useState(globalState?.userEmail);
   const [phone, setPhone] = useState(globalState?.userDetails?.phoneNumber);
   const [success, setSuccess] = useState(false);
+  const [showBreakDown, setShowBreakDown] = useState(false);
   // console.log("id: ",propertyId);
   
 
@@ -77,6 +84,17 @@ export default function Property(props) {
   // // console.log("prope: ",PropertiesArray1);
   // const loading = useSelector(state => state.property.loading);
   // const [CustomerReview, setCustomerReview] = useState([]);
+  const translateX = useSharedValue(-150);
+//   const imageSliderRef = useRef<FlatList>(null);
+const currentImageIndex = useRef(0);
+const imageSliderRef = useRef(null);
+
+  const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: translateX.value }],
+        };
+    });
+
   const GgoToYosemite = location => {
     openMap({query: location});
   };
@@ -86,10 +104,38 @@ export default function Property(props) {
   //   dispatch(profileDetailsById({id: proId}));
   // }, []);
 
+  useEffect(() => {
+  if (selectHeader !== 'Camera' || image?.length <= 1) {
+    return;
+  }
+
+  const interval = setInterval(() => {
+    currentImageIndex.current =
+      (currentImageIndex.current + 1) % image.length;
+
+    imageSliderRef.current?.scrollToIndex({
+      index: currentImageIndex.current,
+      animated: true,
+    });
+  }, 3000);
+
+  return () => clearInterval(interval);
+}, [selectHeader, image]);
+
     useEffect(() => {
         analytics().logEvent('view_property', {
             property_id: propertyId,
         });
+    }, []);
+
+    useEffect(() => {
+        translateX.value = withRepeat(
+            withTiming(width, {
+                duration: 3000,
+            }),
+            -1,
+            false
+        );
     }, []);
 
   useEffect(() => {
@@ -380,12 +426,38 @@ export default function Property(props) {
             showsVerticalScrollIndicator={false}
         >
             <View style={{zIndex:0}}>
-              {selectHeader === 'Camera' &&
+              {/* {selectHeader === 'Camera' &&
                 <SafeImage
                     source={{uri: image[0]}}
                     style={{ width: "100%", height: height*0.45 }}
                 />
-              }
+              } */}
+              {selectHeader === 'Camera' && (
+                <FlatList
+                    data={image}
+                    ref={imageSliderRef}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={(_, index) => index.toString()}
+                    onMomentumScrollEnd={(event) => {
+                    const index = Math.round(
+                        event.nativeEvent.contentOffset.x /
+                        event.nativeEvent.layoutMeasurement.width,
+                    );
+                    currentImageIndex.current = index;
+                    }}
+                    renderItem={({item}) => (
+                        <Image
+                        source={{uri: item}}
+                        style={{
+                            width,
+                            height: height * 0.45,
+                        }}
+                        />
+                    )}
+                  />
+              )}
               {selectHeader === 'Video' &&
                 <Video resizeMode='cover' volume={0} source={{uri: PropertiesArray?.video?.Video1}} style={{width:'100%',height:height*0.45}}/>
               }
@@ -673,55 +745,109 @@ export default function Property(props) {
 
                 <View style={{marginTop:15,borderColor:'#00000080',borderWidth:0.5,borderRadius:10,padding:20,backgroundColor:'#FFF'}}>
                     <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#000000BF'}}>AVAILABILITY</Text>
-                    {availableFrac < 100 && availableFrac > 10 ?
+                    {/* {availableFrac < 100 && availableFrac > 10 ?
                         <Text style={{fontFamily:'WorkSans-Medium',fontSize:16,color:'#000'}}>Only <Text style={{color:'#EB2C19'}}>{PropertiesArray?.AvailableFractions} {PropertiesArray?.name == "ALTAIRA – VILLA" ?  "Villas" : "Frac"}</Text> left!</Text>
                         :
                         <Text style={{fontFamily:'WorkSans-Medium',fontSize:16,color:'#000'}}><Text style={{color:'#EB2C19'}}>{PropertiesArray?.AvailableFractions} {PropertiesArray?.name == "ALTAIRA – VILLA" ?  "Villas" : "Frac"}</Text> left!</Text>
-                    }
+                    } */}
+
+                    <View style={{flexDirection:'row',alignItems:'center',marginTop:15}}>
+                        <Text style={{fontFamily:'WorkSans-Medium',fontSize:16,color:'#000'}}>Only</Text>
+                        {/* <View style={{backgroundColor:'#021265',borderRadius:5, padding:3,paddingHorizontal:6,marginHorizontal:10 }}>
+                            <Text style={{fontFamily:'WorkSans-Medium',fontSize:16,color:'#FFF'}}>4 Villas</Text>
+                        </View> */}
+                        <View style={{overflow: 'hidden',borderRadius: 20,alignSelf: 'flex-start',marginHorizontal:5}}>
+                            <LinearGradient
+                                    colors={['#021265', '#7c8de1', '#363b8f']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={{borderRadius: 20,    paddingVertical: 5,paddingHorizontal:10,    flexDirection: 'row',    alignItems: 'center',    gap: 5,    overflow: 'hidden',}}
+                                >
+                                    <Animated.View style={[{position: 'absolute',left: -100,top: 0,bottom: 0,width: 80,transform: [{ rotate: '20deg' }]}, animatedStyle]}>
+                                    <LinearGradient
+                                        colors={[
+                                        'rgba(255,255,255,0)',
+                                        'rgba(255, 255, 255, 0.51)',
+                                        'rgba(255,255,255,0)',
+                                        ]}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={{flex:1}}
+                                    />
+                                    </Animated.View>
+
+                                    {/* <Text style={{fontFamily: 'WorkSans-SemiBold',fontSize: 12,color: '#FFF'}}>4 Villas</Text> */}
+                                    {availableFrac < 100 && availableFrac > 10 ?
+                                        <Text style={{fontFamily: 'WorkSans-SemiBold',fontSize: 12,color: '#FFF'}}>{PropertiesArray?.AvailableFractions} {PropertiesArray?.name == "ALTAIRA – VILLA" ?  "Villas" : "Frac"}</Text>
+                                        :
+                                        <Text style={{fontFamily: 'WorkSans-SemiBold',fontSize: 12,color: '#FFF'}}>{PropertiesArray?.AvailableFractions} {PropertiesArray?.name == "ALTAIRA – VILLA" ?  "Villas" : "Frac"}</Text>
+                                    }
+                            </LinearGradient>
+                        </View>
+                        <Text style={{fontFamily:'WorkSans-Medium',fontSize:16,color:'#000'}}>left!</Text>
+                    </View>
 
                     <View style={{width:'100%',height:8,borderRadius:6,backgroundColor:'#02126533',marginTop:12}}>
                         <View style={{width:`${availableFrac}%`,height:8,borderRadius:6,backgroundColor:'#021265'}}></View>
                     </View>
-                    {availableFrac == 0 ?
+                    {/* {availableFrac == 0 ?
                         <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#000000BF',marginTop:5}}>Be among the first to own a frac in this property.</Text>
                         :
                         <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#000000BF',marginTop:5}}>{availableFrac}% of the property is already owned by {PropertiesArray?.TotalFractions - PropertiesArray?.AvailableFractions} investors</Text>
-                    }
+                    } */}
                 </View>
 
                 {PropertiesArray?.investmentDetails?.show &&
-                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:15}}>
-                    {/* <View style={{backgroundColor:'#FFF',borderRadius:14,padding:12,gap:10,flex:1}}>
-                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-                            <View style={{backgroundColor:'#E6F4EA',padding:3,borderRadius:5}}>
-                                <IconMail name={'dollar-sign'} size={13} color={'#1A6E38'}/>
-                            </View>
-                            <View style={{backgroundColor:'#E6F4EA',padding:3,borderRadius:5,paddingHorizontal:6}}>
-                                <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#1A6E38'}}>{PropertiesArray?.investmentDetails?.broi?.tenure}</Text>
-                            </View>
-                        </View>
-                        <View style={{gap:3}}>
-                            <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:20,color:'#111827'}}>{PropertiesArray?.investmentDetails?.broi?.percentage}%</Text>
-                            <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#0F1130'}}>{PropertiesArray?.investmentDetails?.broi?.label}</Text>
-                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#00000099'}}>{PropertiesArray?.investmentDetails?.broi?.description}</Text>
-                        </View>
-                    </View> */}
-                    <View style={{backgroundColor:'#FFF',borderRadius:14,padding:12,gap:10,flex:1}}>
-                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-                            <View style={{backgroundColor:'#0212651A',padding:3,borderRadius:5}}>
-                                <IconMail name={'trending-up'} size={13} color={'#021265'}/>
-                            </View>
-                            <View style={{backgroundColor:'#0212651A',padding:3,borderRadius:5,paddingHorizontal:6}}>
-                                <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#021265'}}>{PropertiesArray?.investmentDetails?.appreciation?.duration}</Text>
-                            </View>
-                        </View>
-                        <View style={{gap:3}}>
-                            <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:20,color:'#111827'}}>{PropertiesArray?.investmentDetails?.appreciation?.expectedUpside}</Text>
-                            <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#0F1130'}}>{PropertiesArray?.investmentDetails?.appreciation?.label}</Text>
-                            <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#00000099'}}>{PropertiesArray?.investmentDetails?.appreciation?.entry}</Text>
+                <View style={{marginTop:15}}>
+                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>Payment Plan</Text>
+                    <View style={{backgroundColor:'#9DB2CE1A',padding:10,borderRadius:10,marginTop:10}}>
+                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:10}}>
+                            {PropertiesArray?.investmentDetails?.paymentPlan?.map((item, index) => {
+                                const isFirst = index === 0;
+                                return (
+                                    <View key={index} style={{backgroundColor:isFirst?'#021265':'#FFF',paddingHorizontal:20,paddingVertical:10,borderRadius:5,alignItems:'center',flex:1}}>
+                                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:isFirst?'#FFFFFF99':'#02126599'}}>{item?.timeline}</Text>
+                                        <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:isFirst?'#FFFFFF':'#021265',marginVertical:2}}>{item?.amount}</Text>
+                                        <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:isFirst?'#FFFFFF99':'#02126599',textAlign:'center'}}>{item?.description}</Text>
+                                    </View>
+                            )})}
+                            {/* <TouchableOpacity onPress={() => {
+                                setShowBreakDown(!showBreakDown);
+                            }} style={{backgroundColor:'#FFF',paddingHorizontal:20,paddingVertical:10,borderRadius:5,alignItems:'center',flex:1}}>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#02126599'}}>NEXT</Text>
+                                <View style={{flexDirection:'row',alignItems:'center',}}>
+                                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#021265',marginVertical:2}}>40%</Text>
+                                </View>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#02126599',textAlign:'center'}}>48 Months EMI</Text>
+                            </TouchableOpacity>
+                            <View style={{backgroundColor:'#FFF',paddingHorizontal:20,paddingVertical:10,borderRadius:5,alignItems:'center',flex:1}}>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#02126599'}}>FINAL</Text>
+                                <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#021265',marginVertical:2}}>30%</Text>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#02126599',textAlign:'center'}}>On Possession</Text>
+                            </View> */}
                         </View>
                     </View>
                 </View>
+                }
+
+                {PropertiesArray?.investmentDetails?.show &&
+                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:15}}>
+                        <View style={{backgroundColor:'#FFF',borderRadius:14,padding:12,gap:10,flex:1}}>
+                            <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                                <View style={{backgroundColor:'#0212651A',padding:3,borderRadius:5}}>
+                                    <IconMail name={'trending-up'} size={13} color={'#021265'}/>
+                                </View>
+                                <View style={{backgroundColor:'#0212651A',padding:3,borderRadius:5,paddingHorizontal:6}}>
+                                    <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#021265'}}>{PropertiesArray?.investmentDetails?.appreciation?.duration}</Text>
+                                </View>
+                            </View>
+                            <View style={{gap:3}}>
+                                <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:20,color:'#111827'}}>{PropertiesArray?.investmentDetails?.appreciation?.expectedUpside}</Text>
+                                <Text style={{fontFamily:'WorkSans-Medium',fontSize:11,color:'#0F1130'}}>{PropertiesArray?.investmentDetails?.appreciation?.label}</Text>
+                                <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#00000099'}}>{PropertiesArray?.investmentDetails?.appreciation?.entry}</Text>
+                            </View>
+                        </View>
+                    </View>
                 }
 
                 <View style={{marginTop:15}}>

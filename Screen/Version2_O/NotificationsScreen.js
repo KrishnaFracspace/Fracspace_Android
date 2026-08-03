@@ -143,7 +143,7 @@ export default function NotificationsScreen(props) {
         const createdDate = moment(item.date || item.createdAt);
         const daysDiff = moment().diff(createdDate, 'days');
 
-        return daysDiff <= 45;
+        return daysDiff;
     });
 
     const groupedNotifications = {};

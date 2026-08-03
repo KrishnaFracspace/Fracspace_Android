@@ -33,7 +33,7 @@ export default function Book(props) {
   // const [Number, setNumber] = useState(1);
   const [Terms, setTerms] = useState(false);
   const [Property, setProperty] = useState(props?.route?.params?.property || []);
-  // console.log("eeeeeeeeeeee ", props?.route?.params?.property)
+//   console.log("eeeeeeeeeeee ", props?.route?.params?.property)
   const [Available, setAvailable] = useState(
     props?.route?.params?.property?.AvailableFractions || ''
   );
@@ -386,11 +386,15 @@ export default function Book(props) {
                               <View style={{borderColor:'#0000004D',borderTopWidth:0.5,marginVertical:13}}/>
   
                               <View style={{flexDirection:'row',alignItems:'center'}}>
+                                {reviewDetails?.propertyName != "ALTAIRA – VILLA" &&
                                   <View style={{flex:1,alignItems:'center'}}>
                                       <Text style={{fontFamily:'WorkSans-Regular',fontSize:14,color:'#00000080'}}>Frac Value</Text>
                                       <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>₹{reviewDetails?.FC_Price}</Text>
                                   </View>
+                                }
+                                {reviewDetails?.propertyName != "ALTAIRA – VILLA" &&
                                   <View style={{borderLeftWidth:0.5,borderColor:'#0000004D',height:40}}/>
+                                }
                                   <View style={{flex:1,alignItems:'center'}}>
                                       <Text style={{fontFamily:'WorkSans-Regular',fontSize:14,color:'#00000080'}}>Booking Amount</Text>
                                       <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:16,color:'#000'}}>₹{formatIndianAmount(reviewDetails?.totalBookingAmount)}</Text>

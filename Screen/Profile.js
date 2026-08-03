@@ -212,7 +212,7 @@ export default function Profile() {
 
   const openWhatsApp = async () => {
     const phoneNumber = '+919880626111';
-    const message = 'Hello, I want to know more about Fracspace Escape Membership';
+    const message = 'Hello, I want to know more about Fracspace';
     // const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     try {
