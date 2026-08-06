@@ -32,6 +32,7 @@ import {
 } from './Services/UserApi';
 const { width, height } = Dimensions.get('window');
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DeviceInfo from 'react-native-device-info';
 
 export default function Profile() {
   const navigation = useNavigation();
@@ -212,7 +213,7 @@ export default function Profile() {
 
   const openWhatsApp = async () => {
     const phoneNumber = '+919880626111';
-    const message = 'Hello, I want to know more about Fracspace';
+    const message = 'Hello, I want to know more about Fracspace.';
     // const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     try {
@@ -875,7 +876,7 @@ export default function Profile() {
         </View>
 
       <Text style={{ color: '#898585', fontSize: 12, fontFamily: 'WorkSans-Regular', textAlign: 'center',  }}>
-        V 2.0.7
+        V {DeviceInfo.getVersion()}
       </Text>
       <Text style={{color:'#021265',fontSize:14,fontFamily:'WorkSans-Medium',textAlign:'center'}}>Fracspace Private Limited</Text>
 

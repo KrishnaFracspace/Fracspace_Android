@@ -124,6 +124,8 @@ import PaymentFailedEscape from '../Version2_O/escapeMembership/PaymentFailedEsc
 import EscapePaymentPage from '../Version2_O/escapeMembership/EscapePaymentPage';
 import TranHisForEscape from '../Version2_O/escapeMembership/TranHisForEscape';
 import ViewAgreement from '../Version2_O/escapeMembership/ViewAgreement';
+import AddressSearchScreen from '../Version2_O/AddessSearchScreen';
+import CompleteProfileScreen from '../Version2_O/CompleteProfileScreen';
 // import Exhibitor from '../Version2_O/Exhibitor';
 
 const { width, height } = Dimensions.get('window');
@@ -400,6 +402,16 @@ export default function NavigationStack() {
       <Stack.Screen
         name="BookingSuccess"
         component={BookingSuccess}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddressSearchScreen"
+        component={AddressSearchScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CompleteProfileScreen"
+        component={CompleteProfileScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

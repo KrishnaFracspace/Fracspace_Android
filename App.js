@@ -18,6 +18,11 @@ import NoInternet from './Screen/component/NoInternet';
 import codePush from "react-native-code-push";
 import { updateFCMToken } from './Screen/Services/UserApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAppVersionConfig } from './Screen/Services/versionService';
+import DeviceInfo from 'react-native-device-info';
+import { compareVersions } from './Screen/utils/versionUtils';
+import UpdatePopup from './Screen/component/UpdatePopup';
+import Toast from 'react-native-toast-message';
 
 let options = {
   checkFrequency: codePush.CheckFrequency.ON_APP_START,
@@ -30,6 +35,8 @@ export const navigationRef = createNavigationContainerRef();
 const App = () => {
   const [firstTimeUser, setFirstTimeUser] = useState(true);
   const backgroundImage = require('./Screen/assets/Demovideo.mp4');
+  const [updateConfig, setUpdateConfig] = useState(null);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const [isConnected, setIsConnected] = useState(true);
   const routeNameRef = useRef();
@@ -127,6 +134,61 @@ const App = () => {
 
   // }, []);
 
+  useEffect(() => {
+    // if (!showSplash) {
+      const checkVersion = async () => {
+        try {
+          const config = await getAppVersionConfig();
+          if (!config) return;
+
+          const installedVersion = DeviceInfo.getVersion();
+          const targetVersion =
+            Platform.OS === 'ios'
+              ? config.iosCurrentVersion
+              : config.androidCurrentVersion;
+
+          if (
+            config.showPopup &&
+            targetVersion &&
+            compareVersions(installedVersion, targetVersion) < 0
+          ) {
+            setUpdateConfig(config);
+            setShowUpdateModal(true);
+          }
+        } catch (error) {
+          console.log('Error checking app update:', error);
+        }
+      };
+
+      checkVersion();
+    // }
+  }, []);
+
+  const handleUpdatePress = async () => {
+    if (!updateConfig) return;
+    const url =
+      Platform.OS === 'ios'
+        ? updateConfig.appStoreUrl
+        : updateConfig.playStoreUrl;
+
+    if (url) {
+      try {
+        const supported = await Linking.canOpenURL(url);
+        if (supported) {
+          await Linking.openURL(url);
+        } else {
+          await Linking.openURL(url);
+        }
+      } catch (err) {
+        console.log('Error opening store URL:', err);
+      }
+    }
+  };
+
+  const handleLaterPress = () => {
+    setShowUpdateModal(false);
+  };
+
 
   if (__DEV__) {
     ErrorUtils.setGlobalHandler((error, isFatal) => {
@@ -173,6 +235,15 @@ const App = () => {
           </Provider>
         </GestureHandlerRootView>
       )}
+      <Toast/>
+      <UpdatePopup
+        visible={showUpdateModal}
+        title={updateConfig?.title}
+        message={updateConfig?.message}
+        forceUpdate={updateConfig?.forceUpdate}
+        onUpdate={handleUpdatePress}
+        onLater={handleLaterPress}
+      />
     </>
   );
 };

@@ -23,6 +23,7 @@ import Footer from '../Footer';
 import {useDispatch, useSelector} from 'react-redux'
 import { fetchPopularHotels, fetchProperties } from '../redux/reducer/homeReducer';
 import HomeSkeleton from '../component/HomeSkeleton';
+import CompleteProfilePopup from '../component/CompleteProfilePopup';
 import CustomSwiper from '../component/CustomSwiper';
 import CountdownTimer from '../component/CountdownTimer/CountdownTimer';
 import EdgeFab from './altaira/FloatingButton';
@@ -30,6 +31,15 @@ import crashlytics from '@react-native-firebase/crashlytics';
 import messaging from '@react-native-firebase/messaging';
 import analytics from '@react-native-firebase/analytics';
 // import CountdownTimer from '../CountdownTimer';
+
+const shouldRequireProfileCompletion = (profile) => {
+  if (!profile) return false;
+  return (
+    profile.verification === true &&
+    (!profile.postalAddress?.trim() ||
+     !profile.pincode?.trim())
+  );
+};
 
 export default function HomePage() {
 
@@ -68,6 +78,11 @@ export default function HomePage() {
   const [popUp, setPopUp] = useState(false);
   const [activePopup, setActivePopup] = useState(null);
   const popupShownRef = useRef(false);
+
+  const [showCompleteProfilePopup, setShowCompleteProfilePopup] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [profilePopupDismissed, setProfilePopupDismissed] = useState(false);
+  const profilePopupDecisionMade = useRef(false);
 
  
   // const[loading, setLoading] = useState(false);
@@ -164,7 +179,7 @@ export default function HomePage() {
 
         setGlobalState(prevState => ({
           ...prevState,
-          liveVersion: res?.data?.androidCurrentVersion
+          liveVersion: res?.data?.appVersion?.androidCurrentVersion
         }));
 
         const popupToShow = popupList.find(p => p.visibility === true);
@@ -172,10 +187,8 @@ export default function HomePage() {
         // const { pendingDeepLinkType } = globalState;
         // console.log("PenfdinffL: ", pendingDeepLinkType);
         const initialUrl = await Linking.getInitialURL();
-        if (popupToShow && !hasShownHomePopup && initialUrl == null) {
+        if (popupToShow && initialUrl == null) {
           setActivePopup(popupToShow);
-          setPopUp(true);
-          hasShownHomePopup = true;
         }
       }catch(error){
         console.error("Error in fetching carousel: ",error?.response?.data || error?.response?.message);
@@ -376,8 +389,15 @@ export default function HomePage() {
 
   const handleProfle = async () => {
     const tokenid = await AsyncStorage.getItem('mytoken');
-    // console.log("Token id: ",tokenid);
     const emailId = await AsyncStorage.getItem('Email');
+    if (!tokenid || !emailId) {
+      setProfileLoaded(true);
+      if (!profilePopupDecisionMade.current) {
+        setShowCompleteProfilePopup(false);
+        profilePopupDecisionMade.current = true;
+      }
+      return;
+    }
     let payload = JSON.stringify({
       email: emailId,
     });
@@ -404,8 +424,25 @@ export default function HomePage() {
           userProfile: res?.data?.profilePicture,
         }));
 
+        if (!profilePopupDecisionMade.current) {
+          const shouldShow = shouldRequireProfileCompletion(res?.data);
+          setShowCompleteProfilePopup(shouldShow);
+          profilePopupDecisionMade.current = true;
+        }
+        setProfileLoaded(true);
+      } else {
+        if (!profilePopupDecisionMade.current) {
+          setShowCompleteProfilePopup(false);
+          profilePopupDecisionMade.current = true;
+        }
+        setProfileLoaded(true);
       }
     } catch (error) {
+      if (!profilePopupDecisionMade.current) {
+        setShowCompleteProfilePopup(false);
+        profilePopupDecisionMade.current = true;
+      }
+      setProfileLoaded(true);
       if (error?.response) {
         if (error?.response?.data?.message == 'Invalid token.') {
           navigation.navigate('NewLogin');
@@ -615,6 +652,7 @@ export default function HomePage() {
 
   useFocusEffect(
     useCallback(() => {
+      // handleProfle();
       FetchAllNotification();
       fetchLikedProperty();
 
@@ -628,6 +666,34 @@ export default function HomePage() {
       };
     }, [])
   );
+
+  useEffect(() => {
+    if (!isFocused)
+      return;
+
+    if (!profileLoaded)
+      return;
+
+    if (showCompleteProfilePopup && !profilePopupDismissed) {
+      setPopUp(false);
+      return;
+    }
+
+    if (
+      activePopup &&
+      !hasShownHomePopup &&
+      (!showCompleteProfilePopup || profilePopupDismissed)
+    ) {
+      setPopUp(true);
+      hasShownHomePopup = true;
+    }
+  }, [
+    profileLoaded,
+    activePopup,
+    showCompleteProfilePopup,
+    profilePopupDismissed,
+    isFocused
+  ]);
   const videoLayouts = useRef([]);
   const handleVerticalScroll = (event) => {
     const scrollY = event.nativeEvent.contentOffset.y;
@@ -1421,8 +1487,21 @@ export default function HomePage() {
         </ScrollView>
 
 
+        <CompleteProfilePopup
+          visible={isFocused && showCompleteProfilePopup && !profilePopupDismissed}
+          onLater={() => {
+            setProfilePopupDismissed(true);
+            setShowCompleteProfilePopup(false);
+          }}
+          onUpdateNow={() => {
+            setPopUp(false);
+            setShowCompleteProfilePopup(false);
+            navigation.navigate('CompleteProfileScreen');
+          }}
+        />
+
         {/* {popUp && */}
-          <Modal visible={popUp} transparent animationType="fade">
+          <Modal visible={isFocused && popUp && !showCompleteProfilePopup} transparent animationType="fade">
             <View style={{flex:1, backgroundColor:'#000000b3'}}>
 
             <TouchableOpacity

@@ -31,6 +31,10 @@ const AppProvider = ({children}) => {
     location: [],
     ourStays: [],
     liveVersion: "",
+    verificationAddress: "",
+    verificationLatitude: null,
+    verificationLongitude: null,
+    verificationPincode: "",
   });
   
 
