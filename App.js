@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
-import { StyleSheet, PermissionsAndroid, Alert } from 'react-native';
+import { StyleSheet, PermissionsAndroid, Alert, Linking } from 'react-native';
 import NavigationStack from './Screen/Navigation/NavigationStack';
 import { AppContext, AppProvider } from './Screen/Context/AppContext';
 import Video from 'react-native-video';
@@ -70,7 +70,7 @@ const App = () => {
 
     return () => unsubscribe();
   }, []);
-  
+
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
@@ -136,31 +136,31 @@ const App = () => {
 
   useEffect(() => {
     // if (!showSplash) {
-      const checkVersion = async () => {
-        try {
-          const config = await getAppVersionConfig();
-          if (!config) return;
+    const checkVersion = async () => {
+      try {
+        const config = await getAppVersionConfig();
+        if (!config) return;
 
-          const installedVersion = DeviceInfo.getVersion();
-          const targetVersion =
-            Platform.OS === 'ios'
-              ? config.iosCurrentVersion
-              : config.androidCurrentVersion;
+        const installedVersion = DeviceInfo.getVersion();
+        const targetVersion =
+          Platform.OS === 'ios'
+            ? config.iosCurrentVersion
+            : config.androidCurrentVersion;
 
-          if (
-            config.showPopup &&
-            targetVersion &&
-            compareVersions(installedVersion, targetVersion) < 0
-          ) {
-            setUpdateConfig(config);
-            setShowUpdateModal(true);
-          }
-        } catch (error) {
-          console.log('Error checking app update:', error);
+        if (
+          config.showPopup &&
+          targetVersion &&
+          compareVersions(installedVersion, targetVersion) < 0
+        ) {
+          setUpdateConfig(config);
+          setShowUpdateModal(true);
         }
-      };
+      } catch (error) {
+        console.log('Error checking app update:', error);
+      }
+    };
 
-      checkVersion();
+    checkVersion();
     // }
   }, []);
 
@@ -209,8 +209,8 @@ const App = () => {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Provider store={store}>
             <AppProvider>
-              <DeepLinkHandler /> 
-              <NavigationContainer 
+              <DeepLinkHandler />
+              <NavigationContainer
                 ref={navigationRef}
                 onReady={() => {
                   routeNameRef.current = navigationRef.current.getCurrentRoute().name;
@@ -235,7 +235,7 @@ const App = () => {
           </Provider>
         </GestureHandlerRootView>
       )}
-      <Toast/>
+      <Toast />
       <UpdatePopup
         visible={showUpdateModal}
         title={updateConfig?.title}

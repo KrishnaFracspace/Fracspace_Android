@@ -100,11 +100,11 @@ export default function Dashboard(props) {
   //     }
   // };
   const handleKeyPress = (e, index) => {
-      if (e.nativeEvent.key == 'Backspace' && otpDigits[index] == '') {
-          if (index > 0) {
-              inputRefs.current[index - 1]?.focus();
-          }
+    if (e.nativeEvent.key == 'Backspace' && otpDigits[index] == '') {
+      if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
       }
+    }
   };
 
   const handleAnswer = (questionId, value) => {
@@ -134,12 +134,14 @@ export default function Dashboard(props) {
         onPress: () => console.log('Cancel Pressed'),
         style: 'cancel',
       },
-      { text: 'Yes', onPress: () => {
-        fetchFeedbackForm();
-        setShowFeedback(true);
-      } },
+      {
+        text: 'Yes', onPress: () => {
+          fetchFeedbackForm();
+          setShowFeedback(true);
+        }
+      },
     ]);
-    
+
   const handleResell = async () => {
     setLoader(true);
     if (globalState?.userDetails?.phoneNumber?.startsWith('+91') && globalState?.userDetails?.phoneNumber?.length === 13) {
@@ -241,7 +243,7 @@ export default function Dashboard(props) {
           console.log('Response Error in verifying otp', `${error?.response?.data}`)
           setLoader(false)
         }
-      }finally{
+      } finally {
         setLoader(false);
       }
     } else {
@@ -285,68 +287,68 @@ export default function Dashboard(props) {
           console.log('Response Error in verifying otp', `${error?.response?.data || error?.response?.message}`)
           setLoader(false);
         }
-      } finally{
+      } finally {
         setLoader(false);
       }
     }
   };
 
   const handleProfle = async () => {
-        setLoader(true);
-        const tokenid = await AsyncStorage.getItem('mytoken');
-        // console.log("Token id: ",tokenid);
-        const emailId = await AsyncStorage.getItem('Email');
-        let payload = JSON.stringify({
-          email: emailId,
-        });
-        try {
-          let { data: res } = await ProfileDetails(payload, tokenid);
-          if (res?.success) {
-            // const userType = res.data?.verification || res?.data?.ownedProperties?.length > 0; // owner or normal
-            // if(userType){
-            //   analytics().setUserProperty('user_type', 'owners');
-            // }else{
-            //   analytics().setUserProperty('user_type', 'normal');
-            // }
-    
-            // handleUserType(userType);
-    
-            setGlobalState(prevState => ({
-              ...prevState,
-              userName: res?.data?.userName,
-              userEmail: emailId,
-              userPhone: res?.data?.phoneNumber,
-              token: tokenid,
-              userDetails: res?.data,
-              userProfile: res?.data?.profilePicture,
-            }));
-    
-          }
-        } catch (error) {
-          if (error?.response) {
-            if (error?.response?.data?.message == 'Invalid token.') {
-              navigation.navigate('NewLogin');
-            } else {
-              Alert.alert(
-                'Response ErrorProfile',
-                `${error?.response?.data?.message}`,
-              );
-            }
-          } else if (error?.request) {
-            //Alert.alert('Request error:', `${JSON.stringify(error?.request)}`);
-            //console.log('profilr',`${JSON.stringify(error?.request)}`);
-            //Alert.alert('Request error:', 'Please Check Your Internet Connection');
-          } else {
-            Alert.alert('Error:', `${error}`);
-          }
-        } finally{
-            setLoader(false);
+    setLoader(true);
+    const tokenid = await AsyncStorage.getItem('mytoken');
+    // console.log("Token id: ",tokenid);
+    const emailId = await AsyncStorage.getItem('Email');
+    let payload = JSON.stringify({
+      email: emailId,
+    });
+    try {
+      let { data: res } = await ProfileDetails(payload, tokenid);
+      if (res?.success) {
+        // const userType = res.data?.verification || res?.data?.ownedProperties?.length > 0; // owner or normal
+        // if(userType){
+        //   analytics().setUserProperty('user_type', 'owners');
+        // }else{
+        //   analytics().setUserProperty('user_type', 'normal');
+        // }
+
+        // handleUserType(userType);
+
+        setGlobalState(prevState => ({
+          ...prevState,
+          userName: res?.data?.userName,
+          userEmail: emailId,
+          userPhone: res?.data?.phoneNumber,
+          token: tokenid,
+          userDetails: res?.data,
+          userProfile: res?.data?.profilePicture,
+        }));
+
+      }
+    } catch (error) {
+      if (error?.response) {
+        if (error?.response?.data?.message == 'Invalid token.') {
+          navigation.navigate('NewLogin');
+        } else {
+          Alert.alert(
+            'Response ErrorProfile',
+            `${error?.response?.data?.message}`,
+          );
         }
-      };
+      } else if (error?.request) {
+        //Alert.alert('Request error:', `${JSON.stringify(error?.request)}`);
+        //console.log('profilr',`${JSON.stringify(error?.request)}`);
+        //Alert.alert('Request error:', 'Please Check Your Internet Connection');
+      } else {
+        Alert.alert('Error:', `${error}`);
+      }
+    } finally {
+      setLoader(false);
+    }
+  };
 
   const formatIndianAmount = (amount) => {
-      if (amount == null) return '0';
-      return Number(amount).toLocaleString('en-IN');
+    if (amount == null) return '0';
+    return Number(amount).toLocaleString('en-IN');
   };
 
 
@@ -389,13 +391,13 @@ export default function Dashboard(props) {
   const [GestArray, setGestArray] = useState([]);
 
   const fetchFeedbackForm = async () => {
-    try{
-      let {data: res} = await GetFeedbackFormForExit();
+    try {
+      let { data: res } = await GetFeedbackFormForExit();
       // console.log("Response:", res);
-      if(res?.success){
+      if (res?.success) {
         setForm(res?.data);
       }
-    }catch(error){
+    } catch (error) {
       console.error('Error in fetching feedback form: ', error?.response?.message || error?.response);
     }
   }
@@ -422,7 +424,7 @@ export default function Dashboard(props) {
       });
 
       if (!isValid) {
-        Alert.alert('Alert','Please answer all required questions');
+        Alert.alert('Alert', 'Please answer all required questions');
         return;
       }
 
@@ -436,7 +438,7 @@ export default function Dashboard(props) {
 
       // final payload
       const payload = {
-        userId: userData?._id,                 
+        userId: userData?._id,
         email: userData?.email,
         phoneNumber: userData?.phoneNumber,
         propertyId: OwnedPropertyDetails?.propertyDetails?._id,
@@ -471,11 +473,11 @@ export default function Dashboard(props) {
       if (res?.success) {
         setGestArray(res?.data);
         // console.log(res?.data[0]?.via);
-        
+
       }
     } catch (error) {
       if (error?.response) {
-       // Alert.alert('Response Error', `${error?.response?.data?.message}`);
+        // Alert.alert('Response Error', `${error?.response?.data?.message}`);
       } else if (error?.request) {
         Alert.alert('Request Error:', 'Please Check Your Internet Connection');
       } else {
@@ -507,12 +509,12 @@ export default function Dashboard(props) {
       const date = parseDate(item.checkOutDate);
       return date.getFullYear();
     });
-    
+
     // console.log("Yeee: ",years);
 
     return [...new Set(years)].sort((a, b) => b - a); // latest first
   };
-  
+
   useEffect(() => {
     const years = getAvailableYears();
 
@@ -592,8 +594,8 @@ export default function Dashboard(props) {
   };
 
   const monthNames = [
-    'Jan','Feb','Mar','Apr','May','Jun',
-    'Jul','Aug','Sep','Oct','Nov','Dec'
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
   const getRevenueLabel = () => {
@@ -743,8 +745,8 @@ export default function Dashboard(props) {
 
     if (type === 'single choice') {
       return (
-        <View key={q._id} style={{marginTop:15}}>
-          <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:14,color:'#000'}}>
+        <View key={q._id} style={{ marginTop: 15 }}>
+          <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 14, color: '#000' }}>
             {q.question}
           </Text>
 
@@ -753,15 +755,15 @@ export default function Dashboard(props) {
               key={index}
               onPress={() => handleAnswer(q._id, opt)} // store string directly
               style={{
-                padding:10,
-                marginTop:8,
-                borderRadius:8,
-                borderWidth:1,
+                padding: 10,
+                marginTop: 8,
+                borderRadius: 8,
+                borderWidth: 1,
                 borderColor: answers[q._id] === opt ? '#007BFF' : '#ddd',
                 backgroundColor: answers[q._id] === opt ? '#E6F0FF' : '#fff'
               }}
             >
-              <Text style={{color:'#000'}}>{opt}</Text>
+              <Text style={{ color: '#000' }}>{opt}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -770,8 +772,8 @@ export default function Dashboard(props) {
 
     if (type === 'text') {
       return (
-        <View key={q._id} style={{marginTop:15}}>
-          <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:13,color:'#000'}}>
+        <View key={q._id} style={{ marginTop: 15 }}>
+          <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 13, color: '#000' }}>
             {q.question}
           </Text>
 
@@ -782,14 +784,14 @@ export default function Dashboard(props) {
             onChangeText={(text) => handleAnswer(q._id, text)}
             multiline
             style={{
-              borderWidth:1,
-              fontFamily:'WorkSans-Medium',fontSize:12,color:'#000',
-              borderColor:'#ddd',
-              borderRadius:8,
-              padding:10,
-              marginTop:8,
-              minHeight:80,
-              textAlignVertical:'top'
+              borderWidth: 1,
+              fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000',
+              borderColor: '#ddd',
+              borderRadius: 8,
+              padding: 10,
+              marginTop: 8,
+              minHeight: 80,
+              textAlignVertical: 'top'
             }}
           />
         </View>
@@ -877,31 +879,31 @@ export default function Dashboard(props) {
             </View>
 
             <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 10, paddingVertical: 20 }}>
-              <TouchableOpacity onPress={() => setSelectDetails('Property Details')} 
-                style={{ 
-                  borderColor: selectDetails === 'Property Details' ? '#021365' : '#DDDEE2', 
-                  borderWidth: selectDetails === 'Property Details' ? 1 : 0, 
-                  backgroundColor: selectDetails === 'Property Details' ? '#CCD5F954' : '#F0F0F0', 
-                  paddingHorizontal: 10, paddingVertical: 8, borderRadius: 30, alignItems: 'center', justifyContent: 'center' 
+              <TouchableOpacity onPress={() => setSelectDetails('Property Details')}
+                style={{
+                  borderColor: selectDetails === 'Property Details' ? '#021365' : '#DDDEE2',
+                  borderWidth: selectDetails === 'Property Details' ? 1 : 0,
+                  backgroundColor: selectDetails === 'Property Details' ? '#CCD5F954' : '#F0F0F0',
+                  paddingHorizontal: 10, paddingVertical: 8, borderRadius: 30, alignItems: 'center', justifyContent: 'center'
                 }}>
                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 14, color: selectDetails === 'Property Details' ? '#021265' : '#8F909D' }}>Property Details</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setSelectDetails('Investment Details')} 
-                style={{ 
-                  borderColor: selectDetails === 'Investment Details' ? '#021365' : '#DDDEE2', 
-                  borderWidth: selectDetails === 'Investment Details' ? 1 : 0, marginLeft: 10, 
-                  backgroundColor: selectDetails === 'Investment Details' ? '#CCD5F954' : '#F0F0F0', 
-                  paddingHorizontal: 10, paddingVertical: 8, borderRadius: 30, alignItems: 'center', justifyContent: 'center' 
+              <TouchableOpacity onPress={() => setSelectDetails('Investment Details')}
+                style={{
+                  borderColor: selectDetails === 'Investment Details' ? '#021365' : '#DDDEE2',
+                  borderWidth: selectDetails === 'Investment Details' ? 1 : 0, marginLeft: 10,
+                  backgroundColor: selectDetails === 'Investment Details' ? '#CCD5F954' : '#F0F0F0',
+                  paddingHorizontal: 10, paddingVertical: 8, borderRadius: 30, alignItems: 'center', justifyContent: 'center'
                 }}>
                 <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 14, color: selectDetails === 'Investment Details' ? '#021265' : '#8F909D' }}>Investment Details</Text>
               </TouchableOpacity>
               {propertyStatu == 100 && (
-                <TouchableOpacity onPress={() => setSelectDetails('Guest Booking Details')} 
-                  style={{ 
-                    borderColor: selectDetails === 'Guest Booking Details' ? '#021365' : '#DDDEE2', 
-                    borderWidth: selectDetails === 'Guest Booking Details' ? 1 : 0, marginLeft: 10, 
-                    backgroundColor: selectDetails === 'Guest Booking Details' ? '#CCD5F954' : '#F0F0F0', 
-                    paddingHorizontal: 10, paddingVertical: 8, borderRadius: 30, alignItems: 'center', justifyContent: 'center' 
+                <TouchableOpacity onPress={() => setSelectDetails('Guest Booking Details')}
+                  style={{
+                    borderColor: selectDetails === 'Guest Booking Details' ? '#021365' : '#DDDEE2',
+                    borderWidth: selectDetails === 'Guest Booking Details' ? 1 : 0, marginLeft: 10,
+                    backgroundColor: selectDetails === 'Guest Booking Details' ? '#CCD5F954' : '#F0F0F0',
+                    paddingHorizontal: 10, paddingVertical: 8, borderRadius: 30, alignItems: 'center', justifyContent: 'center'
                   }}>
                   <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 14, color: selectDetails === 'Guest Booking Details' ? '#021265' : '#8F909D' }}>Guest Booking Details</Text>
                 </TouchableOpacity>
@@ -919,9 +921,9 @@ export default function Dashboard(props) {
 
             <View style={{ backgroundColor: '#FFFFFF', paddingHorizontal: 20 }}>
               {selectDetails != 'Watch Live' &&
-              <View style={{ marginTop: 0 }}>
-                <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 22, color: '#000000' }}>{OwnedPropertyDetails?.propertyDetails?.name}</Text>
-              </View>
+                <View style={{ marginTop: 0 }}>
+                  <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 22, color: '#000000' }}>{OwnedPropertyDetails?.propertyDetails?.name}</Text>
+                </View>
               }
 
               {OwnedPropertyDetails?.badRentalHistory && (
@@ -950,7 +952,7 @@ export default function Dashboard(props) {
                     <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000000', paddingRight: 5 }}>{OwnedPropertyDetails?.numberOfOwners} Investors</Text>
                   </View>
 
-                  <View style={{ backgroundColor: '#FFFFFF', padding: 10, borderRadius: 10, marginVertical: 20, elevation: 5, flexDirection: 'row' }}>
+                  {/* <View style={{ backgroundColor: '#FFFFFF', padding: 10, borderRadius: 10, marginVertical: 10, elevation: 5, flexDirection: 'row' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
                       <View style={{ marginRight: 15, borderWidth: 2, width: 25, height: 25, borderRadius: 25, borderColor: '#081F62', alignItems: 'center', justifyContent: 'center' }}>
                         <IconDown name="currency-rupee" size={15} color={'#081F62'} />
@@ -970,6 +972,182 @@ export default function Dashboard(props) {
                         <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 12, color: '#081F62' }}>  {'\u20B9'} {formatIndianAmount(OwnedPropertyDetails?.totalInvestment)}</Text>
                       </View>
                     </View>
+                  </View> */}
+
+                  <View
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      padding: 10,
+                      borderRadius: 10,
+                      marginVertical: 10,
+                      elevation: 5,
+                    }}
+                  >
+                    {/* Top Row */}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+
+                      {/* Collective Cost */}
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          flex: 1,
+                          // justifyContent: 'center',
+                        }}
+                      >
+                        <View
+                          style={{
+                            marginRight: 10,
+                            borderWidth: 2,
+                            width: 25,
+                            height: 25,
+                            borderRadius: 25,
+                            borderColor: '#081F62',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <IconDown name="currency-rupee" size={15} color="#081F62" />
+                        </View>
+
+                        <View>
+                          <Text
+                            style={{
+                              fontFamily: 'Montserrat-SemiBold',
+                              fontSize: 13,
+                              color: '#0F113075',
+                            }}
+                          >
+                            Collective Cost
+                          </Text>
+
+                          <Text
+                            style={{
+                              fontFamily: 'WorkSans-SemiBold',
+                              fontSize: 12,
+                              color: '#081F62',
+                            }}
+                          >
+                            {'\u20B9'} {OwnedPropertyDetails?.propertyDetails?.Price}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View
+                        style={{
+                          borderLeftColor: '#969494',
+                          borderLeftWidth: 1,
+                          marginRight: 10
+                        }}
+                      />
+
+                      {/* Total Investment */}
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          flex: 1,
+                          // justifyContent: 'center',
+                        }}
+                      >
+                        <View
+                          style={{
+                            marginRight: 10,
+                            borderWidth: 2,
+                            width: 25,
+                            height: 25,
+                            borderRadius: 25,
+                            borderColor: '#081F62',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <IconDown name="currency-rupee" size={15} color="#081F62" />
+                        </View>
+
+                        <View>
+                          <Text
+                            style={{
+                              fontFamily: 'Montserrat-SemiBold',
+                              fontSize: 13,
+                              color: '#0F113075',
+                            }}
+                          >
+                            Total Investment
+                          </Text>
+
+                          <Text
+                            style={{
+                              fontFamily: 'WorkSans-SemiBold',
+                              fontSize: 12,
+                              color: '#081F62',
+                            }}
+                          >
+                            ₹ {formatIndianAmount(OwnedPropertyDetails?.totalInvestment)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Offer */}
+                    {/* {OwnedPropertyDetails?.offer?.isAvailable &&
+                      <View>
+                        <View
+                          style={{
+                            marginTop: 12,
+                            paddingTop: 10,
+                            borderTopWidth: 1,
+                            borderTopColor: '#E5E5E5',
+                            flexDirection: 'row',
+                            flex: 1,
+                            // alignItems: 'center',
+                            // justifyContent: 'center',
+                            alignSelf: "center"
+                          }}
+                        >
+                          <View
+                            style={{
+                              marginRight: 12,
+                              borderWidth: 2,
+                              width: 25,
+                              height: 25,
+                              borderRadius: 25,
+                              borderColor: '#2E8B57',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <IconDown name="currency-rupee" size={15} color="#2E8B57" />
+                          </View>
+
+                          <View style={{}}>
+                            <Text
+                              style={{
+                                fontFamily: 'Montserrat-SemiBold',
+                                fontSize: 13,
+                                color: '#0F113075',
+                              }}
+                            >
+                              Offer Discount
+                            </Text>
+
+                            <Text
+                              style={{
+                                fontFamily: 'WorkSans-SemiBold',
+                                fontSize: 12,
+                                color: '#2E8B57',
+                              }}
+                            >
+                              ₹ {formatIndianAmount(OwnedPropertyDetails?.offer?.amount)}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={{ fontSize: 14, fontFamily: 'Poppins-Medium', color: '#0F113075', textAlign: 'center', marginTop: 5 }}>
+                          {OwnedPropertyDetails?.offer?.message}
+                        </Text>
+                      </View>
+                    } */}
+
                   </View>
 
                   <View style={{ backgroundColor: '#FFFFFF', paddingVertical: 10, paddingBottom: 20 }}>
@@ -1002,7 +1180,8 @@ export default function Dashboard(props) {
                   </View>
 
                   {propertyStatu == 100 && (
-                    <TouchableOpacity onPress={() => navigation.navigate('Enquire', { propertyid: OwnedPropertyDetails?.propertyDetails?.name })} style={{ backgroundColor: '#F7F9FC', borderColor: '#B1CEF3', borderWidth: 1, padding: 15, marginVertical: 20, borderRadius: 15 }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Enquire', { property: OwnedPropertyDetails })} style={{ backgroundColor: '#F7F9FC', borderColor: '#B1CEF3', borderWidth: 1, padding: 15, marginVertical: 20, borderRadius: 15 }}>
+                      {/* <TouchableOpacity onPress={() => navigation.navigate('Enquire', { propertyid: OwnedPropertyDetails?.propertyDetails?.name })} style={{ backgroundColor: '#F7F9FC', borderColor: '#B1CEF3', borderWidth: 1, padding: 15, marginVertical: 20, borderRadius: 15 }}> */}
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={[styles.title, { paddingBottom: 0, paddingLeft: 0 }]}>Complimentary Stay</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -1041,11 +1220,11 @@ export default function Dashboard(props) {
             </View>
 
             <Modal visible={showFeedback} transparent animationType='fade'>
-              <View style={{flex:1, backgroundColor:'#00000065'}}>
-                <TouchableOpacity onPress={() => {setShowFeedback(false)}} style={{flex:1}}/>
-                <ScrollView style={{position:'absolute',bottom:0,left:0,right:0,height:height*0.6,backgroundColor:'#FFF',padding:25,borderTopLeftRadius:25,borderTopRightRadius:25}}>
-                  <View style={{alignItems:'center'}}>
-                    <Text style={{fontFamily:'WorkSans-SemiBold',fontSize:14,color:'#000'}}>FeedBack Form</Text>
+              <View style={{ flex: 1, backgroundColor: '#00000065' }}>
+                <TouchableOpacity onPress={() => { setShowFeedback(false) }} style={{ flex: 1 }} />
+                <ScrollView style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: height * 0.6, backgroundColor: '#FFF', padding: 25, borderTopLeftRadius: 25, borderTopRightRadius: 25 }}>
+                  <View style={{ alignItems: 'center' }}>
+                    <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 14, color: '#000' }}>FeedBack Form</Text>
                   </View>
                   <View>
                     {form?.questions?.map(renderQuestion)}
@@ -1054,9 +1233,9 @@ export default function Dashboard(props) {
                   <TouchableOpacity
                     // onPress={() => {setModalVisible(true)}}
                     onPress={submitFeedbackForm}
-                    style={{backgroundColor:'#0f1265',padding:12,borderRadius:10,marginTop:20,alignItems:'center',marginBottom:50}}
+                    style={{ backgroundColor: '#0f1265', padding: 12, borderRadius: 10, marginTop: 20, alignItems: 'center', marginBottom: 50 }}
                   >
-                    <Text style={{color:'#fff',fontFamily:'WorkSans-Medium'}}>
+                    <Text style={{ color: '#fff', fontFamily: 'WorkSans-Medium' }}>
                       Submit
                     </Text>
                   </TouchableOpacity>
@@ -1068,11 +1247,11 @@ export default function Dashboard(props) {
               visible={modalVisible}
               onClose={() => setModalVisible(false)}
               modalStyle={styles.customModal}>
-              <View style={{flex:1,backgroundColor:'#00000065'}}>
+              <View style={{ flex: 1, backgroundColor: '#00000065' }}>
                 {/* <TouchableOpacity onPress={() => {setModalVisible(false)}} style={{flex:1}}/> */}
                 <View style={[styles.modal]}>
-                  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-                    <View style={{width:30}}/>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <View style={{ width: 30 }} />
                     <Text
                       style={{
                         fontSize: 20,
@@ -1085,8 +1264,8 @@ export default function Dashboard(props) {
                     </Text>
                     <TouchableOpacity onPress={() => {
                       setModalVisible(false);
-                    }} style={{backgroundColor:'#231f1fab',padding:5,borderRadius:20,marginRight:5}}>
-                      <Icon name={'cross'} size={20} color={'#FFF'}/>
+                    }} style={{ backgroundColor: '#231f1fab', padding: 5, borderRadius: 20, marginRight: 5 }}>
+                      <Icon name={'cross'} size={20} color={'#FFF'} />
                     </TouchableOpacity>
                   </View>
                   <Text
@@ -1102,7 +1281,7 @@ export default function Dashboard(props) {
                     {globalState?.userDetails?.phoneNumber.startsWith('+91') && globalState?.userDetails?.phoneNumber?.length === 13 ? globalState?.userDetails?.phoneNumber : globalState?.userDetails?.email}
                   </Text>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 20, }}>
-                    <TextInput style={{height: 40,color: '#1E2135',borderWidth: 2,borderColor: '#043862',borderRadius: 5,alignItems: 'center',}}
+                    <TextInput style={{ height: 40, color: '#1E2135', borderWidth: 2, borderColor: '#043862', borderRadius: 5, alignItems: 'center', }}
                       placeholder=""
                       ref={firstInput}
                       maxLength={1}
@@ -1114,7 +1293,7 @@ export default function Dashboard(props) {
                       }}
                     />
                     <TextInput
-                      style={{height: 40,color: '#1E2135',borderWidth: 2,borderColor: '#043862',borderRadius: 5,alignItems: 'center',}}
+                      style={{ height: 40, color: '#1E2135', borderWidth: 2, borderColor: '#043862', borderRadius: 5, alignItems: 'center', }}
                       placeholder=""
                       ref={secoundInput}
                       maxLength={1}
@@ -1227,7 +1406,7 @@ export default function Dashboard(props) {
                       ))}
                   </View> */}
                   <View
-                    style={{ flexDirection: 'row', justifyContent: 'space-between',marginBottom:5 }}>
+                    style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
                     <Text></Text>
                     <TouchableOpacity
                       onPress={() => {
@@ -1307,7 +1486,7 @@ export default function Dashboard(props) {
                       padding: 20,
                       marginBottom: 30,
                     }}>
-                      {loader == true ? <ActivityIndicator size="small" color="#FFF"/> : <Text style={{fontFamily:'OpenSans-SemiBold',fontSize:16,color:'#FFF'}}>Submit</Text>}
+                    {loader == true ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={{ fontFamily: 'OpenSans-SemiBold', fontSize: 16, color: '#FFF' }}>Submit</Text>}
                   </TouchableOpacity>
                   {/* <TouchableOpacity onPress={() => createButtonAlert()} disabled={!OwnedPropertyDetails?.eligibleToResell} style={{ alignItems: 'center', backgroundColor: !OwnedPropertyDetails?.eligibleToResell ? '#AEAEAE' : '#56018A', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 15, marginVertical: 8, marginBottom: 20, justifyContent: 'center' }}>
                     {loader == true ? <ActivityIndicator size="small" color="#ffffff" /> : <Text style={{ color: 'white', fontSize: 16, fontFamily: 'OpenSans-SemiBold' }}>Sell My Frac</Text>}
@@ -1318,38 +1497,38 @@ export default function Dashboard(props) {
 
             {success === true &&
               <Modal visible={true} transparent animationType='fade' modalStyle={{ width }}>
-                  <View style={{flex:1,backgroundColor:'#00000065'}}>
-                      <TouchableOpacity onPress={() => {
-                          setSuccess(false);
-                          navigation.navigate('Owned');
-                      }} style={{flex:1}}/>
-                      <View style={{position:'absolute',bottom:0, left:0,right:0, backgroundColor: '#FFFFFF', padding: 20, elevation: 5, borderTopLeftRadius:20,borderTopRightRadius:20 }}>
-                          <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 20, color: '#021265',textAlign:'center' }}>Request Submitted!</Text>
-                          <View style={{ marginVertical: 10 }}>
-                              <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#00000080' }}>
-                                  Thank You for your Request.Your request submitted successfully. Our team will contact you soon
-                              </Text>
-                          </View>
-                          <TouchableOpacity onPress={() => {
-                              // setNotSelected(!notselected);
-                              setSuccess(false);
-                              navigation.navigate('Owned');
-                          }} style={{ backgroundColor: '#0F1130', borderColor: '#C0D5F3', padding: 15, alignItems: 'center', borderRadius: 10, marginVertical: 30 }}>
-                              <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 16, color: '#FFFFFF' }}>Continue</Text>
-                          </TouchableOpacity>
-                      </View>
+                <View style={{ flex: 1, backgroundColor: '#00000065' }}>
+                  <TouchableOpacity onPress={() => {
+                    setSuccess(false);
+                    navigation.navigate('Owned');
+                  }} style={{ flex: 1 }} />
+                  <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFFFFF', padding: 20, elevation: 5, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+                    <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 20, color: '#021265', textAlign: 'center' }}>Request Submitted!</Text>
+                    <View style={{ marginVertical: 10 }}>
+                      <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#00000080' }}>
+                        Thank You for your Request.Your request submitted successfully. Our team will contact you soon
+                      </Text>
+                    </View>
+                    <TouchableOpacity onPress={() => {
+                      // setNotSelected(!notselected);
+                      setSuccess(false);
+                      navigation.navigate('Owned');
+                    }} style={{ backgroundColor: '#0F1130', borderColor: '#C0D5F3', padding: 15, alignItems: 'center', borderRadius: 10, marginVertical: 30 }}>
+                      <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 16, color: '#FFFFFF' }}>Continue</Text>
+                    </TouchableOpacity>
                   </View>
+                </View>
               </Modal>
-          }
+            }
 
             {selectDetails === 'Guest Booking Details' && (
               <View style={{ paddingHorizontal: 20 }}>
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row', paddingVertical: 10 }}>
                   {(sortBy || selectedYear || selectedMonth !== null) && (
-                    <TouchableOpacity onPress={resetFilters} style={{ borderColor: '#eb2c19', borderWidth: 1, backgroundColor: '#eb2a1925', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, flexDirection: 'row', alignItems: 'center',marginRight: 10 }}>
+                    <TouchableOpacity onPress={resetFilters} style={{ borderColor: '#eb2c19', borderWidth: 1, backgroundColor: '#eb2a1925', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
                       <Text style={{ fontFamily: 'WorkSans-Medium', fontSize: 12, color: '#000' }}>Reset Filter</Text>
                       {/* <Icon name={'chevron-down'} size={15} color={'#021265'} style={{ marginLeft: 5 }} /> */}
-                  </TouchableOpacity>
+                    </TouchableOpacity>
                   )}
                   <TouchableOpacity onPress={() => setSort(!sort)} style={{ borderColor: '#021265', borderWidth: 1, backgroundColor: '#EEF1FD', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
                     <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 15, color: '#021265' }}>Sort</Text>
@@ -1366,12 +1545,12 @@ export default function Dashboard(props) {
                 </ScrollView>
                 <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 18, color: '#081F62', paddingVertical: 10 }}>Guest Booking Details</Text>
                 {(sortBy || selectedYear || selectedMonth !== null) &&
-                <View style={{ marginTop: 20 }}>
-                  <View style={{ backgroundColor: '#ECF7FE', flexDirection: 'row', padding: 10, justifyContent: 'space-between', borderRadius: 10, paddingHorizontal: 10,flex:1 }}>
-                    <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 16, color: '#000000' }}>{label}</Text>
-                    <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 20, color: '#21721F' }}>₹ {displayRevenue.toLocaleString('en-IN')}</Text>
+                  <View style={{ marginTop: 20 }}>
+                    <View style={{ backgroundColor: '#ECF7FE', flexDirection: 'row', padding: 10, justifyContent: 'space-between', borderRadius: 10, paddingHorizontal: 10, flex: 1 }}>
+                      <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 16, color: '#000000' }}>{label}</Text>
+                      <Text style={{ fontFamily: 'WorkSans-SemiBold', fontSize: 20, color: '#21721F' }}>₹ {displayRevenue.toLocaleString('en-IN')}</Text>
+                    </View>
                   </View>
-                </View>
                 }
               </View>
             )}
@@ -1622,7 +1801,7 @@ export default function Dashboard(props) {
                       ) : (
                         <IconC name="radio-button-off-outline" size={20} color="#9B9B9B" />
                       )}
-                      <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#000000', marginLeft: 10 }}>
+                      <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#000000', marginLeft: 10 }}>
                         {monthNames[month]}
                       </Text>
                     </View>
@@ -1672,7 +1851,7 @@ export default function Dashboard(props) {
                     ) : (
                       <IconC name="radio-button-off-outline" size={20} color="#9B9B9B" />
                     )}
-                    <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#000000', marginLeft: 10 }}>{year}</Text>
+                    <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 14, color: '#000000', marginLeft: 10 }}>{year}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -1732,7 +1911,7 @@ const styles = StyleSheet.create({
     //position: 'absolute',
   },
   modal: {
-    position:'absolute',bottom:0,right:0,left:0,padding:10,
+    position: 'absolute', bottom: 0, right: 0, left: 0, padding: 10,
     width: '100%',
     alignSelf: 'center',
     borderColor: '#A0A0A0',

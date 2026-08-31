@@ -9,58 +9,59 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import {useState, useEffect, useContext} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {AppContext} from './Context/AppContext';
-import {EnquireDetails, ProfileDetails, StayBooking} from './Services/UserApi';
-const {width, height} = Dimensions.get('window');
+import { useState, useEffect, useContext } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { AppContext } from './Context/AppContext';
+import { EnquireDetails, ProfileDetails, StayBooking } from './Services/UserApi';
+const { width, height } = Dimensions.get('window');
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Enquire(props) {
-  const {globalState, setGlobalState} = useContext(AppContext);
+  const { globalState, setGlobalState } = useContext(AppContext);
   const navigation = useNavigation();
   const [CheckIn, setCheckIn] = useState('');
   const [Email, setEmail] = useState(globalState?.userDetails?.email);
   const [Guest, setGuest] = useState('');
   const [Name, setName] = useState(globalState?.userDetails?.userName);
-  const [PropertyName, setPropertyName] = useState(
-    props?.route?.params?.propertyid,
+  const [Property, setProperty] = useState(
+    props?.route?.params?.property,
   );
   const [open, setOpen] = useState(false);
   const [open1, setOpen1] = useState(false);
   const [date, setDate] = useState(new Date());
   const [CheckOut, setCheckOut] = useState('');
 
-  const handleBooking= async () => {
+  const handleBooking = async () => {
 
     let payload = JSON.stringify({
-      propertyName: PropertyName,
+      propertyName: Property?.propertyDetails?.name,
       email: Email,
       checkInDate: CheckIn,
       checkOutDate: CheckOut,
-      numberOfGuests: Guest
+      numberOfGuests: Guest,
+      bookingFor: "me"
     });
-   // console.log(payload);
-  
+    // console.log(payload);
+
     try {
-      let {data: res} = await StayBooking(payload);
-    // console.log(res);
+      let { data: res } = await StayBooking(payload);
+      // console.log(res);
 
       if (res?.success) {
         Alert.alert(
           'Thanks for your submission!',
           'Our team is currently reviewing your booking request. Please allow us upto 24 hours to confirm your booking status.',
         );
-      navigation.navigate('Dashboard');
-      
+        navigation.navigate('Dashboard', { ownedProDetails: Property });
+
       }
     } catch (error) {
       if (error.response) {
         Alert.alert('Response error:', `${error?.response?.data?.message}`);
       } else if (error.request) {
         Alert.alert('Request error:', 'Please Check Your Internet Connection');
-       // Alert.alert('Request error:', ${JSON.stringify(error)});
+        // Alert.alert('Request error:', ${JSON.stringify(error)});
       } else {
         Alert.alert('Error:', `${error?.message}`);
       }
@@ -77,288 +78,289 @@ export default function Enquire(props) {
     hideDatePicker();
   };
   const handleConfirm = date => {
-   setCheckIn(new Date(date).toLocaleString())
+    setCheckIn(new Date(date).toLocaleString())
     //handleSiteVist(new Date(date).toLocaleString());
     hideDatePicker();
   };
 
   return (
-     <SafeAreaView style={{ flex: 1, backgroundColor: '#021265' }}>
-    
-    <ScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-      }}
-      style={[styles.iphone13Mini9]}>
-        
-      <Text
-        style={{
-          color: '#252B5C',
-          fontSize: 28,
-          fontFamily: 'OpenSans-Bold',
-          paddingTop: 35,
-          paddingBottom:10,
-          paddingHorizontal:20
-        }}>
-        Enjoy ! Your Complimentary Stay
-      </Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#021265' }}>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 20,
-        }}>
-        <Text
-          style={[
-            styles.label,
-            {
-              fontSize: 15,
-              /// marginTop: 20
-            },
-          ]}>
-          {' '}
-          Your Name
-        </Text>
-        <TextInput
-          style={{
-            width: '60%',
-            // paddingLeft: 10,
-            color: '#1E2135',
-            borderWidth: 1,
-            borderColor: '#B9C4CA',
-            paddingHorizontal: 10,
-            paddingVertical: 10,
-          }}
-          placeholder=""
-          value={Name}
-          onChangeText={txt => {
-            setName(txt);
-          }}
-        />
-      </View>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+        style={[styles.iphone13Mini9]}>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 20,
-        }}>
         <Text
-          style={[
-            styles.label,
-            {
-              fontSize: 15,
-              /// marginTop: 20
-            },
-          ]}>
-          {' '}
-          Email
-        </Text>
-        <TextInput
           style={{
-            width: '60%',
-            // paddingLeft: 10,
-            color: '#1E2135',
-            borderWidth: 1,
-            borderColor: '#B9C4CA',
-            paddingHorizontal: 10,
-            paddingVertical: 10,
-          }}
-          placeholder=""
-          value={Email}
-          onChangeText={txt => {
-            setEmail(txt);
-          }}
-        />
-      </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 20,
-        }}>
-        <Text
-          style={[
-            styles.label,
-            {
-              fontSize: 15,
-              /// marginTop: 20
-            },
-          ]}>
-          {' '}
-          Property Name
+            color: '#252B5C',
+            fontSize: 28,
+            fontFamily: 'OpenSans-Bold',
+            paddingTop: 35,
+            paddingBottom: 10,
+            paddingHorizontal: 20
+          }}>
+          Enjoy ! Your Complimentary Stay
         </Text>
-        <TextInput
+
+        <View
           style={{
-            width: '60%',
-            // paddingLeft: 10,
-            color: '#1E2135',
-            borderWidth: 1,
-            borderColor: '#B9C4CA',
-            paddingHorizontal: 10,
-            paddingVertical: 10,
-          }}
-          placeholder=""
-          value={PropertyName}
-          onChangeText={txt => {
-            setPropertyName(txt);
-          }}
-        />
-      </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 20,
-        }}>
-        <Text
-          style={[
-            styles.label,
-            {
-              fontSize: 15,
-              /// marginTop: 20
-            },
-          ]}>
-          {' '}
-          No. of Guest
-        </Text>
-        <TextInput
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 20,
+          }}>
+          <Text
+            style={[
+              styles.label,
+              {
+                fontSize: 15,
+                /// marginTop: 20
+              },
+            ]}>
+            {' '}
+            Your Name
+          </Text>
+          <TextInput
+            style={{
+              width: '60%',
+              // paddingLeft: 10,
+              color: '#1E2135',
+              borderWidth: 1,
+              borderColor: '#B9C4CA',
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+            }}
+            placeholder=""
+            value={Name}
+            onChangeText={txt => {
+              setName(txt);
+            }}
+          />
+        </View>
+
+        <View
           style={{
-            width: '60%',
-            // paddingLeft: 10,
-            color: '#1E2135',
-            borderWidth: 1,
-            borderColor: '#B9C4CA',
-            paddingHorizontal: 10,
-            paddingVertical: 10,
-          }}
-          placeholder=""
-          value={Guest}
-          onChangeText={txt => {
-            setGuest(txt);
-          }}
-        />
-      </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 20,
-        }}>
-        <Text
-          style={[
-            styles.label,
-            {
-              fontSize: 15,
-              /// marginTop: 20
-            },
-          ]}>
-          {' '}
-          Check-in Date
-        </Text>
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 20,
+          }}>
+          <Text
+            style={[
+              styles.label,
+              {
+                fontSize: 15,
+                /// marginTop: 20
+              },
+            ]}>
+            {' '}
+            Email
+          </Text>
+          <TextInput
+            style={{
+              width: '60%',
+              // paddingLeft: 10,
+              color: '#1E2135',
+              borderWidth: 1,
+              borderColor: '#B9C4CA',
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+            }}
+            placeholder=""
+            value={Email}
+            onChangeText={txt => {
+              setEmail(txt);
+            }}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 20,
+          }}>
+          <Text
+            style={[
+              styles.label,
+              {
+                fontSize: 15,
+                /// marginTop: 20
+              },
+            ]}>
+            {' '}
+            Property Name
+          </Text>
+          <TextInput
+            style={{
+              width: '60%',
+              // paddingLeft: 10,
+              color: '#1E2135',
+              borderWidth: 1,
+              borderColor: '#B9C4CA',
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+            }}
+            placeholder=""
+            value={Property?.propertyDetails?.name}
+            editable={false}
+          // onChangeText={txt => {
+          //   setProperty(txt);
+          // }}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 20,
+          }}>
+          <Text
+            style={[
+              styles.label,
+              {
+                fontSize: 15,
+                /// marginTop: 20
+              },
+            ]}>
+            {' '}
+            No. of Guest
+          </Text>
+          <TextInput
+            style={{
+              width: '60%',
+              // paddingLeft: 10,
+              color: '#1E2135',
+              borderWidth: 1,
+              borderColor: '#B9C4CA',
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+            }}
+            placeholder=""
+            value={Guest}
+            onChangeText={txt => {
+              setGuest(txt);
+            }}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 20,
+          }}>
+          <Text
+            style={[
+              styles.label,
+              {
+                fontSize: 15,
+                /// marginTop: 20
+              },
+            ]}>
+            {' '}
+            Check-in Date
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              setOpen(!open);
+              // navigation.navigate('Location');
+            }}
+            style={{
+              width: '60%',
+              // paddingLeft: 10,
+              color: '#1E2135',
+              borderWidth: 1,
+              borderColor: '#B9C4CA',
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+            }}>
+            <Text style={{ color: '#000' }}>{CheckIn}</Text>
+          </TouchableOpacity>
+
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 20,
+          }}>
+          <Text
+            style={[
+              styles.label,
+              {
+                fontSize: 15,
+                /// marginTop: 20
+              },
+            ]}>
+            {' '}
+            Check-out Date
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              setOpen1(true);
+              // navigation.navigate('Location');
+            }}
+            style={{
+              width: '60%',
+              // paddingLeft: 10,
+              color: '#1E2135',
+              borderWidth: 1,
+              borderColor: '#B9C4CA',
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+            }}>
+            <Text style={{ color: '#000' }}>{CheckOut}</Text>
+          </TouchableOpacity>
+        </View>
+
         <TouchableOpacity
-         onPress={() => {
-          setOpen(!open);
-          // navigation.navigate('Location');
-        }}
+          onPress={() => {
+            handleBooking();
+            // navigation.navigate('Location');
+          }}
           style={{
-            width: '60%',
-            // paddingLeft: 10,
-            color: '#1E2135',
-            borderWidth: 1,
-            borderColor: '#B9C4CA',
-            paddingHorizontal: 10,
-            paddingVertical: 10,
+            alignItems: 'center',
+            // backgroundColor: '#0B0B45',
+            backgroundColor: '#043862',
+            borderRadius: 12,
+            padding: 20,
+            marginTop: 10,
+            marginBottom: 30,
+            marginHorizontal: 20,
           }}>
-             <Text>{CheckIn}</Text>
-            </TouchableOpacity>
-        
-      </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 20,
-        }}>
-        <Text
-          style={[
-            styles.label,
-            {
-              fontSize: 15,
-              /// marginTop: 20
-            },
-          ]}>
-          {' '}
-          Check-out Date
-        </Text>
-        <TouchableOpacity
-         onPress={() => {
-          setOpen1(true);
-          // navigation.navigate('Location');
-        }}
-          style={{
-            width: '60%',
-            // paddingLeft: 10,
-            color: '#1E2135',
-            borderWidth: 1,
-            borderColor: '#B9C4CA',
-            paddingHorizontal: 10,
-            paddingVertical: 10,
-          }}>
-            <Text>{CheckOut}</Text>
-            </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity
-        onPress={() => {
-          handleBooking();
-          // navigation.navigate('Location');
-        }}
-        style={{
-          alignItems: 'center',
-          // backgroundColor: '#0B0B45',
-          backgroundColor: '#043862',
-          borderRadius: 12,
-          padding: 20,
-          marginTop: 10,
-          marginBottom: 30,
-          marginHorizontal: 20,
-        }}>
-        <Text
-          style={{
-            color: 'white',
-            fontSize: 16,
-            fontFamily: 'OpenSans-SemiBold',
-          }}>
-          Submit
-        </Text>
-      </TouchableOpacity>
-      <DateTimePickerModal
+          <Text
+            style={{
+              color: 'white',
+              fontSize: 16,
+              fontFamily: 'OpenSans-SemiBold',
+            }}>
+            Submit
+          </Text>
+        </TouchableOpacity>
+        <DateTimePickerModal
           isVisible={open1}
           mode="datetime"
           onConfirm={handleConfirmOut}
           onCancel={hideDatePicker}
         />
-    <DateTimePickerModal
+        <DateTimePickerModal
           isVisible={open}
           mode="datetime"
           onConfirm={handleConfirm}
           onCancel={hideDatePicker}
         />
-    </ScrollView>
+      </ScrollView>
     </SafeAreaView>
   );
 }
