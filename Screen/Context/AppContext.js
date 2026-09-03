@@ -1,28 +1,28 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AppContext = React.createContext();
-const AppProvider = ({children}) => {
+const AppProvider = ({ children }) => {
   const [globalState, setGlobalState] = useState({
     userName: '',
-    userEmail:'',
-    userPhone:'',
+    userEmail: '',
+    userPhone: '',
     ProDetails: [],
     prior: '',
-    LableProDetails:[],
+    LableProDetails: [],
     token: '',
-    Login:false,
-    activeFooterTab:'home',
-    LikeData:[],
-    userDetails:[],
-    userProfile:'',
-    offer:[],
-    userEvent:'',
-    ConstructionFData:[],
-    PropertyBuyAnsRent:[],
-    currentLocation:[],
-    ProprtyListingForm1:[],
-    HotelUserDetails:{},
+    Login: false,
+    activeFooterTab: 'home',
+    LikeData: [],
+    userDetails: [],
+    userProfile: '',
+    offer: [],
+    userEvent: '',
+    ConstructionFData: [],
+    PropertyBuyAnsRent: [],
+    currentLocation: [],
+    ProprtyListingForm1: [],
+    HotelUserDetails: {},
     AllProperty: [],
     altairaPromo: [],
     pendingDeepLinkType: "",
@@ -35,13 +35,15 @@ const AppProvider = ({children}) => {
     verificationLatitude: null,
     verificationLongitude: null,
     verificationPincode: "",
+    walletNote: false,
+    noteMessage: "",
   });
-  
+
 
   return (
-    <AppContext.Provider value={{globalState, setGlobalState}}>
+    <AppContext.Provider value={{ globalState, setGlobalState }}>
       {children}
     </AppContext.Provider>
   );
 };
-export {AppContext, AppProvider};
+export { AppContext, AppProvider };

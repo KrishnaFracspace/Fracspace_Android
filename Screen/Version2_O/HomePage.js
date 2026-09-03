@@ -179,7 +179,9 @@ export default function HomePage() {
 
       setGlobalState(prevState => ({
         ...prevState,
-        liveVersion: res?.data?.appVersion?.androidCurrentVersion
+        liveVersion: res?.data?.appVersion?.androidCurrentVersion,
+        walletNote: res?.data?.noteForWallet?.isVisible,
+        noteMessage: res?.data?.noteForWallet?.message,
       }));
 
       const popupToShow = popupList.find(p => p.visibility === true);
