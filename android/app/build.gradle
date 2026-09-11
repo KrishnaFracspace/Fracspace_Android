@@ -87,8 +87,8 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // updated from 71 and 2.2.0
-        versionCode 72
-        versionName "2.2.1"
+        versionCode 73
+        versionName "2.2.2"
         missingDimensionStrategy "react-native-capture-protection", "base"
         buildConfigField "String", "REVOPUSH_KEY", '"DthMm0PkeJzmwW1YY11Dw4OtOcIfVJ2bkyDomg"'
     }
