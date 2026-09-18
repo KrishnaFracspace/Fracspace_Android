@@ -326,8 +326,9 @@ export default function NavigationStack() {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 
         <Image
-          source={require('../assets/logo_FS.png')}
-          style={{ width: width * 0.6, height: height * 0.3 }}
+        resizeMode='stretch'
+          source={{uri: "https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/SplashImage.png"}}
+          style={{ width: width, height: height}}
         />
       </View>
     );

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
-import { StyleSheet, PermissionsAndroid, Alert, Linking } from 'react-native';
+import { StyleSheet, PermissionsAndroid, Alert, Linking, Dimensions } from 'react-native';
 import NavigationStack from './Screen/Navigation/NavigationStack';
 import { AppContext, AppProvider } from './Screen/Context/AppContext';
 import Video from 'react-native-video';
@@ -28,6 +28,8 @@ let options = {
   checkFrequency: codePush.CheckFrequency.ON_APP_START,
   installMode: codePush.InstallMode.IMMEDIATE,
 };
+
+const {width, height} = Dimensions.get('window');
 
 
 export const navigationRef = createNavigationContainerRef();
@@ -201,7 +203,8 @@ const App = () => {
     <>
       {firstTimeUser ? (
         <Video
-          source={backgroundImage}
+          source={{uri: "https://duixj37yn5405.cloudfront.net/videos/FracspaceSplash.mp4"}}
+          resizeMode='stretch'
           hideShutterView
           style={styles.backgroundVideo}
         />
@@ -254,7 +257,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     bottom: 0,
-    right: 0,
+    right: 0
   },
 });
 

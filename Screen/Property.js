@@ -743,6 +743,7 @@ const imageSliderRef = useRef(null);
                     <Test PropertiesArray={PropertiesArray}/>
                 </View>
 
+                {PropertiesArray?.name !== "THE 10 CIRCLES OF ALTAIRA" &&
                 <View style={{marginTop:15,borderColor:'#00000080',borderWidth:0.5,borderRadius:10,padding:20,backgroundColor:'#FFF'}}>
                     <Text style={{fontFamily:'WorkSans-Regular',fontSize:12,color:'#000000BF'}}>AVAILABILITY</Text>
                     {/* {availableFrac < 100 && availableFrac > 10 ?
@@ -796,6 +797,7 @@ const imageSliderRef = useRef(null);
                         <Text style={{fontFamily:'WorkSans-Regular',fontSize:10,color:'#000000BF',marginTop:5}}>{availableFrac}% of the property is already owned by {PropertiesArray?.TotalFractions - PropertiesArray?.AvailableFractions} investors</Text>
                     } */}
                 </View>
+                }
 
                 {PropertiesArray?.investmentDetails?.show &&
                 <View style={{marginTop:15}}>
