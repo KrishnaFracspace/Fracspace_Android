@@ -126,6 +126,7 @@ import TranHisForEscape from '../Version2_O/escapeMembership/TranHisForEscape';
 import ViewAgreement from '../Version2_O/escapeMembership/ViewAgreement';
 import AddressSearchScreen from '../Version2_O/AddessSearchScreen';
 import CompleteProfileScreen from '../Version2_O/CompleteProfileScreen';
+import ConcertDetails from '../Version2_O/ConcertDetails';
 // import Exhibitor from '../Version2_O/Exhibitor';
 
 const { width, height } = Dimensions.get('window');
@@ -350,6 +351,7 @@ export default function NavigationStack() {
 
       <Stack.Screen name="NoInternet" component={NoInternet} options={{headerShown:false}}/>
       <Stack.Screen name="MembershipHome" component={MembershipHome} options={{headerShown:false}}/>
+      <Stack.Screen name="ConcertDetails" component={ConcertDetails} options={{headerShown:false}}/>
       <Stack.Screen name="MembershipProfile" component={MembershipProfile} options={{headerShown:false}}/>
       <Stack.Screen name="MembershipProprtyDesc" component={MembershipProprtyDesc} options={{headerShown:false}}/>
       <Stack.Screen name="PaymentSuccessEscape" component={PaymentSuccessEscape} options={{headerShown:false}}/>

@@ -9,7 +9,7 @@ import Iconn from 'react-native-vector-icons/Feather';
 import Ico from 'react-native-vector-icons/Fontisto';
 import Icoo from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
-import { CallRecord, DisLike, DreamscapeHotels, GetAllNotification, GetCarousel, Like, LikeData, PopularDestination, ProfileDetails, PropertyDetails, updateFCMToken } from '../Services/UserApi';
+import { CallRecord, DisLike, DreamscapeHotels, GetAllNotification, GetCarousel, GetConcertSection, Like, LikeData, PopularDestination, ProfileDetails, PropertyDetails, updateFCMToken } from '../Services/UserApi';
 import { AppContext } from '../Context/AppContext';
 const { width, height } = Dimensions.get('window');
 import Swiper from 'react-native-swiper';
@@ -27,6 +27,8 @@ import CompleteProfilePopup from '../component/CompleteProfilePopup';
 import CustomSwiper from '../component/CustomSwiper';
 import CountdownTimer from '../component/CountdownTimer/CountdownTimer';
 import EdgeFab from './altaira/FloatingButton';
+import ConcertVideoCard from '../component/ConcertVideoCard';
+import { normalizeSection } from '../utils/concertAdapter';
 import crashlytics from '@react-native-firebase/crashlytics';
 import messaging from '@react-native-firebase/messaging';
 import analytics from '@react-native-firebase/analytics';
@@ -72,6 +74,7 @@ export default function HomePage() {
   const [ourStays, setOurStays] = useState([]);
 
   const scrollY = useRef(new Animated.Value(0)).current;
+  const [concertSection, setConcertSection] = useState(null);
   const [carousel, setCarousel] = useState([]);
   // const [popUpArray, setPopUpArray] = useState([]);
 
@@ -698,6 +701,25 @@ export default function HomePage() {
     isFocused
   ]);
   const videoLayouts = useRef([]);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const token = await AsyncStorage.getItem('mytoken');
+        const { data } = await GetConcertSection({ token });
+        if (alive) setConcertSection(normalizeSection(data));
+      } catch (e) {
+        // The concert surface is optional - a failure here must never take
+        // the home screen down, so it just stays hidden.
+        console.log('Concert section fetch failed:', e?.message);
+        if (alive) setConcertSection({ enabled: false, concert: null });
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const handleVerticalScroll = (event) => {
     const scrollY = event.nativeEvent.contentOffset.y;
     const windowHeight = event.nativeEvent.layoutMeasurement.height;
@@ -1068,9 +1090,9 @@ export default function HomePage() {
           </View>
 
           <TouchableOpacity onPress={() => {
-            navigation.navigate('MembershipHome');
+            navigation.navigate('ConcertDetails');
           }} style={{ paddingTop: 20, paddingHorizontal: 20 }}>
-            <SafeImage resizeMode='cover' source={{ uri: carousel?.altairaUrl }} style={{ width: '100%', height: 100, borderRadius: 10 }} />
+            <SafeImage resizeMode='contain' source={{ uri: "https://fracspace-updates.s3.ap-south-1.amazonaws.com/appImages/bgc.png" }} style={{ width: '100%', height: 95, borderRadius: 10 }} />
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1582,6 +1604,14 @@ export default function HomePage() {
       {carousel?.edgeTab &&
         <EdgeFab scrollY={scrollY} />
       }
+      {concertSection?.enabled &&
+        !!concertSection?.concert &&
+        concertSection.concert?.homeCard?.enabled !== false && (
+          <ConcertVideoCard
+            scrollY={scrollY}
+            concert={concertSection.concert}
+          />
+        )}
 
 
 

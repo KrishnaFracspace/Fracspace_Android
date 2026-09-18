@@ -284,6 +284,19 @@ export default function NewSigin() {
                         });
                         break;
 
+                    case 'concert_section':
+                        navigation.reset({
+                            index: 0,
+                            routes: [
+                                {name: 'BottomNavigations'},
+                                {
+                                    name: 'ConcertDetails',
+                                    params: { concertId: pendingDeepLinkId || null },
+                                },
+                            ],
+                        });
+                        break;
+
                     // ✅ NORMAL LOGIN (No deep link)
                     default:
                         navigation.reset({
@@ -452,6 +465,19 @@ export default function NewSigin() {
                             routes: [
                                 {name: 'BottomNavigations'},
                                 {name: 'MembershipHome'},
+                            ],
+                        });
+                        break;
+
+                    case 'concert_section':
+                        navigation.reset({
+                            index: 0,
+                            routes: [
+                                {name: 'BottomNavigations'},
+                                {
+                                    name: 'ConcertDetails',
+                                    params: { concertId: pendingDeepLinkId || null },
+                                },
                             ],
                         });
                         break;

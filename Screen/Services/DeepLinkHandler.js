@@ -260,6 +260,10 @@ const DeepLinkHandler = () => {
         handleEscapeNav();
         break;
 
+      case 'concert_section':
+        handleConcertNav(propertyId);
+        break;
+
       default:
         console.log('No matching deep link case');
         break;
@@ -335,6 +339,30 @@ const DeepLinkHandler = () => {
 
       if (isLoggedIn) {
         navigationRef.navigate('WalletAmount');
+      } else {
+        navigationRef.navigate('NewLogin');
+      }
+    };
+
+    tryNavigate();
+  };
+
+  const handleConcertNav = async (concertId) => {
+    const isLoggedIn = await AsyncStorage.getItem('mytoken');
+    const tryNavigate = () => {
+      if (!navigationRef.isReady()) {
+        setTimeout(tryNavigate, 400);
+        return;
+      }
+
+      setGlobalState(prev => ({
+        ...prev,
+        pendingDeepLinkType: 'concert_section',
+        pendingDeepLinkId: concertId || null,
+      }));
+
+      if (isLoggedIn) {
+        navigationRef.navigate('ConcertDetails', { concertId: concertId || null });
       } else {
         navigationRef.navigate('NewLogin');
       }
