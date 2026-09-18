@@ -37,6 +37,7 @@ import { CONCERT, CONCERT_THEME as T } from '../utils/concertData';
 import { normalizeSection } from '../utils/concertAdapter';
 import { GetConcertSection } from '../Services/UserApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { hasRegisteredConcert } from '../utils/concertInterestStore';
 
 const { width, height } = Dimensions.get('window');
 const HERO_H = Math.round(height * 0.42);
@@ -125,9 +126,24 @@ export default function ConcertDetails() {
     return () => clearTimeout(t);
   }, [seekPending]);
 
+  // Seed the registered state from the server first, then fall back to the
+  // local marker. The marker matters because "Go to Home" pops this screen,
+  // and the concert passed back down by the home card still carries the
+  // interestRegistered value from before the user registered.
   useEffect(() => {
-    if (concert?.interestRegistered) setRegistered(true);
-  }, [concert?.interestRegistered]);
+    if (concert?.interestRegistered) {
+      setRegistered(true);
+      return undefined;
+    }
+    let alive = true;
+    (async () => {
+      const local = await hasRegisteredConcert(concert?.id);
+      if (alive && local) setRegistered(true);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [concert?.id, concert?.interestRegistered]);
 
   // On the deep-link path the concert arrives after first render, so the city
   // selection has to catch up once it does.
@@ -411,8 +427,11 @@ export default function ConcertDetails() {
           pointerEvents="none"
         />
 
+        {/* Once registered the CTA is a status label, not a button: there is
+            no edit endpoint, so re-opening the form could only fail. */}
         <TouchableOpacity
           activeOpacity={0.9}
+          disabled={registered}
           onPress={() => setFormVisible(true)}
           style={{ width: '100%' }}>
           <LinearGradient

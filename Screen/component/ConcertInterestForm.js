@@ -21,6 +21,7 @@ import ConcertSuccessSheet from './ConcertSuccessSheet';
 import { AppContext } from '../Context/AppContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
+import { markConcertRegistered } from '../utils/concertInterestStore';
 import {
   RegisterConcertInterest,
   classifyInterestResponse,
@@ -111,9 +112,9 @@ export default function ConcertInterestForm({
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submission, setSubmission] = useState(null);
-  // set when the API answers 409 with matchedOn: these details are already
-  // on the list, so we offer to raise the ticket count instead of erroring.
-  const [duplicate, setDuplicate] = useState(null);
+  // non-null when the API answered 409: the submission was already on the
+  // list, so the confirmation card says so instead of claiming a new signup.
+  const [alreadyMessage, setAlreadyMessage] = useState(null);
   
 
   useEffect(() => {
@@ -121,7 +122,7 @@ export default function ConcertInterestForm({
       setCityId(selectedCityId || fallbackCityId);
       setErrors({});
       setSubmission(null);
-      setDuplicate(null);
+      setAlreadyMessage(null);
     }
   }, [visible, selectedCityId, fallbackCityId]);
 
@@ -141,20 +142,8 @@ export default function ConcertInterestForm({
     return Object.keys(next).length === 0;
   };
 
-  /**
-   * One submit path, reused by the "increase my tickets" confirmation.
-   *   ticketsOverride - total to send instead of the stepper value
-   *   allowEdit       - ask the server to update an existing registration
-   *                     (only honoured on a concert with allowEdit turned on
-   *                     in the dashboard)
-   *   isRetry         - suppresses a second confirmation prompt
-   */
-  const submitInterest = async ({
-    ticketsOverride,
-    allowEdit,
-    isRetry,
-  } = {}) => {
-    const ticketsToSend = ticketsOverride ?? tickets;
+  const handleSubmit = async () => {
+    if (!validate()) return;
 
     const payload = {
       name: name.trim(),
@@ -162,12 +151,11 @@ export default function ConcertInterestForm({
       countryCode: countryCode,
       phoneNumber: phone.trim(),
       cityId,
-      ticketsNeeded: ticketsToSend,
+      ticketsNeeded: tickets,
       source: 'app_concert_details',
       platform: Platform.OS,
       appVersion: appVersion,
     };
-    if (allowEdit) payload.allowEdit = true;
 
     // Local fallback for the confirmation card, used when the server does not
     // echo a summary back.
@@ -181,7 +169,9 @@ export default function ConcertInterestForm({
 
     const showSuccess = data => {
       const summary = data?.summary || {};
-      setDuplicate(null);
+      // Remember it before the sheet is dismissed: "Go to Home" pops this
+      // screen, so component state cannot carry the fact forward.
+      markConcertRegistered(concert?.id);
       setSubmission({
         ...localSummary,
         ...summary,
@@ -215,26 +205,13 @@ export default function ConcertInterestForm({
       if (!Object.keys(mapped).length) errorToast(fallbackMessage);
     };
 
-    const handleDuplicate = result => {
-      // Second 409 after the user agreed to increase: the concert does not
-      // have allowEdit on, so nothing can be changed. Show what is already
-      // registered rather than looping.
-      if (isRetry) {
-        Toast.show({
-          type: 'info',
-          text1: 'Your registration is unchanged',
-          text2:
-            'We could not update the ticket count. Your original request still stands.',
-        });
-        showSuccess(result.data);
-        return;
-      }
-      setDuplicate({
-        matchedOn: result.matchedOn,
-        message: result.message,
-        data: result.data,
-        summary: result.data?.summary || {},
-      });
+    // 409 with matchedOn: these details are already on the list. There is no
+    // edit endpoint, so we confirm what already exists and leave it at that.
+    const showAlreadyRegistered = result => {
+      setAlreadyMessage(
+        result.message || 'An interest is already registered for this concert.',
+      );
+      showSuccess(result.data);
     };
 
     if (!concert?.id) {
@@ -247,16 +224,17 @@ export default function ConcertInterestForm({
       const token = await AsyncStorage.getItem('mytoken');
       const res = await RegisterConcertInterest(concert?.id, payload, token);
       const result = classifyInterestResponse(res);
-      console.log("Response of RegisterConcertInterest api: ",res?.data);
 
       switch (result.kind) {
         case 'success':
           showSuccess(result.data);
           break;
         case 'duplicate':
-          handleDuplicate(result);
+          showAlreadyRegistered(result);
           break;
         case 'closed':
+          // paintFieldErrors already toasts when there is nothing to paint,
+          // so only add a toast when a field error took the visual slot.
           paintFieldErrors(
             result.errors,
             result.message || 'Registrations are closed.',
@@ -276,14 +254,21 @@ export default function ConcertInterestForm({
           showSuccess(result.data);
           break;
         case 'duplicate':
-          handleDuplicate(result);
+          showAlreadyRegistered(result);
           break;
         case 'fieldErrors':
           paintFieldErrors(result.errors, result.message);
           break;
         case 'closed':
-          paintFieldErrors(result.errors, result.message);
-          errorToast(result.message || 'Registrations are closed.');
+          // paintFieldErrors already toasts when there is nothing to paint,
+          // so only add a toast when a field error took the visual slot.
+          paintFieldErrors(
+            result.errors,
+            result.message || 'Registrations are closed.',
+          );
+          if (Object.keys(result.errors || {}).length) {
+            errorToast(result.message || 'Registrations are closed.');
+          }
           break;
         case 'auth':
           errorToast('Please log in again to register.');
@@ -296,48 +281,10 @@ export default function ConcertInterestForm({
     }
   };
 
-  const handleSubmit = () => {
-    if (!validate()) return;
-    submitInterest();
-  };
-
-  // "Yes, increase it" - resend with the original count plus the new request.
-  const existingTickets = Number(duplicate?.summary?.ticketsNeeded) || 0;
-  const combinedTickets = Math.min(
-    existingTickets + tickets,
-    maxTickets,
-  );
-
-  const duplicateCopy = (() => {
-    const base =
-      'Our records show an interest has already been registered for this concert';
-    switch (duplicate?.matchedOn) {
-      case 'phoneNumber':
-        return {
-          body: `${base} using this mobile number. You can increase the number of tickets you would like held for you.`,
-        };
-      case 'email':
-        return {
-          body: `${base} using this email address. You can increase the number of tickets you would like held for you.`,
-        };
-      default:
-        return {
-          body: `${base} against your account. You can increase the number of tickets you would like held for you.`,
-        };
-    }
-  })();
-
-  const handleIncrease = () =>
-    submitInterest({
-      ticketsOverride: combinedTickets,
-      allowEdit: true,
-      isRetry: true,
-    });
-
   // Once the registration has gone through, any dismissal still reports
-  // success upward so the CTA keeps its registered state. A duplicate counts
-  // too: the 409 is proof they are already on the list.
-  const dismiss = () => onClose?.(!!submission || !!duplicate);
+  // success upward so the CTA keeps its registered (disabled) state. A 409
+  // also sets `submission`, so an already-registered user counts too.
+  const dismiss = () => onClose?.(!!submission);
 
   return (
     <Modal
@@ -360,115 +307,21 @@ export default function ConcertInterestForm({
               <ConcertSuccessSheet
                 concert={concert}
                 submission={submission}
-                copy={concert?.interestForm?.successSheet}
+                copy={
+                  alreadyMessage
+                    ? {
+                        ...(concert?.interestForm?.successSheet || {}),
+                        title: 'Interest already registered',
+                        message: alreadyMessage,
+                      }
+                    : concert?.interestForm?.successSheet
+                }
                 onClose={dismiss}
                 onGoHome={() => {
                   onClose?.(true);
                   onGoHome?.();
                 }}
               />
-            ) : duplicate ? (
-              <View>
-                <View style={styles.headerRow}>
-                  <View style={{ flex: 1, paddingRight: 12 }}>
-                    <Text style={styles.heading}>
-                      Interest already registered
-                    </Text>
-                    <Text style={styles.subHeading}>
-                      {concert?.title} • {concert?.artist}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    onPress={dismiss}
-                    activeOpacity={0.8}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    style={styles.closeBtn}>
-                    <Icon name="close" size={19} color={T.text} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.divider} />
-
-                <Text style={styles.dupBody}>
-                  {duplicateCopy.body}
-                </Text>
-
-                <View style={styles.dupCard}>
-                  <View style={styles.dupRow}>
-                    <Text style={styles.dupRowLabel}>Currently registered</Text>
-                    <Text style={styles.dupRowValue}>
-                      {existingTickets}{' '}
-                      {existingTickets === 1 ? 'ticket' : 'tickets'}
-                    </Text>
-                  </View>
-                  {!!duplicate?.summary?.city && (
-                    <View style={[styles.dupRow, { marginTop: 8 }]}>
-                      <Text style={styles.dupRowLabel}>City</Text>
-                      <Text style={styles.dupRowValue}>
-                        {duplicate.summary.city}
-                      </Text>
-                    </View>
-                  )}
-                  <View style={styles.dupDivider} />
-                  <View style={styles.dupRow}>
-                    <Text style={styles.dupRowLabelStrong}>
-                      New total if you continue
-                    </Text>
-                    <Text style={styles.dupRowValueStrong}>
-                      {combinedTickets}{' '}
-                      {combinedTickets === 1 ? 'ticket' : 'tickets'}
-                    </Text>
-                  </View>
-                </View>
-
-                {combinedTickets <= existingTickets && (
-                  <Text style={styles.dupNote}>
-                    You have already requested the maximum of {maxTickets}{' '}
-                    tickets for this concert.
-                  </Text>
-                )}
-
-                <TouchableOpacity
-                  activeOpacity={0.9}
-                  disabled={submitting || combinedTickets <= existingTickets}
-                  onPress={handleIncrease}
-                  style={{ marginTop: 20, opacity: combinedTickets <= existingTickets ? 0.5 : 1 }}>
-                  <LinearGradient
-                    colors={[T.goldLight, T.gold, T.goldDark]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.submitBtn}>
-                    {submitting ? (
-                      <ActivityIndicator color="#1A1206" />
-                    ) : (
-                      <Text style={styles.submitText}>
-                        Yes, increase my request
-                      </Text>
-                    )}
-                  </LinearGradient>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  disabled={submitting}
-                  onPress={() => {
-                    setSubmission({
-                      ...(duplicate?.summary || {}),
-                      eventLabel:
-                        duplicate?.summary?.eventLabel ||
-                        [concert?.title, concert?.artist]
-                          .filter(Boolean)
-                          .join(' • '),
-                      referenceCode: duplicate?.data?.referenceCode || null,
-                    });
-                    setDuplicate(null);
-                  }}
-                  style={styles.dupSecondary}>
-                  <Text style={styles.dupSecondaryText}>
-                    Keep my current request
-                  </Text>
-                </TouchableOpacity>
-              </View>
             ) : (
               <>
             {/* ---------- header ---------- */}
@@ -926,68 +779,6 @@ const styles = StyleSheet.create({
     fontSize: 15.5,
   },
 
-  dupBody: {
-    color: T.textMuted,
-    fontFamily: 'WorkSans-Regular',
-    fontSize: 13.5,
-    lineHeight: 21,
-    marginTop: 16,
-  },
-  dupCard: {
-    backgroundColor: T.surface,
-    borderWidth: 1,
-    borderColor: T.border,
-    borderRadius: 14,
-    padding: 16,
-    marginTop: 18,
-  },
-  dupRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  dupRowLabel: {
-    color: T.textMuted,
-    fontFamily: 'WorkSans-Regular',
-    fontSize: 13,
-  },
-  dupRowValue: {
-    color: T.text,
-    fontFamily: 'WorkSans-SemiBold',
-    fontSize: 13.5,
-  },
-  dupRowLabelStrong: {
-    color: T.text,
-    fontFamily: 'WorkSans-SemiBold',
-    fontSize: 13.5,
-  },
-  dupRowValueStrong: {
-    color: T.gold,
-    fontFamily: 'WorkSans-Bold',
-    fontSize: 15,
-  },
-  dupDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: T.border,
-    marginVertical: 13,
-  },
-  dupNote: {
-    color: T.textDim,
-    fontFamily: 'WorkSans-Regular',
-    fontSize: 12,
-    marginTop: 12,
-  },
-  dupSecondary: {
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 6,
-  },
-  dupSecondaryText: {
-    color: T.textMuted,
-    fontFamily: 'WorkSans-Medium',
-    fontSize: 14,
-  },
   errorText: {
     color: '#E0736A',
     fontFamily: 'WorkSans-Regular',
