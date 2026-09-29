@@ -12,7 +12,6 @@ import {
   Dimensions,
   Image,
   Platform,
-  ScrollView,
   Share,
   StatusBar,
   StyleSheet,
@@ -30,14 +29,15 @@ import {
   useRoute,
 } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AudioWaveform from '../component/AudioWaveform';
-import ConcertInterestForm from '../component/ConcertInterestForm';
-import ShinyTag from '../component/ShinyTag';
-import { CONCERT, CONCERT_THEME as T } from '../utils/concertData';
-import { normalizeSection } from '../utils/concertAdapter';
-import { GetConcertSection } from '../Services/UserApi';
+import AudioWaveform from './components/AudioWaveform';
+import ConcertInterestForm from './components/ConcertInterestForm';
+import ConcertTicketsTab from './components/ConcertTicketsTab';
+import ShinyTag from './components/ShinyTag';
+import { CONCERT_THEME as T } from './utils/concertData';
+import { normalizeSection } from './utils/concertAdapter';
+import { GetConcertSection } from '../../Services/UserApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { hasRegisteredConcert } from '../utils/concertInterestStore';
+import { hasRegisteredConcert } from './utils/concertInterestStore';
 
 const { width, height } = Dimensions.get('window');
 const HERO_H = Math.round(height * 0.42);
@@ -113,6 +113,11 @@ export default function ConcertDetails() {
   // out the first half second of the track before jumping.
   const [seekPending, setSeekPending] = useState(resumeAt > 0);
   const [formVisible, setFormVisible] = useState(false);
+
+  // 'book' switches the sticky CTA from interest capture to ticket sales.
+  // The adapter only reports 'book' when the concert-level switch is on AND a
+  // city is actually on sale, so no extra guard is needed here.
+  const bookingMode = concert?.cta?.action === 'book';
   const [registered, setRegistered] = useState(false);
   const [appActive, setAppActive] = useState(
     AppState.currentState === 'active',
@@ -270,7 +275,7 @@ export default function ConcertDetails() {
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false },
         )}
-        contentContainerStyle={{ paddingTop: HERO_H - 40  }}>
+        contentContainerStyle={{ paddingTop: HERO_H - 30  }}>
         <View style={[styles.sheet, { minHeight: height }]}>
           <View style={styles.grabber} />
 
@@ -419,6 +424,16 @@ export default function ConcertDetails() {
         </TouchableOpacity>
       </View>
 
+      {/* ---------- tickets edge tab ---------- */}
+      {/* Tied to booking being enabled at all, NOT to bookingMode: a concert
+          that has sold out still has ticket holders who need to reach them. */}
+      {concert?.bookingEnabled ? (
+        <ConcertTicketsTab
+          scrollY={scrollY}
+          onPress={() => navigation.navigate('ConcertBookings')}
+        />
+      ) : null}
+
       {/* ---------- sticky CTA ---------- */}
       <View style={[styles.ctaBar, { paddingBottom: bottomBarPad }]}>
         <LinearGradient
@@ -427,30 +442,54 @@ export default function ConcertDetails() {
           pointerEvents="none"
         />
 
-        {/* Once registered the CTA is a status label, not a button: there is
-            no edit endpoint, so re-opening the form could only fail. */}
+        {/* In booking mode the CTA sells tickets and stays live even for a
+            user who already registered interest - the two are separate things.
+            In interest mode it becomes a status label once registered: there
+            is no edit endpoint, so re-opening the form could only fail. */}
         <TouchableOpacity
           activeOpacity={0.9}
-          disabled={registered}
-          onPress={() => setFormVisible(true)}
+          disabled={!bookingMode && registered}
+          onPress={() =>
+            bookingMode
+              ? navigation.navigate('ConcertCheckout', {
+                  concert,
+                  concertId: concert?.id,
+                  initialCityId: selectedCity?.id,
+                })
+              : setFormVisible(true)
+          }
           style={{ width: '100%' }}>
           <LinearGradient
             colors={
-              registered
+              !bookingMode && registered
                 ? [T.surfaceActive, T.surface]
                 : [T.goldLight, T.gold, T.goldDark]
             }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
-            style={[styles.ctaBtn, registered && styles.ctaBtnDone]}>
+            style={[
+              styles.ctaBtn,
+              !bookingMode && registered && styles.ctaBtnDone,
+            ]}>
             <Icon
-              name={registered ? 'checkmark-circle' : 'sparkles'}
+              name={
+                bookingMode
+                  ? 'ticket'
+                  : registered
+                  ? 'checkmark-circle'
+                  : 'sparkles'
+              }
               size={17}
-              color={registered ? T.gold : '#1A1206'}
+              color={!bookingMode && registered ? T.gold : '#1A1206'}
             />
             <Text
-              style={[styles.ctaText, registered && { color: T.gold }]}>
-              {registered
+              style={[
+                styles.ctaText,
+                !bookingMode && registered && { color: T.gold },
+              ]}>
+              {bookingMode
+                ? concert?.cta?.bookLabel || 'Book tickets'
+                : registered
                 ? concert?.cta?.registeredLabel || "You're Interested"
                 : concert?.cta?.label}
             </Text>
@@ -476,6 +515,7 @@ export default function ConcertDetails() {
           if (didSubmit) setRegistered(true);
         }}
       />
+
     </View>
   );
 }
@@ -524,7 +564,7 @@ const styles = StyleSheet.create({
 
   hero: {
     position: 'absolute',
-    top: 0,
+    top: 20,
     left: 0,
     right: 0,
     height: HERO_H,

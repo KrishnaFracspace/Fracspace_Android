@@ -26,7 +26,7 @@ const { width } = Dimensions.get('window');
 
 const CARD_W = Math.min(width * 0.4, 230);
 const CARD_H = CARD_W * 1.5;
-const TAB_BAR_HEIGHT = 70; // BottomNavi.js bar height (Android has no home-indicator inset)
+const TAB_BAR_HEIGHT = 50; // BottomNavi.js bar height
 const HIDE_OFFSET = -(CARD_W + 40);
 const SCROLL_DELTA = 6;
 
@@ -190,7 +190,7 @@ export default function ConcertVideoCard({ scrollY, concert: concertProp }) {
   if (dismissed) return null;
 
   const paused = !playing || !isFocused || !appActive;
-  const bottom = TAB_BAR_HEIGHT + insets.bottom + 8;
+  const bottom = TAB_BAR_HEIGHT + insets.bottom ;
 
   return (
     <View style={[styles.wrap, { bottom }]} pointerEvents="box-none">

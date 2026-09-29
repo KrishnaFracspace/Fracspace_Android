@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { CONCERT_THEME as T } from '../utils/concertData';
 import ConcertSuccessSheet from './ConcertSuccessSheet';
-import { AppContext } from '../Context/AppContext';
+import { AppContext } from '../../../Context/AppContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
 import { markConcertRegistered } from '../utils/concertInterestStore';
@@ -26,7 +26,7 @@ import {
   RegisterConcertInterest,
   classifyInterestResponse,
   classifyInterestError,
-} from '../Services/UserApi';
+} from '../../../Services/UserApi';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[0-9]{10}$/;
@@ -116,6 +116,17 @@ export default function ConcertInterestForm({
   // list, so the confirmation card says so instead of claiming a new signup.
   const [alreadyMessage, setAlreadyMessage] = useState(null);
   
+
+  // The only screen in the feature that was missing this: the sheet can be
+  // dismissed while the request is in flight, and every branch below sets
+  // state.
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (visible) {
@@ -223,6 +234,7 @@ export default function ConcertInterestForm({
     try {
       const token = await AsyncStorage.getItem('mytoken');
       const res = await RegisterConcertInterest(concert?.id, payload, token);
+      if (!mounted.current) return;
       const result = classifyInterestResponse(res);
 
       switch (result.kind) {
@@ -247,6 +259,7 @@ export default function ConcertInterestForm({
           errorToast(result.message);
       }
     } catch (err) {
+      if (!mounted.current) return;
       const result = classifyInterestError(err);
 
       switch (result.kind) {
@@ -277,7 +290,7 @@ export default function ConcertInterestForm({
           errorToast(result.message);
       }
     } finally {
-      setSubmitting(false);
+      if (mounted.current) setSubmitting(false);
     }
   };
 
