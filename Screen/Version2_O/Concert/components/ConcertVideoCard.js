@@ -190,7 +190,7 @@ export default function ConcertVideoCard({ scrollY, concert: concertProp }) {
   if (dismissed) return null;
 
   const paused = !playing || !isFocused || !appActive;
-  const bottom = TAB_BAR_HEIGHT + insets.bottom ;
+  const bottom = TAB_BAR_HEIGHT + insets.bottom + 40 ;
 
   return (
     <View style={[styles.wrap, { bottom }]} pointerEvents="box-none">

@@ -525,7 +525,7 @@ export default function ConcertCheckout({ route, navigation }) {
                 <Icon
                   name="wallet-outline"
                   size={17}
-                  color={useWallet && walletUsable ? '#1A1206' : T.textDim}
+                  color={useWallet && walletUsable ? '#1A1206' : "#1A1206"}
                 />
               </View>
               <View style={{ flex: 1, marginLeft: 8 }}>

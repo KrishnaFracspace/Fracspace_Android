@@ -203,7 +203,7 @@ const App = () => {
     <>
       {firstTimeUser ? (
         <Video
-          source={{uri: "https://duixj37yn5405.cloudfront.net/videos/FracspaceSplash.mp4"}}
+          source={{uri: "https://duixj37yn5405.cloudfront.net/videos/fracspace_.mp4"}}
           resizeMode='stretch'
           hideShutterView
           style={styles.backgroundVideo}
