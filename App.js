@@ -50,17 +50,36 @@ const App = () => {
     NetInfo.fetch().then(state => setIsConnected(state.isConnected));
   };
 
+  // useEffect(() => {
+  //   codePush.sync(
+  //     {
+  //       installMode: codePush.InstallMode.IMMEDIATE,
+  //       updateDialog: true,
+  //     },
+  //     (status) => {
+  //       console.log("CODEPUSH STATUS:", status);
+  //     },
+  //     (progress) => {
+  //       console.log("DOWNLOAD:", progress);
+  //     }
+  //   );
+  // }, []);
   useEffect(() => {
+    if (__DEV__) {
+      console.log('🚫 CodePush disabled in DEV mode');
+      return;
+    }
+
     codePush.sync(
       {
         installMode: codePush.InstallMode.IMMEDIATE,
         updateDialog: true,
       },
-      (status) => {
-        console.log("CODEPUSH STATUS:", status);
+      status => {
+        console.log('CODEPUSH STATUS:', status);
       },
-      (progress) => {
-        console.log("DOWNLOAD:", progress);
+      progress => {
+        console.log('DOWNLOAD:', progress);
       }
     );
   }, []);
@@ -265,5 +284,5 @@ const styles = StyleSheet.create({
 // export default App;
 
 
-export default codePush(options)(App);
-
+// export default codePush(options)(App);
+export default __DEV__ ? App : codePush(options)(App);
