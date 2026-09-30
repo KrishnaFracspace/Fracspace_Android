@@ -669,7 +669,7 @@ export default function ConcertCheckout({ route, navigation }) {
           </TouchableOpacity>
 
           {/* ---------- refunds ---------- */}
-          {options?.refundPolicy?.enabled && options.refundPolicy.rules.length ? (
+          {options?.refundPolicy?.showInApp && options.refundPolicy.rules.length ? (
             <View style={styles.refundCard}>
               <TouchableOpacity
                 activeOpacity={0.8}

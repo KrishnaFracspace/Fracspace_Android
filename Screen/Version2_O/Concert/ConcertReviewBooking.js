@@ -323,13 +323,13 @@ export default function ConcertReviewBooking({ route, navigation }) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.body}>
-        <View style={styles.holdBar}>
+        {/* <View style={styles.holdBar}>
           <Icon name="timer-outline" size={14} color={T.goldLight} />
           <Text style={styles.holdText}>
             Seats held for{' '}
             <Text style={styles.holdTime}>{formatCountdown(secondsLeft)}</Text>
           </Text>
-        </View>
+        </View> */}
 
         {/* ---------- what ---------- */}
         <View style={styles.card}>

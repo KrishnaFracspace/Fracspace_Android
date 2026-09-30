@@ -1341,9 +1341,9 @@ export default function Dashboard(props) {
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={[styles.title, { paddingBottom: 0, paddingLeft: 0 }]}>Complimentary Stay</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                          <View style={{ backgroundColor: '#759CCE', alignItems: 'center', justifyContent: 'center', height: 30, width: 30, borderRadius: 30, marginRight: 10 }}>
+                          {/* <View style={{ backgroundColor: '#759CCE', alignItems: 'center', justifyContent: 'center', height: 30, width: 30, borderRadius: 30, marginRight: 10 }}>
                             <Text style={{ color: '#ffffff', fontSize: 11, fontFamily: 'Montserrat-SemiBold' }}> {OwnedPropertyDetails?.AvailableFreeStays}/N </Text>
-                          </View>
+                          </View> */}
                           <Icon1 name="chevron-right" size={25} color="#000000" />
                         </View>
                       </View>
